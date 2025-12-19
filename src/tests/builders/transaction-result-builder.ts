@@ -26,13 +26,13 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
       TransactionType.AppCall,
       TransactionType.StateProof,
       TransactionType.Heartbeat,
-    ]
+    ] as const
     super(
       initialState
         ? initialState
         : {
             id: randomString(52, 52).toUpperCase(),
-            txType: randomElement(validTxTypes),
+            txType: randomElement([...validTxTypes]),
             lastValid: randomBigInt(),
             firstValid: randomBigInt(),
             fee: randomBigIntBetween(1_000n, 100_000n),

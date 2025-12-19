@@ -18,6 +18,7 @@ import {
   BuildApplicationCreateTransactionResult,
   BuildApplicationUpdateTransactionResult,
 } from '@/features/transaction-wizard/models'
+import { isBuildTransactionResult, isFulfilledByTransaction, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { algorandClient } from '@/features/common/data/algo-client'
@@ -109,10 +110,10 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
-        if (arg.type === BuildableTransactionType.Fulfilled || arg.type === BuildableTransactionType.Placeholder) {
-          return undefined
-        } else if (arg.type !== BuildableTransactionType.MethodCall) {
+      if (isFulfilledByTransaction(arg) || isPlaceholderTransaction(arg)) {
+        return undefined
+      } else if (isBuildTransactionResult(arg)) {
+        if (arg.type !== BuildableTransactionType.MethodCall) {
           // Other transaction types only return 1 transaction
           return (await asAlgosdkTransactions(arg))[0]
         } else {

@@ -23,7 +23,7 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import { isBuildTransactionResult, isPlaceholderTransaction, isFulfilledByTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send, SquarePlay } from 'lucide-react'
@@ -472,12 +472,7 @@ const buildRelatedTransactionsGroup = (transaction: BuildTransactionResult) => {
       (acc, arg) => {
         if (isBuildTransactionResult(arg)) {
           acc.push(...buildRelatedTransactionsGroup(arg).concat(arg))
-        }
-        if (
-          typeof arg === 'object' &&
-          'type' in arg &&
-          [BuildableTransactionType.Placeholder, BuildableTransactionType.Fulfilled].includes(arg.type)
-        ) {
+        } else if (isPlaceholderTransaction(arg) || isFulfilledByTransaction(arg)) {
           acc.push(arg)
         }
         return acc
@@ -614,7 +609,7 @@ const setTransaction = (
     }
 
     transaction.methodArgs = transaction.methodArgs.map((arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
+      if (isTransactionArg(arg)) {
         return trySet(arg)
       }
       return arg

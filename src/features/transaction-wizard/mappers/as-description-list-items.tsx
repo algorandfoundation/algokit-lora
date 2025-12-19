@@ -46,7 +46,7 @@ import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/com
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import { isBuildTransactionResult, isFulfilledByTransaction, isPlaceholderTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
@@ -301,7 +301,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
 
 const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
   return args.reduce((acc, arg) => {
-    if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.MethodCall) {
+    if (isBuildTransactionResult(arg) && arg.type === BuildableTransactionType.MethodCall) {
       return [...acc, ...flatten(arg.methodArgs), arg]
     }
     return [...acc, arg]
@@ -317,27 +317,25 @@ const asMethodArg = (
 ) => {
   const arg = args[argIndex]
   if (argTypeIsTransaction(argumentDefinition.type)) {
-    invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
+    invariant(isTransactionArg(arg), 'Transaction type args must be a transaction')
 
-    const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
-    const resolvedArg =
-      arg.id !== argId
-        ? flatten(args)
-            .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
-            .find((a) => a.id === argId)
-        : arg
+    const argId = isFulfilledByTransaction(arg) ? arg.fulfilledById : arg.id
+    const transactionArgs = flatten(args).filter(
+      (a): a is BuildTransactionResult | PlaceholderTransaction => isBuildTransactionResult(a) || isPlaceholderTransaction(a)
+    )
+    const resolvedArg = arg.id !== argId ? transactionArgs.find((a) => a.id === argId) : arg
     const argPosition = transactionPositions.get(argId)
 
     // Transaction type args are shown in the table
     return (
       <div className="float-left flex items-center gap-1.5">
         <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
-        {resolvedArg && resolvedArg.type !== BuildableTransactionType.Fulfilled && (
+        {resolvedArg && !isFulfilledByTransaction(resolvedArg) && (
           <Button
             className="text-primary size-4 p-0"
             variant="no-style"
             onClick={() => onEditTransaction(resolvedArg)}
-            {...(resolvedArg.type === BuildableTransactionType.Placeholder
+            {...(isPlaceholderTransaction(resolvedArg)
               ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
               : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
           />
@@ -350,17 +348,17 @@ const asMethodArg = (
   }
   if (argTypeIsReference(argumentDefinition.type)) {
     if (argumentDefinition.type === ABIReferenceType.Account) {
-      return <AddressOrNfdLink address={arg.toString()} />
+      return <AddressOrNfdLink address={String(arg)} />
     }
     if (argumentDefinition.type === ABIReferenceType.Asset) {
-      const assetId = BigInt(arg.toString())
+      const assetId = BigInt(String(arg))
       return <AssetIdLink assetId={assetId} />
     }
     if (argumentDefinition.type === ABIReferenceType.Application) {
-      const applicationId = BigInt(arg.toString())
+      const applicationId = BigInt(String(arg))
       return <ApplicationLink applicationId={applicationId} />
     }
-    return arg.toString()
+    return String(arg)
   }
   if (argumentDefinition.struct) {
     const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as ABIValue)
