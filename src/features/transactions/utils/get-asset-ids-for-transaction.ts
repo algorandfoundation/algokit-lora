@@ -20,7 +20,7 @@ export const getAssetIdsForTransaction = (transaction: TransactionResult): Asset
   }
   if (transaction.txType === TransactionType.AssetConfig) {
     invariant(transaction.assetConfigTransaction, 'asset-config-transaction is not set')
-    const assetId = transaction.assetConfigTransaction.assetId ? transaction.assetConfigTransaction.assetId : transaction.createdAssetIndex
+    const assetId = transaction.assetConfigTransaction.assetId ? transaction.assetConfigTransaction.assetId : transaction.createdAssetId
 
     invariant(assetId != null, 'asset-id is not set')
     return [assetId]

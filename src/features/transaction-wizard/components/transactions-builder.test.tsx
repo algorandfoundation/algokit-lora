@@ -558,7 +558,7 @@ describe('patchTransactions', () => {
             {
               id: '010a9dc9-2958-4aeb-a23c-bd01fb56d99e',
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.any,
+              targetType: ABITransactionType.Txn,
             },
             {
               id: idToReplace,
@@ -641,7 +641,7 @@ describe('patchTransactions', () => {
           {
             id: '71eb7038-d021-4b38-a7a5-42713f100398',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.any,
+            targetType: ABITransactionType.Txn,
           },
         ],
       } satisfies BuildMethodCallTransactionResult

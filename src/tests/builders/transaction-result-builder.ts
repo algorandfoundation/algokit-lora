@@ -1,6 +1,6 @@
 import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@makerx/ts-dossier'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
-import {
+import type {
   TransactionSignature,
   TransactionPayment,
   TransactionAssetTransfer,
@@ -8,7 +8,7 @@ import {
   TransactionHeartbeat,
   HbProofFields,
 } from '@algorandfoundation/algokit-utils/indexer-client'
-import { base64ToBytes } from '@algorandfoundation/algokit-utils'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { randomBigInt, randomBigIntBetween } from '@/tests/utils/random-bigint'
 import { AssetResult } from '@/features/assets/data/types'
@@ -17,51 +17,61 @@ import { utf8ToUint8Array } from '@/utils/utf8-to-uint8-array'
 export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   constructor(initialState?: TransactionResult) {
     const now = new Date()
+    const validTxTypes = [
+      TransactionType.Payment,
+      TransactionType.KeyRegistration,
+      TransactionType.AssetConfig,
+      TransactionType.AssetTransfer,
+      TransactionType.AssetFreeze,
+      TransactionType.AppCall,
+      TransactionType.StateProof,
+      TransactionType.Heartbeat,
+    ]
     super(
       initialState
         ? initialState
         : {
             id: randomString(52, 52).toUpperCase(),
-            txType: randomElement(Object.values(TransactionType)),
+            txType: randomElement(validTxTypes),
             lastValid: randomBigInt(),
             firstValid: randomBigInt(),
             fee: randomBigIntBetween(1_000n, 100_000n),
             sender: randomString(52, 52),
             confirmedRound: randomBigInt(),
             roundTime: Math.floor(randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000),
-            signature: new TransactionSignature({
+            signature: {
               sig: utf8ToUint8Array(randomString(88, 88)),
-            }),
+            } satisfies TransactionSignature,
           }
     )
   }
 
   public paymentTransaction() {
     this.thing.txType = TransactionType.Payment
-    this.thing.paymentTransaction = new TransactionPayment({
+    this.thing.paymentTransaction = {
       amount: randomBigIntBetween(10_000n, 23_6070_000n),
       receiver: randomString(52, 52),
-    })
+    } satisfies TransactionPayment
     return this
   }
 
   public transferTransaction(asset: AssetResult) {
     this.thing.txType = TransactionType.AssetTransfer
-    this.thing.assetTransferTransaction = new TransactionAssetTransfer({
+    this.thing.assetTransferTransaction = {
       amount: randomBigIntBetween(10_000n, 23_6070_000n),
-      assetId: asset.index,
+      assetId: asset.id,
       closeAmount: 0n,
       receiver: randomString(52, 52),
-    })
+    } satisfies TransactionAssetTransfer
     return this
   }
 
   public appCallTransaction() {
     this.thing.txType = TransactionType.AppCall
-    this.thing.applicationTransaction = new TransactionApplication({
+    this.thing.applicationTransaction = {
       applicationId: randomBigInt(),
       onCompletion: 'noop',
-    })
+    } satisfies TransactionApplication
     return this
   }
 
@@ -74,13 +84,13 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
 
   public heartbeatTransaction() {
     this.thing.txType = TransactionType.Heartbeat
-    this.thing.heartbeatTransaction = new TransactionHeartbeat({
+    this.thing.heartbeatTransaction = {
       hbAddress: randomString(52, 52),
       hbKeyDilution: randomBigIntBetween(1000n, 10000n),
-      hbProof: new HbProofFields({}),
+      hbProof: {} as HbProofFields,
       hbSeed: base64ToBytes(randomString(52, 52)),
       hbVoteId: base64ToBytes(randomString(52, 52)),
-    })
+    } satisfies TransactionHeartbeat
     return this
   }
 }

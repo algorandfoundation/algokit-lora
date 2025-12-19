@@ -2,7 +2,7 @@ import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
 import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
 import { Address } from '@algorandfoundation/algokit-utils'
-import { base64ToBytes } from '@algorandfoundation/algokit-utils'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 const encoder = new TextEncoder()
 
@@ -15,14 +15,14 @@ export const accountResultMother = {
       appsLocalState: [
         {
           id: 1209868169n,
-          schema: { numByteSlice: 1, numUint: 0 },
+          schema: { numByteSlices: 1, numUints: 0 },
         },
         {
           id: 1210178396n,
-          schema: { numByteSlice: 1, numUint: 0 },
+          schema: { numByteSlices: 1, numUints: 0 },
         },
       ],
-      appsTotalSchema: { numByteSlice: 2, numUint: 0 },
+      appsTotalSchema: { numByteSlices: 2, numUints: 0 },
       assets: [
         { amount: 2002560000n, assetId: 924268058n, isFrozen: false },
         { amount: 0n, assetId: 1010208883n, isFrozen: false },
@@ -52,15 +52,15 @@ export const accountResultMother = {
           id: 1284326447n,
           keyValue: [],
           schema: {
-            numByteSlice: 0,
-            numUint: 1,
+            numByteSlices: 0,
+            numUints: 1,
           },
         },
       ],
       appsTotalExtraPages: 3,
       appsTotalSchema: {
-        numByteSlice: 38,
-        numUint: 66,
+        numByteSlices: 38,
+        numUints: 66,
       },
       assets: [
         { amount: 1n, assetId: 1162292622n, isFrozen: true },
@@ -81,12 +81,12 @@ export const accountResultMother = {
             creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -100,12 +100,12 @@ export const accountResultMother = {
             creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -119,12 +119,12 @@ export const accountResultMother = {
             creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -139,19 +139,19 @@ export const accountResultMother = {
             extraProgramPages: 3,
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 32,
-              numUint: 32,
+              numByteSlices: 32,
+              numUints: 32,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
           },
         },
       ],
       createdAssets: [
         {
-          index: 1336655079n,
+          id: 1336655079n,
           params: {
             creator: 'ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA',
             decimals: 0,
@@ -188,64 +188,64 @@ export const accountResultMother = {
         {
           id: 811554792n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811555774n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811556459n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811563899n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811564745n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811565811n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 812246978n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 829144306n,
           keyValue: [],
           schema: {
-            numByteSlice: 0,
-            numUint: 1,
+            numByteSlices: 0,
+            numUints: 1,
           },
         },
       ],
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 1,
+        numByteSlices: 0,
+        numUints: 1,
       },
       assets: [],
       authAddr: Address.fromString('K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E'),
@@ -269,8 +269,8 @@ export const accountResultMother = {
       amount: 273116395038n,
       amountWithoutPendingRewards: 273116395038n,
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 0,
+        numByteSlices: 0,
+        numUints: 0,
       },
       authAddr: Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
       minBalance: 98439400000n,
@@ -292,8 +292,8 @@ export const accountResultMother = {
       amountWithoutPendingRewards: 1915706350n,
       appsLocalState: [],
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 0,
+        numByteSlices: 0,
+        numUints: 0,
       },
       assets: [],
       createdApps: [],

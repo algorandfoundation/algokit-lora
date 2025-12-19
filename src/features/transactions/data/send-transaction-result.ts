@@ -87,7 +87,7 @@ const assetSummaryResolver = (assetId: AssetId) =>
       return asAssetSummary(assetResult)
     } catch {
       return asAssetSummary({
-        index: assetId,
+        id: assetId,
         params: {
           creator: '',
           decimals: 0,

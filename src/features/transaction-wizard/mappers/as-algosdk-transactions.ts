@@ -427,6 +427,6 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
     case BuildableTransactionType.KeyRegistration:
       return ABITransactionType.KeyRegistration
     default:
-      return ABITransactionType.any
+      return ABITransactionType.Txn
   }
 }

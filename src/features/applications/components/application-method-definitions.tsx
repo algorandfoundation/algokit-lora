@@ -1,5 +1,5 @@
 import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { TransactionType as UtilsTransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
@@ -19,7 +19,7 @@ import {
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { SimulateResult, TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
-import { AppCallTransaction } from '@/features/transactions/models'
+import { AppCallTransaction, TransactionType } from '@/features/transactions/models'
 import { Parentheses } from 'lucide-react'
 import { buildComposer } from '@/features/transaction-wizard/data/common'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
@@ -62,7 +62,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={props.data?.transactionType as unknown as TransactionType}
+        transactionType={props.data?.transactionType as unknown as UtilsTransactionType}
         type={BuildableTransactionType.MethodCall}
         defaultValues={props.data?.transaction}
         onCancel={props.onCancel}

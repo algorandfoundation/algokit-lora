@@ -1,7 +1,7 @@
 import { ApplicationResultBuilder, applicationResultBuilder } from '../builders/application-result-builder'
 import { Address } from '@algorandfoundation/algokit-utils'
-import { base64ToBytes } from '@algorandfoundation/algokit-utils'
-import { TealKeyValue, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
+import type { TealKeyValue, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
 
 export const applicationResultMother = {
   basic: () => {
@@ -33,8 +33,8 @@ export const applicationResultMother = {
           toTealKeyValue({ key: 'UHJpY2U=', value: { bytes: '', type: 2, uint: 1000000 } }),
           toTealKeyValue({ key: 'Um91bmRFbmQ=', value: { bytes: '', type: 2, uint: 1607905675 } }),
         ],
-        globalStateSchema: { numByteSlice: 3, numUint: 12 },
-        localStateSchema: { numByteSlice: 0, numUint: 2 },
+        globalStateSchema: { numByteSlices: 3, numUints: 12 },
+        localStateSchema: { numByteSlices: 0, numUints: 2 },
       },
     })
   },
@@ -74,12 +74,12 @@ export const applicationResultMother = {
           }),
         ],
         globalStateSchema: {
-          numByteSlice: 2,
-          numUint: 1,
+          numByteSlices: 2,
+          numUints: 1,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 1,
+          numByteSlices: 0,
+          numUints: 1,
         },
       },
     })
@@ -92,12 +92,12 @@ export const applicationResultMother = {
         clearStateProgram: base64ToBytes('CoEBQw=='),
         creator: Address.fromString('25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'),
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
       },
     })
@@ -131,12 +131,12 @@ export const applicationResultMother = {
           }),
         ],
         globalStateSchema: {
-          numByteSlice: 37,
-          numUint: 1,
+          numByteSlices: 37,
+          numUints: 1,
         },
         localStateSchema: {
-          numByteSlice: 13,
-          numUint: 1,
+          numByteSlices: 13,
+          numUints: 1,
         },
       },
     })
@@ -162,12 +162,12 @@ export const applicationResultMother = {
           }),
         ],
         globalStateSchema: {
-          numByteSlice: 37,
-          numUint: 0,
+          numByteSlices: 37,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 13,
-          numUint: 0,
+          numByteSlices: 13,
+          numUints: 0,
         },
       },
     })
@@ -216,17 +216,19 @@ export const applicationResultMother = {
           }),
         ],
         globalStateSchema: {
-          numByteSlice: 3,
-          numUint: 1,
+          numByteSlices: 3,
+          numUints: 1,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
       },
     })
   },
 }
 
-const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>
-  new TealKeyValue({ key, value: new TealValue(value) })
+const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }): TealKeyValue => ({
+  key,
+  value: { type: value.type, uint: BigInt(value.uint), bytes: base64ToBytes(value.bytes) } satisfies TealValue,
+})

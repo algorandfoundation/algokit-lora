@@ -526,7 +526,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -587,7 +587,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -613,7 +613,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -639,7 +639,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -677,7 +677,7 @@ describe('transaction-page', () => {
         assetResultsAtom,
         new Map([
           [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
+          [asset.id, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -778,7 +778,7 @@ describe('transaction-page', () => {
         assetResultsAtom,
         new Map([
           [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -908,7 +908,7 @@ describe('transaction-page', () => {
         assetResultsAtom,
         new Map([
           [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
 
@@ -945,7 +945,7 @@ describe('transaction-page', () => {
         assetResultsAtom,
         new Map([
           [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
+          [asset.id, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
 
@@ -1102,7 +1102,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {

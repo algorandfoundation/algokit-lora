@@ -1,5 +1,5 @@
 import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
-import { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
+import type { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
@@ -165,12 +165,12 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
-        execTraceConfig: new SimulateTraceConfig({
+        execTraceConfig: {
           enable: true,
           scratchChange: true,
           stackChange: true,
           stateChange: true,
-        }),
+        } satisfies SimulateTraceConfig,
       } satisfies SimulateOptions
 
       const result = await (requireSignaturesOnSimulate
@@ -527,8 +527,8 @@ export const patchTransactions = (
 
             if (
               previousRelatedTransactionType === argType ||
-              previousRelatedTransactionType === ABITransactionType.any ||
-              argType === ABITransactionType.any
+              previousRelatedTransactionType === ABITransactionType.Txn ||
+              argType === ABITransactionType.Txn
             ) {
               replacements.push([
                 previousRelatedTransaction.id,
@@ -542,7 +542,7 @@ export const patchTransactions = (
 
               if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
-              } else if (argType === ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
+              } else if (argType === ABITransactionType.Txn && arg.type === BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
               }
             } else {

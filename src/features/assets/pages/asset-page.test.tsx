@@ -134,13 +134,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
@@ -227,13 +225,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreidt263gwlss4t5kdg6tekxhlxsedb42l5ntvt5mzbv5jywzrzk2ku', () => {
@@ -336,13 +332,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
 
       return executeComponentTest(
@@ -430,13 +424,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi', () => {
@@ -523,13 +515,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreihwm3mg4t4bgdvsf6j4epr4v7qwmuhbk6dv3qt3kmtmmm7uagrji4', () => {
@@ -648,13 +638,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj', () => {
@@ -788,17 +776,15 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [
-              createAssetTransactionResult as IndexerTransaction,
-              reconfigureAssetTransactionResult as IndexerTransaction,
-              destroyAssetTransactionResult as IndexerTransaction,
-            ],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [
+            createAssetTransactionResult as IndexerTransaction,
+            reconfigureAssetTransactionResult as IndexerTransaction,
+            destroyAssetTransactionResult as IndexerTransaction,
+          ],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
 
       return executeComponentTest(
@@ -885,13 +871,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
@@ -952,13 +936,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
       server.use(
         http.head('https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd', () => {
@@ -1029,13 +1011,11 @@ describe('asset-page', () => {
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
-        Promise.resolve(
-          new TransactionsResponse({
-            transactions: [transactionResult as IndexerTransaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
+        Promise.resolve({
+          transactions: [transactionResult as IndexerTransaction],
+          nextToken: undefined,
+          currentRound: 1n,
+        } satisfies TransactionsResponse)
       )
 
       server.use(

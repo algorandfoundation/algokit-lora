@@ -15,7 +15,8 @@ import {
 } from '../models'
 import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
-import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/algod-client'
+import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
+import { TealKeyValueStore as AlgodTealKeyValueStore } from '@algorandfoundation/algokit-utils/algod-client'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
@@ -24,7 +25,7 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { ABIMethod, ABIStructType, ABIType, Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/abi'
+import { ABIMethod, ABIStructType, ABIType, Arc56Contract, DefaultValueSource, isAVMType, StructField } from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -61,8 +62,8 @@ export const asApplication = (
           numUint: application.params.localStateSchema.numUints,
         }
       : undefined,
-    approvalProgram: uint8ArrayToBase64(application.params.approvalProgram),
-    clearStateProgram: uint8ArrayToBase64(application.params.clearStateProgram),
+    approvalProgram: application.params.approvalProgram ? uint8ArrayToBase64(application.params.approvalProgram) : '',
+    clearStateProgram: application.params.clearStateProgram ? uint8ArrayToBase64(application.params.clearStateProgram) : '',
     globalState: asGlobalStateValues(application.params.globalState, appSpec),
     isDeleted: application.deleted ?? false,
     json: asJson(normaliseAlgoSdkData(application)),
@@ -87,13 +88,14 @@ export const asGlobalStateValues = (
     })
 }
 
-const asRawApplicationStateKey = (key: Uint8Array): string => {
-  const buffer = Buffer.from(key)
+const asRawApplicationStateKey = (key: string): string => {
+  const bytes = base64ToBytes(key)
+  const buffer = Buffer.from(bytes)
 
   if (isUtf8(buffer)) {
     return buffer.toString()
   } else {
-    return uint8ArrayToBase64(key)
+    return key
   }
 }
 
@@ -123,8 +125,7 @@ const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
 }
 
 const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
-  const { key: keyBytes, value } = state
-  const key = uint8ArrayToBase64(keyBytes)
+  const { key, value } = state
 
   if (!appSpec) {
     return getRawApplicationState(state)
@@ -198,12 +199,18 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
   return getRawApplicationState(state)
 }
 
-export const asLocalStateValues = (localState: TealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
+export const asLocalStateValues = (localState: TealKeyValueStore | AlgodTealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
   if (!localState) {
     return []
   }
 
-  return localState
+  // Convert algod format (Uint8Array key) to indexer format (string key) if needed
+  const normalizedState: TealKeyValueStore = localState.map((state) => ({
+    key: typeof state.key === 'string' ? state.key : uint8ArrayToBase64(state.key),
+    value: state.value,
+  }))
+
+  return normalizedState
     .map((state) => asApplicationState(state, 'local', appSpec))
     .sort((a, b) => {
       const aKey = typeof a.key === 'string' ? a.key : a.key.name
@@ -241,9 +248,15 @@ export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
     const abiMethods = appSpec.methods.map((method) => {
       return new ABIMethod({
         name: method.name,
-        desc: method.desc,
-        args: method.args,
-        returns: method.returns,
+        description: method.desc,
+        args: method.args.map((arg) => ({
+          ...arg,
+          type: ABIType.from(arg.type),
+        })),
+        returns: {
+          ...method.returns,
+          type: method.returns.type === 'void' ? 'void' : ABIType.from(method.returns.type),
+        },
       })
     })
 
@@ -355,9 +368,22 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
   return arc56AppSpec.methods.map((method) => {
     const abiMethod = new ABIMethod({
       name: method.name,
-      desc: method.desc,
-      args: method.args,
-      returns: method.returns,
+      description: method.desc,
+      args: method.args.map(({ defaultValue, ...arg }) => ({
+        ...arg,
+        type: ABIType.from(arg.type),
+        defaultValue: defaultValue
+          ? {
+              data: defaultValue.data,
+              source: defaultValue.source as DefaultValueSource,
+              type: defaultValue.type ? (isAVMType(defaultValue.type) ? defaultValue.type : ABIType.from(defaultValue.type)) : undefined,
+            }
+          : undefined,
+      })),
+      returns: {
+        ...method.returns,
+        type: method.returns.type === 'void' ? 'void' : ABIType.from(method.returns.type),
+      },
     })
 
     const methodArgs = method.args.map((arg, i) => {

@@ -45,7 +45,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         type: TransactionType.AssetConfig,
         to: transactionResult.assetConfigTransaction.assetId
           ? transactionResult.assetConfigTransaction.assetId
-          : transactionResult.createdAssetIndex,
+          : transactionResult.createdAssetId,
       }
     }
     case UtilsTransactionType.AssetFreeze: {

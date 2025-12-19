@@ -161,7 +161,7 @@ describe('block-page', () => {
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
-        myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+        myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1n)
 
         return executeComponentTest(
