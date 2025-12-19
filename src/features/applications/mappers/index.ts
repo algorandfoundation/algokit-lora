@@ -13,7 +13,7 @@ import {
   DecodedBoxDescriptor,
   RawBoxDescriptor,
 } from '../models'
-import algosdk, { encodeAddress, getApplicationAddress } from 'algosdk'
+import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils/common'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/algod-client'
 import isUtf8 from 'isutf8'
@@ -24,7 +24,7 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { ABIStructType, ABIType, Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/abi'
+import { ABIMethod, ABIStructType, ABIType, Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -239,7 +239,7 @@ export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
   }
   if (isArc4AppSpec(appSpec)) {
     const abiMethods = appSpec.methods.map((method) => {
-      return new algosdk.ABIMethod({
+      return new ABIMethod({
         name: method.name,
         desc: method.desc,
         args: method.args,
@@ -316,7 +316,7 @@ export const asStructDefinition = (structName: string, structs: Record<string, S
         type: getStructFieldType(structField.type),
       }))
     }
-    return algosdk.ABIType.from(structFieldType)
+    return ABIType.from(structFieldType)
   }
 
   invariant(structs[structName], 'Struct not found')
@@ -353,7 +353,7 @@ const asOnApplicationComplete = (
 export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
   const arc56AppSpec = asArc56AppSpec(appSpec)
   return arc56AppSpec.methods.map((method) => {
-    const abiMethod = new algosdk.ABIMethod({
+    const abiMethod = new ABIMethod({
       name: method.name,
       desc: method.desc,
       args: method.args,

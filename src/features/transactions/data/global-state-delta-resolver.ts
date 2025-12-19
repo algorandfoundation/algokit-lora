@@ -1,14 +1,14 @@
 import { TransactionResult } from '@/features/transactions/data/types'
 import { atom, Atom } from 'jotai'
 import { GlobalStateDelta } from '../models'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { createAppSpecAtom } from '@/features/applications/data/application-method-definitions'
 import { asArc56AppSpec } from '@/features/applications/mappers'
 import { asGlobalStateDelta } from '../mappers/state-delta-mappers'
 
 export const globalStateDeltaResolver = (transaction: TransactionResult): Atom<Promise<GlobalStateDelta[]>> => {
   return atom(async (get) => {
-    if (transaction.txType !== AlgoSdkTransactionType.appl || !transaction.applicationTransaction?.applicationId) {
+    if (transaction.txType !== TransactionType.ApplicationCall || !transaction.applicationTransaction?.applicationId) {
       return []
     }
 

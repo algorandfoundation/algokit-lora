@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import {
   BuildTransactionResult,
   BuildAppCallTransactionResult,
@@ -407,26 +407,26 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
   switch (type) {
     case BuildableTransactionType.Payment:
     case BuildableTransactionType.AccountClose:
-      return algosdk.ABITransactionType.pay
+      return ABITransactionType.pay
     case BuildableTransactionType.AppCall:
     case BuildableTransactionType.MethodCall:
     case BuildableTransactionType.ApplicationCreate:
     case BuildableTransactionType.ApplicationUpdate:
-      return algosdk.ABITransactionType.appl
+      return ABITransactionType.appl
     case BuildableTransactionType.AssetOptIn:
     case BuildableTransactionType.AssetOptOut:
     case BuildableTransactionType.AssetTransfer:
     case BuildableTransactionType.AssetClawback:
-      return algosdk.ABITransactionType.axfer
+      return ABITransactionType.axfer
     case BuildableTransactionType.AssetCreate:
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
-      return algosdk.ABITransactionType.acfg
+      return ABITransactionType.acfg
     case BuildableTransactionType.AssetFreeze:
-      return algosdk.ABITransactionType.afrz
+      return ABITransactionType.afrz
     case BuildableTransactionType.KeyRegistration:
-      return algosdk.ABITransactionType.keyreg
+      return ABITransactionType.keyreg
     default:
-      return algosdk.ABITransactionType.any
+      return ABITransactionType.any
   }
 }

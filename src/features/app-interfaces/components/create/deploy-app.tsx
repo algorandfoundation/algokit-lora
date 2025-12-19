@@ -9,7 +9,7 @@ import {
 } from '@/features/transaction-wizard/models'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
@@ -106,7 +106,7 @@ export function DeployApp({ machine }: Props) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={algosdk.TransactionType.appl}
+        transactionType={TransactionType.ApplicationCall}
         type={props.data.type}
         defaultValues={props.data.transaction}
         onCancel={props.onCancel}

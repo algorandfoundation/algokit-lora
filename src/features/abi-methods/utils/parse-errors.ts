@@ -5,7 +5,7 @@ import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransa
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
-import algosdk from 'algosdk'
+import type { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 
 type URLTokenBaseHTTPError = {
   name: 'URLTokenBaseHTTPError'
@@ -15,7 +15,7 @@ type URLTokenBaseHTTPError = {
 }
 
 type SimulateError = Error & {
-  simulateResponse: algosdk.modelsv2.SimulateResponse
+  simulateResponse: SimulateResponse
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

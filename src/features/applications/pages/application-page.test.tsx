@@ -34,7 +34,7 @@ import {
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
-import algosdk, { modelsv2, indexerModels } from 'algosdk'
+import { TransactionsResponse, Transaction as IndexerTransaction } from '@algorandfoundation/algokit-utils/indexer-client'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
@@ -161,7 +161,7 @@ describe('application-page', () => {
         )
       )
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
+        Promise.resolve(new TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
     })
 
@@ -378,9 +378,9 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new TransactionsResponse({
             currentRound: 123n,
-            transactions: [transactionResult] as algosdk.indexerModels.Transaction[],
+            transactions: [transactionResult] as IndexerTransaction[],
             nextToken: '',
           })
         )
@@ -458,7 +458,7 @@ describe('application-page', () => {
       )
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new TransactionsResponse({
             currentRound: 123n,
             transactions: [],
             nextToken: '',
@@ -506,7 +506,7 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new TransactionsResponse({
             currentRound: 123n,
             transactions: [],
             nextToken: '',
@@ -593,7 +593,7 @@ describe('application-page', () => {
         )
         vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
           Promise.resolve(
-            new algosdk.indexerModels.TransactionsResponse({
+            new TransactionsResponse({
               currentRound: 123n,
               transactions: [],
               nextToken: '',
@@ -670,7 +670,7 @@ describe('application-page', () => {
         )
         vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
           Promise.resolve(
-            new algosdk.indexerModels.TransactionsResponse({
+            new TransactionsResponse({
               currentRound: 123n,
               transactions: [],
               nextToken: '',

@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import { ABIReferenceType, ABITransactionType, ABIValue, argTypeIsReference, argTypeIsTransaction } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
@@ -316,7 +316,7 @@ const asMethodArg = (
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   const arg = args[argIndex]
-  if (algosdk.abiTypeIsTransaction(argumentDefinition.type)) {
+  if (argTypeIsTransaction(argumentDefinition.type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
 
     const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
@@ -348,26 +348,26 @@ const asMethodArg = (
   if (arg === undefined) {
     return 'Not set'
   }
-  if (algosdk.abiTypeIsReference(argumentDefinition.type)) {
-    if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
+  if (argTypeIsReference(argumentDefinition.type)) {
+    if (argumentDefinition.type === ABIReferenceType.account) {
       return <AddressOrNfdLink address={arg.toString()} />
     }
-    if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
+    if (argumentDefinition.type === ABIReferenceType.asset) {
       const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
-    if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
+    if (argumentDefinition.type === ABIReferenceType.application) {
       const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
   }
   if (argumentDefinition.struct) {
-    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as algosdk.ABIValue)
+    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as ABIValue)
     return <DecodedAbiStruct struct={structModel} />
   }
 
-  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
+  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as ABIValue)
   return <DecodedAbiValue abiValue={abiValue} />
 }
 
@@ -640,19 +640,19 @@ export const asOnCompleteLabel = (onComplete: OnApplicationComplete) => {
   }
 }
 
-export const asTransactionLabelFromTransactionType = (type: algosdk.ABITransactionType) => {
+export const asTransactionLabelFromTransactionType = (type: ABITransactionType) => {
   switch (type) {
-    case algosdk.ABITransactionType.pay:
+    case ABITransactionType.pay:
       return BuildableTransactionType.Payment
-    case algosdk.ABITransactionType.appl:
+    case ABITransactionType.appl:
       return TransactionType.AppCall
-    case algosdk.ABITransactionType.axfer:
+    case ABITransactionType.axfer:
       return TransactionType.AssetFreeze
-    case algosdk.ABITransactionType.acfg:
+    case ABITransactionType.acfg:
       return TransactionType.AssetConfig
-    case algosdk.ABITransactionType.afrz:
+    case ABITransactionType.afrz:
       return TransactionType.AssetFreeze
-    case algosdk.ABITransactionType.keyreg:
+    case ABITransactionType.keyreg:
       return TransactionType.KeyReg
     default:
       return 'Transaction'

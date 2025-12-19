@@ -1,5 +1,5 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
@@ -165,7 +165,7 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
-    const isAssetConfigTransaction = t.txType === TransactionType.acfg
+    const isAssetConfigTransaction = t.txType === TransactionType.AssetConfig
     const isDestroyTransaction = t.assetConfigTransaction?.params === undefined
     return isAssetConfigTransaction && !isDestroyTransaction
   })

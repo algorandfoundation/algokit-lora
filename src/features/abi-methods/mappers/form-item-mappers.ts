@@ -1,26 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import algosdk from 'algosdk'
+import {
+  ABIAddressType,
+  ABIArrayDynamicType,
+  ABIArrayStaticType,
+  ABIBoolType,
+  ABIByteType,
+  ABIReferenceType,
+  ABIStringType,
+  ABITupleType,
+  ABIType,
+  ABIUfixedType,
+  ABIUintType,
+  AVMType,
+} from '@algorandfoundation/algokit-utils/abi'
 import { FieldPath, Path } from 'react-hook-form'
 import { StructFieldDefinition } from '@/features/applications/models'
-import { AVMType } from '@algorandfoundation/algokit-utils/abi'
 
 const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
 
 export const abiTypeToFormItem = (
   formFieldHelper: FormFieldHelper<any>,
-  type: algosdk.ABIType,
+  type: ABIType,
   path: FieldPath<any>,
   structFields?: StructFieldDefinition[],
   options?: { prefix?: string; description?: string }
 ): React.JSX.Element | undefined => {
-  if (type instanceof algosdk.ABIUintType || type instanceof algosdk.ABIByteType) {
+  if (type instanceof ABIUintType || type instanceof ABIByteType) {
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
     })
   }
-  if (type instanceof algosdk.ABIBoolType) {
+  if (type instanceof ABIBoolType) {
     return formFieldHelper.selectField({
       label: 'Value',
       field: `${path}` as Path<any>,
@@ -36,7 +48,7 @@ export const abiTypeToFormItem = (
       ],
     })
   }
-  if (type instanceof algosdk.ABIUfixedType) {
+  if (type instanceof ABIUfixedType) {
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
@@ -45,8 +57,8 @@ export const abiTypeToFormItem = (
     })
   }
   if (
-    (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
-    (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
+    (type instanceof ABIArrayStaticType && type.childType instanceof ABIByteType) ||
+    (type instanceof ABIArrayDynamicType && type.childType instanceof ABIByteType)
   ) {
     return formFieldHelper.textField({
       label: 'Value',
@@ -54,7 +66,7 @@ export const abiTypeToFormItem = (
       helpText: 'A base64 encoded bytes value',
     })
   }
-  if (type instanceof algosdk.ABIArrayStaticType) {
+  if (type instanceof ABIArrayStaticType) {
     const prefix = options?.prefix ?? 'Item'
     return formFieldHelper.abiStaticArrayField({
       field: `${path}` as Path<any>,
@@ -67,14 +79,14 @@ export const abiTypeToFormItem = (
         }),
     })
   }
-  if (type instanceof algosdk.ABIAddressType) {
+  if (type instanceof ABIAddressType) {
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
       helpText: 'An Algorand address string',
     })
   }
-  if (type instanceof algosdk.ABIArrayDynamicType) {
+  if (type instanceof ABIArrayDynamicType) {
     const prefix = options?.prefix ?? 'Item'
     return formFieldHelper.abiDynamicArrayField({
       field: `${path}` as Path<any>,
@@ -92,13 +104,13 @@ export const abiTypeToFormItem = (
         ),
     })
   }
-  if (type instanceof algosdk.ABIStringType) {
+  if (type instanceof ABIStringType) {
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<any>,
     })
   }
-  if (type instanceof algosdk.ABITupleType) {
+  if (type instanceof ABITupleType) {
     const prefix = options?.prefix ?? 'Item'
     return formFieldHelper.abiTupleField({
       field: `${path}` as Path<any>,
@@ -121,14 +133,14 @@ export const abiTypeToFormItem = (
   return undefined
 }
 
-export const abiReferenceTypeToFormItem = (formFieldHelper: FormFieldHelper<any>, type: algosdk.ABIReferenceType, path: FieldPath<any>) => {
-  if (type === algosdk.ABIReferenceType.asset || type === algosdk.ABIReferenceType.application) {
+export const abiReferenceTypeToFormItem = (formFieldHelper: FormFieldHelper<any>, type: ABIReferenceType, path: FieldPath<any>) => {
+  if (type === ABIReferenceType.asset || type === ABIReferenceType.application) {
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
     })
   }
-  if (type === algosdk.ABIReferenceType.account) {
+  if (type === ABIReferenceType.account) {
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,

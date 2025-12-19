@@ -1,9 +1,9 @@
-import algosdk from 'algosdk'
+import type { Asset as IndexerAsset, AssetParams as IndexerAssetParams } from '@algorandfoundation/algokit-utils/indexer-client'
 
 export type AssetId = bigint
 
-export type AssetResult = Omit<algosdk.indexerModels.Asset, 'getEncodingSchema' | 'toEncodingData' | 'params'> & {
-  params: Omit<algosdk.indexerModels.AssetParams, 'getEncodingSchema' | 'toEncodingData'>
+export type AssetResult = Omit<IndexerAsset, 'params'> & {
+  params: IndexerAssetParams
 }
 
 type Arc16MetadataProperties = {

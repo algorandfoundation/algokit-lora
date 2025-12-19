@@ -6,7 +6,7 @@ import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round, SubscriberState, SubscriberStatus, SubscriberStoppedDetails, SubscriberStoppedReason } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
@@ -115,7 +115,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(transaction)
-              .filter((t) => t.txType === algosdk.TransactionType.acfg)
+              .filter((t) => t.txType === TransactionType.AssetConfig)
               .map((t) => t.assetConfigTransaction!.assetId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
@@ -154,7 +154,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(transaction)
-              .filter((t) => t.txType === algosdk.TransactionType.appl)
+              .filter((t) => t.txType === TransactionType.ApplicationCall)
               .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore application create transactions because they aren't in the atom
@@ -337,7 +337,7 @@ export const useSubscribeToBlocksEffect = () => {
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
-  if (txn.txType !== algosdk.TransactionType.appl) {
+  if (txn.txType !== TransactionType.ApplicationCall) {
     return false
   }
   const appCallTransaction = txn.applicationTransaction!

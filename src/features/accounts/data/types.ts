@@ -1,25 +1,21 @@
 import { ApplicationResult, ApplicationStateSchema } from '@/features/applications/data/types'
 import { AssetResult } from '@/features/assets/data/types'
 import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
-import algosdk from 'algosdk'
+import type {
+  Account as IndexerAccount,
+  ApplicationLocalState as IndexerApplicationLocalState,
+  AssetHolding as IndexerAssetHolding,
+} from '@algorandfoundation/algokit-utils/indexer-client'
 
 export type Address = string
 
-export type AppLocalState = Omit<
-  algosdk.indexerModels.ApplicationLocalState,
-  'getEncodingSchema' | 'toEncodingData' | 'closedOutAtRound' | 'deleted' | 'optedInAtRound' | 'schema'
-> & {
+export type AppLocalState = Omit<IndexerApplicationLocalState, 'closedOutAtRound' | 'deleted' | 'optedInAtRound' | 'schema'> & {
   schema: ApplicationStateSchema
 }
-export type AssetHoldingResult = Omit<
-  algosdk.indexerModels.AssetHolding,
-  'getEncodingSchema' | 'toEncodingData' | 'deleted' | 'optedInAtRound' | 'optedOutAtRound'
->
+export type AssetHoldingResult = Omit<IndexerAssetHolding, 'deleted' | 'optedInAtRound' | 'optedOutAtRound'>
 
 export type AccountResult = Omit<
-  algosdk.indexerModels.Account,
-  | 'getEncodingSchema'
-  | 'toEncodingData'
+  IndexerAccount,
   | 'closedAtRound'
   | 'createdAtRound'
   | 'deleted'

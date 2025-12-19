@@ -1,4 +1,5 @@
-import algosdk from 'algosdk'
+import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
@@ -55,13 +56,13 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
+        { transactionType: ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
         BuildTransactionResult
       >
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={props.data?.transactionType as unknown as algosdk.TransactionType}
+        transactionType={props.data?.transactionType as unknown as TransactionType}
         type={BuildableTransactionType.MethodCall}
         defaultValues={props.data?.transaction}
         onCancel={props.onCancel}
@@ -72,7 +73,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
 
   const openDialog = useCallback(async () => {
     const transaction = await open({
-      transactionType: algosdk.ABITransactionType.appl,
+      transactionType: ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
         methodDefinition: method,

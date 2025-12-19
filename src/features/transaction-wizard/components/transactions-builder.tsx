@@ -1,4 +1,6 @@
-import algosdk from 'algosdk'
+import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
+import { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
@@ -91,7 +93,7 @@ export function TransactionsBuilder({
     dialogBody: (
       props: DialogBodyProps<
         {
-          type?: algosdk.TransactionType
+          type?: TransactionType
           mode: TransactionBuilderMode
           transaction?: BuildTransactionResult
           defaultValues?: Partial<BuildTransactionResult>
@@ -163,7 +165,7 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
-        execTraceConfig: new algosdk.modelsv2.SimulateTraceConfig({
+        execTraceConfig: new SimulateTraceConfig({
           enable: true,
           scratchChange: true,
           stackChange: true,
@@ -525,8 +527,8 @@ export const patchTransactions = (
 
             if (
               previousRelatedTransactionType === argType ||
-              previousRelatedTransactionType === algosdk.ABITransactionType.any ||
-              argType === algosdk.ABITransactionType.any
+              previousRelatedTransactionType === ABITransactionType.any ||
+              argType === ABITransactionType.any
             ) {
               replacements.push([
                 previousRelatedTransaction.id,
@@ -540,7 +542,7 @@ export const patchTransactions = (
 
               if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
-              } else if (argType === algosdk.ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
+              } else if (argType === ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
               }
             } else {

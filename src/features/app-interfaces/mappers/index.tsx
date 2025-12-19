@@ -24,7 +24,6 @@ import {
   asAvmFormItemValue,
 } from '@/features/abi-methods/mappers'
 import { ABIType, ABIValue, Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/abi'
-import algosdk from 'algosdk'
 import { StructDefinition } from '@/features/applications/models'
 import { TealUnknownTypeTemplateParamFieldValue, TealTemplateParamField } from '@/features/app-interfaces/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -174,30 +173,27 @@ export const asTealTemplateParamField = ({
     }
   }
 
-  // Convert algokit-utils ABIType to algosdk ABIType for form functions
-  const algosdkType = algosdk.ABIType.from(type.toString())
-
   return {
     name: name,
     path: asTealTemplateParamFieldPath(name),
     struct: struct,
     type: type,
-    fieldSchema: abiTypeToFormFieldSchema(algosdkType, false),
+    fieldSchema: abiTypeToFormFieldSchema(type, false),
     createField: (helper: FormFieldHelper<any>) => {
       return (
         <>
           <Label>{name}</Label>
-          {abiTypeToFormItem(helper, algosdkType, asTealTemplateParamFieldPath(name) as FieldPath<any>, struct?.fields)}
+          {abiTypeToFormItem(helper, type, asTealTemplateParamFieldPath(name) as FieldPath<any>, struct?.fields)}
         </>
       )
     },
     toTemplateParam: (value: AbiFormItemValue): ABITypeTemplateParam => ({
       name: name,
       abiType: type,
-      value: abiFormItemValueToABIValue(algosdkType, value) as ABIValue,
+      value: abiFormItemValueToABIValue(type, value) as ABIValue,
     }),
     fromTemplateParam: (templateParam: ABITypeTemplateParam): AbiFormItemValue =>
-      asAbiFormItemValue(algosdk.ABIType.from(templateParam.abiType.toString()), templateParam.value as algosdk.ABIValue),
+      asAbiFormItemValue(ABIType.from(templateParam.abiType.toString()), templateParam.value as ABIValue),
     defaultValue: defaultValue as AbiFormItemValue,
   }
 }

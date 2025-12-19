@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
-import algosdk from 'algosdk'
+import { Algodv2 } from '@algorandfoundation/algokit-utils/algod-client'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -116,7 +116,7 @@ describe('when rendering the layout page', () => {
               },
             ] as unknown as Wallet[],
             activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
-            algodClient: {} as unknown as algosdk.Algodv2,
+            algodClient: {} as unknown as Algodv2,
             activeNetwork: NetworkId.LOCALNET,
             setActiveNetwork: vi.fn(),
             setAlgodClient: vi.fn(),

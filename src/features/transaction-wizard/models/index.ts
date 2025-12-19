@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
-import algosdk from 'algosdk'
+import { ABIMethod, ABIReferenceType, ABITransactionType, ABIType, ABIValue } from '@algorandfoundation/algokit-utils/abi'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition, ArgumentDefinition, StructDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -41,22 +41,22 @@ export enum BuildableTransactionType {
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
-  abiMethod: algosdk.ABIMethod
+  abiMethod: ABIMethod
   arguments: (ArgumentField | TransactionArgumentField)[]
   schema: Record<string, z.ZodType<any>>
 }
 
 export type ArgumentField = Omit<ArgumentDefinition, 'type'> & {
-  type: algosdk.ABIType | algosdk.ABIReferenceType
+  type: ABIType | ABIReferenceType
   structs?: StructDefinition
   path: string
   fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-  getAppCallArg: (arg?: AbiFormItemValue) => algosdk.ABIValue | undefined
+  getAppCallArg: (arg?: AbiFormItemValue) => ABIValue | undefined
 }
 
 export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
-  type: algosdk.ABITransactionType
+  type: ABITransactionType
   path: string
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
 }
@@ -146,7 +146,7 @@ export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResu
   args: string[]
 }
 
-export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction | undefined
+export type MethodCallArg = ABIValue | BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction | undefined
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -271,13 +271,13 @@ export type BuildKeyRegistrationTransactionResult = CommonBuildTransactionResult
 export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
-  targetType: algosdk.ABITransactionType
+  targetType: ABITransactionType
 }
 
 export type FulfilledByTransaction = {
   id: string
   type: BuildableTransactionType.Fulfilled
-  targetType: algosdk.ABITransactionType
+  targetType: ABITransactionType
   fulfilledById: string
 }
 

@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import { ABIAddressType, ABIReferenceType, ABIValue, argTypeIsTransaction } from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
@@ -177,9 +177,9 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.methodDefinition.arguments[index]
-          const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
-          if (!algosdk.abiTypeIsTransaction(type)) {
-            acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
+          const field = `${methodArgPrefix}-${index}${type instanceof ABIAddressType || type === ABIReferenceType.account ? '.value' : ''}`
+          if (!argTypeIsTransaction(type)) {
+            acc[field] = asFieldInput(type, arg as ABIValue)
           } else {
             acc[field] = arg
           }
@@ -321,7 +321,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
             dt: 'Type',
             dd: arg.struct ? (
               <StructDefinition struct={arg.struct} />
-            ) : algosdk.abiTypeIsTransaction(arg.type) ? (
+            ) : argTypeIsTransaction(arg.type) ? (
               <div className="flex items-center gap-1.5">
                 <span>{arg.type.toString()}</span>
                 <Tooltip>

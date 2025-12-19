@@ -1,5 +1,7 @@
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
-import algosdk, { TransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { Address } from '@algorandfoundation/algokit-utils/common'
+import { TransactionHeartbeat, HbProofFields } from '@algorandfoundation/algokit-utils/indexer-client'
 import { AssetResult } from '@/features/assets/data/types'
 import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
@@ -77,10 +79,10 @@ export const transactionResultMother = {
       genesisId: 'mainnet-v1.0',
       intraRoundOffset: 26,
       lastValid: 34676052n,
-      heartbeatTransaction: new algosdk.indexerModels.TransactionHeartbeat({
+      heartbeatTransaction: new TransactionHeartbeat({
         hbAddress: '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
         hbKeyDilution: 1001n,
-        hbProof: new algosdk.indexerModels.HbProofFields({
+        hbProof: new HbProofFields({
           hbPk: base64ToBytes('6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM='),
           hbPk1sig: base64ToBytes('IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag=='),
           hbPk2: base64ToBytes('EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0='),
@@ -107,10 +109,10 @@ export const transactionResultMother = {
       firstValid: 34675052n,
       genesisHash: base64ToBytes('x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8='),
       genesisId: 'dockernet-v1',
-      heartbeatTransaction: new algosdk.indexerModels.TransactionHeartbeat({
+      heartbeatTransaction: new TransactionHeartbeat({
         hbAddress: '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
         hbKeyDilution: 1001n,
-        hbProof: new algosdk.indexerModels.HbProofFields({
+        hbProof: new HbProofFields({
           hbPk: base64ToBytes('6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM='),
           hbPk1sig: base64ToBytes('IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag=='),
           hbPk2: base64ToBytes('EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0='),
@@ -205,7 +207,7 @@ export const transactionResultMother = {
         closeAmount: 0n,
         receiver: 'OCD5PQECXPYOVTLWVS3FHIODQX5FOV4QNNVMU22BSVDMP2FAJD52OV4IFA',
       },
-      authAddr: algosdk.Address.fromString('P5F3CASEUYS5MBY56CZCKZM4EMJRG5MTYXIGVK6EHEB6FXRYMLE5VCTSUU'),
+      authAddr: Address.fromString('P5F3CASEUYS5MBY56CZCKZM4EMJRG5MTYXIGVK6EHEB6FXRYMLE5VCTSUU'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37351572n,
@@ -296,7 +298,7 @@ export const transactionResultMother = {
         closeAmount: 0n,
         receiver: 'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54',
       },
-      authAddr: algosdk.Address.fromString('7R7I3FN4ACXN2CEU5WPDZJZR475OYQP43QESNXA3NDC4SUQZZSI5OGCVME'),
+      authAddr: Address.fromString('7R7I3FN4ACXN2CEU5WPDZJZR475OYQP43QESNXA3NDC4SUQZZSI5OGCVME'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38008738n,
@@ -375,7 +377,7 @@ export const transactionResultMother = {
         },
         onCompletion: ApplicationOnComplete.noop,
       },
-      authAddr: algosdk.Address.fromString('7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE'),
+      authAddr: Address.fromString('7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 36591812n,
@@ -501,9 +503,9 @@ export const transactionResultMother = {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4'),
-          algosdk.Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM'),
-          algosdk.Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM'),
+          Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4'),
+          Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM'),
+          Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM'),
         ],
         applicationArgs: [
           base64ToBytes('AAAAAAAqRH0='),
@@ -555,7 +557,7 @@ export const transactionResultMother = {
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM')],
+            accounts: [Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
@@ -647,7 +649,7 @@ export const transactionResultMother = {
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/4',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM')],
+            accounts: [Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
@@ -742,7 +744,7 @@ export const transactionResultMother = {
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/6',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4')],
+            accounts: [Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
@@ -896,7 +898,7 @@ export const transactionResultMother = {
           lastValid: 36591814n,
           paymentTransaction: { amount: 0n, closeAmount: 0n, receiver: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A' },
           receiverRewards: 0n,
-          rekeyTo: algosdk.Address.fromString('AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A'),
+          rekeyTo: Address.fromString('AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A'),
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
@@ -908,7 +910,7 @@ export const transactionResultMother = {
       lease: base64ToBytes('Gvgsil8YwDJH4I9KsGqx4t0GkPqJxFpLldBGIq1klAI='),
       note: base64ToBytes('AAHOu8yhPy8SoRmmHsKmDSPsAL5Cap8uJ47IkmHXVYavS26egWoIW7hGSsWoByA='),
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('GEAW6VVQY2QPYKEI6HAHAH3MNQNMXYOVKYVVI3B7X72CPW74HRVYXWGITU'),
+      rekeyTo: Address.fromString('GEAW6VVQY2QPYKEI6HAHAH3MNQNMXYOVKYVVI3B7X72CPW74HRVYXWGITU'),
       roundTime: 1709251673,
       sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
       senderRewards: 0n,
@@ -962,7 +964,7 @@ export const transactionResultMother = {
           urlB64: base64ToBytes('aHR0cHM6Ly9hc3NldHMuZGF0YWhpc3Rvcnkub3JnL3F1YWtlL3VzNjAwMG10NDAucG5nI2k='),
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38185488n,
@@ -1001,7 +1003,7 @@ export const transactionResultMother = {
           total: 0n,
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37544845n,
@@ -1033,7 +1035,7 @@ export const transactionResultMother = {
         assetId: 1707148495n,
         newFreezeStatus: true,
       },
-      authAddr: algosdk.Address.fromString('FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4'),
+      authAddr: Address.fromString('FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37463564n,
@@ -1218,7 +1220,7 @@ export const transactionResultMother = {
           total: 0n,
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38394154n,
@@ -1495,7 +1497,7 @@ export const transactionResultMother = {
         receiver: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
       },
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA'),
+      rekeyTo: Address.fromString('QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA'),
       roundTime: 1678206268,
       sender: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
       senderRewards: 0n,
@@ -1508,7 +1510,7 @@ export const transactionResultMother = {
   ['mainnet-WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA']: () => {
     return new TransactionResultBuilder({
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
+        accounts: [Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
         applicationArgs: [
           base64ToBytes('VSe9RA=='),
           base64ToBytes('AAAAAAAAjKA='),
@@ -1718,7 +1720,7 @@ export const transactionResultMother = {
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/5',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
+            accounts: [Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAKnVg=')],
             applicationId: 1002541853n,
             foreignApps: [],
@@ -2539,8 +2541,8 @@ export const transactionResultMother = {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY'),
-          algosdk.Address.fromString('Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ'),
+          Address.fromString('PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY'),
+          Address.fromString('Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ'),
         ],
         applicationArgs: [base64ToBytes('Y2xhaW0=')],
         applicationId: 1800533232n,
@@ -2556,7 +2558,7 @@ export const transactionResultMother = {
         },
         onCompletion: 'noop',
       },
-      authAddr: algosdk.Address.fromString('U2K3RL6UYTHHKNP2GUR7PZPVQ723IV3RMPEVVV42J2KEUIS5SC4OCWF65A'),
+      authAddr: Address.fromString('U2K3RL6UYTHHKNP2GUR7PZPVQ723IV3RMPEVVV42J2KEUIS5SC4OCWF65A'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 39373576n,
@@ -2649,9 +2651,9 @@ export const transactionResultMother = {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
-          algosdk.Address.fromString('H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4'),
-          algosdk.Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
+          Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
+          Address.fromString('H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4'),
+          Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
         ],
         applicationArgs: [],
         applicationId: 1898586902n,
@@ -2736,8 +2738,8 @@ export const transactionResultMother = {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('SVES5Z76ZYNFVKN4IMF3HYGDQAYF7DWMPPSSDZQEKAR2566WSA44FNPGIA'),
-          algosdk.Address.fromString('4CLIOL4MHNBVOBNCD6JOBRFDQZV4XZSWMDCTIXI74VQP6BLEP3VAX6ROSM'),
+          Address.fromString('SVES5Z76ZYNFVKN4IMF3HYGDQAYF7DWMPPSSDZQEKAR2566WSA44FNPGIA'),
+          Address.fromString('4CLIOL4MHNBVOBNCD6JOBRFDQZV4XZSWMDCTIXI74VQP6BLEP3VAX6ROSM'),
         ],
         applicationArgs: [
           base64ToBytes('PaC6xg=='),
@@ -2760,7 +2762,7 @@ export const transactionResultMother = {
         },
         onCompletion: 'noop',
       },
-      authAddr: algosdk.Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
+      authAddr: Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 40212728n,
@@ -3964,8 +3966,8 @@ export const transactionResultMother = {
       applicationTransaction: {
         applicationId: 3049909772n,
         accounts: [
-          algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
-          algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
         ],
         applicationArgs: [base64ToBytes('3NM24w=='), base64ToBytes('AAAAAAL4B0I='), base64ToBytes('AAAAAAAAAAg=')],
         foreignAssets: [31566704n, 465865291n],
@@ -4038,7 +4040,7 @@ export const transactionResultMother = {
             receiver: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           },
           receiverRewards: 0n,
-          rekeyTo: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          rekeyTo: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
@@ -4117,7 +4119,7 @@ export const transactionResultMother = {
   ['mainnet-CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA']: () => {
     return new TransactionResultBuilder({
       id: 'CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4148,7 +4150,7 @@ export const transactionResultMother = {
   ['mainnet-3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A']: () => {
     return new TransactionResultBuilder({
       id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4419,7 +4421,7 @@ export const transactionResultMother = {
   ['mainnet-S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ']: () => {
     return new TransactionResultBuilder({
       id: 'S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4436,7 +4438,7 @@ export const transactionResultMother = {
         receiver: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
       },
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q'),
+      rekeyTo: Address.fromString('SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q'),
       roundTime: 1749837470,
       sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
       senderRewards: 0n,
@@ -4461,7 +4463,7 @@ export const transactionResultMother = {
       lastValid: 50844674n,
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjMwMjA2OTAzNjM2MjU4MzUz'),
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
+        accounts: [Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
         applicationArgs: [
           base64ToBytes('EzRH8w=='),
           base64ToBytes('AAAAAAAAAAE='),
@@ -4595,7 +4597,7 @@ export const transactionResultMother = {
       lastValid: 50844674n,
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjA3MTQ0NTUxMTc3NjUzODAy'),
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
+        accounts: [Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
         applicationArgs: [
           base64ToBytes('EzRH8w=='),
           base64ToBytes('AAAAAAAAAAE='),
@@ -4730,8 +4732,8 @@ export const transactionResultMother = {
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjk0MzA3ODg1NzEzODE1OQ=='),
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE'),
-          algosdk.Address.fromString('FJ2DSKGDEH66SDEHABYM35JMMDDVLMJFFYD5K6S2U7IIWKICMCGNIAWJ5Y'),
+          Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE'),
+          Address.fromString('FJ2DSKGDEH66SDEHABYM35JMMDDVLMJFFYD5K6S2U7IIWKICMCGNIAWJ5Y'),
         ],
         applicationArgs: [
           base64ToBytes('yJDcIA=='),
@@ -5235,7 +5237,7 @@ export const transactionResultMother = {
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('2QNWN7TIRBW6VCT2OEBUEPI4UJWVTTC2GHCQOKB3G5B6DFGMEHLLDQQULM')],
+            accounts: [Address.fromString('2QNWN7TIRBW6VCT2OEBUEPI4UJWVTTC2GHCQOKB3G5B6DFGMEHLLDQQULM')],
             applicationArgs: [
               base64ToBytes('lU59cg=='),
               base64ToBytes('AAAAAAAAAAA='),

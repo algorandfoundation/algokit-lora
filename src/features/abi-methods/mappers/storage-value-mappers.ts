@@ -1,8 +1,7 @@
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
-import algosdk from 'algosdk'
+import { ABIType, ABIValue, Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asAbiOrAvmType } from '.'
 import { DecodedAbiStorageValue } from '../models'
 import { asDecodedAvmValue } from './avm-value'
@@ -21,10 +20,8 @@ export const asDecodedAbiStorageValue = (appSpec: Arc56Contract, type: string, b
     } satisfies DecodedAbiStorageValue
   }
 
-  // Convert algokit-utils ABIType to algosdk ABIType for decoder functions
-  // The decoder uses instanceof checks which require algosdk types
-  const algosdkType = algosdk.ABIType.from(valueType.toString())
-  const decodedValue = valueType.decode(bytes) as algosdk.ABIValue
+  const abiType = ABIType.from(valueType.toString())
+  const decodedValue = valueType.decode(bytes) as ABIValue
 
   if (structDefinition) {
     return {
@@ -36,6 +33,6 @@ export const asDecodedAbiStorageValue = (appSpec: Arc56Contract, type: string, b
 
   return {
     abiType: valueType,
-    value: asDecodedAbiValue(algosdkType, decodedValue),
+    value: asDecodedAbiValue(abiType, decodedValue),
   } satisfies DecodedAbiStorageValue
 }

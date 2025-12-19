@@ -2,7 +2,7 @@ import { ApplicationId } from '../data/types'
 import { useCallback } from 'react'
 import { LiveTransactionsTable } from '@/features/transactions/components/live-transactions-table'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
 import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
@@ -17,7 +17,7 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     (transactionResult: TransactionResult) => {
       const flattenedTransactionResults = flattenTransactionResult(transactionResult)
       return flattenedTransactionResults.some(
-        (txn) => txn.txType === AlgoSdkTransactionType.appl && txn.applicationTransaction?.applicationId === applicationId
+        (txn) => txn.txType === TransactionType.ApplicationCall && txn.applicationTransaction?.applicationId === applicationId
       )
     },
     [applicationId]

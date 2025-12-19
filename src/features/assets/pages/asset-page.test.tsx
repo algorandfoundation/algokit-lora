@@ -36,7 +36,7 @@ import { algod, indexer } from '@/features/common/data/algo-client'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
-import algosdk from 'algosdk'
+import { TransactionsResponse, Transaction as IndexerTransaction } from '@algorandfoundation/algokit-utils/indexer-client'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 
@@ -135,8 +135,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -228,8 +228,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -337,8 +337,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -431,8 +431,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -524,8 +524,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -649,8 +649,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -789,11 +789,11 @@ describe('asset-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new TransactionsResponse({
             transactions: [
-              createAssetTransactionResult as algosdk.indexerModels.Transaction,
-              reconfigureAssetTransactionResult as algosdk.indexerModels.Transaction,
-              destroyAssetTransactionResult as algosdk.indexerModels.Transaction,
+              createAssetTransactionResult as IndexerTransaction,
+              reconfigureAssetTransactionResult as IndexerTransaction,
+              destroyAssetTransactionResult as IndexerTransaction,
             ],
             nextToken: undefined,
             currentRound: 1,
@@ -886,8 +886,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -953,8 +953,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })
@@ -1030,8 +1030,8 @@ describe('asset-page', () => {
         searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+          new TransactionsResponse({
+            transactions: [transactionResult as IndexerTransaction],
             nextToken: undefined,
             currentRound: 1,
           })

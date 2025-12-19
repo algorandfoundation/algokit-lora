@@ -1,10 +1,10 @@
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { TransactionResult } from '../data/types'
 
 export const flattenTransactionResult = (transactionResult: TransactionResult): TransactionResult[] => {
   const results = [transactionResult]
 
-  if (transactionResult.txType !== algosdk.TransactionType.appl) {
+  if (transactionResult.txType !== TransactionType.ApplicationCall) {
     return results
   }
 

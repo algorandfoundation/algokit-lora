@@ -1,4 +1,4 @@
-import { encodeAddress } from 'algosdk'
+import { encodeAddress } from '@algorandfoundation/algokit-utils/common'
 import isUtf8 from 'isutf8'
 import {
   DecodedGlobalStateDelta,

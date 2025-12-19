@@ -1,14 +1,30 @@
 import { Expand } from '@/utils/expand'
-import algosdk from 'algosdk'
+import type {
+  Transaction as IndexerTransaction,
+  EvalDeltaKeyValue as IndexerEvalDeltaKeyValue,
+  AccountStateDelta as IndexerAccountStateDelta,
+  EvalDelta as IndexerEvalDelta,
+  TransactionSignature as IndexerTransactionSignature,
+  TransactionSignatureMultisig as IndexerTransactionSignatureMultisig,
+  TransactionSignatureMultisigSubsignature as IndexerTransactionSignatureMultisigSubsignature,
+  TransactionSignatureLogicsig as IndexerTransactionSignatureLogicsig,
+  TransactionKeyreg as IndexerTransactionKeyreg,
+  TransactionHeartbeat as IndexerTransactionHeartbeat,
+  TransactionPayment as IndexerTransactionPayment,
+  TransactionAssetTransfer as IndexerTransactionAssetTransfer,
+  TransactionApplication as IndexerTransactionApplication,
+  TransactionAssetConfig as IndexerTransactionAssetConfig,
+  TransactionAssetFreeze as IndexerTransactionAssetFreeze,
+  StateSchema as IndexerStateSchema,
+  AssetParams as IndexerAssetParams,
+} from '@algorandfoundation/algokit-utils/indexer-client'
 
 export type TransactionId = string
 
 export type TransactionResult = Expand<
   Omit<
-    algosdk.indexerModels.Transaction,
+    IndexerTransaction,
     | 'id'
-    | 'getEncodingSchema'
-    | 'toEncodingData'
     | 'signature'
     | 'paymentTransaction'
     | 'assetTransferTransaction'
@@ -36,49 +52,40 @@ export type TransactionResult = Expand<
   }
 >
 
-export type EvalDeltaKeyValue = Omit<algosdk.indexerModels.EvalDeltaKeyValue, 'getEncodingSchema' | 'toEncodingData' | 'value'> & {
+export type EvalDeltaKeyValue = Omit<IndexerEvalDeltaKeyValue, 'value'> & {
   value: EvalDelta
 }
 
-export type AccountStateDelta = Omit<algosdk.indexerModels.AccountStateDelta, 'getEncodingSchema' | 'toEncodingData' | 'delta'> & {
+export type AccountStateDelta = Omit<IndexerAccountStateDelta, 'delta'> & {
   delta: EvalDeltaKeyValue[]
 }
 
-export type EvalDelta = Omit<algosdk.indexerModels.EvalDelta, 'getEncodingSchema' | 'toEncodingData'>
+export type EvalDelta = IndexerEvalDelta
 
-export type TransactionSignature = Omit<
-  algosdk.indexerModels.TransactionSignature,
-  'getEncodingSchema' | 'toEncodingData' | 'multisig' | 'logicsig'
-> & {
-  multisig?: Omit<algosdk.indexerModels.TransactionSignatureMultisig, 'getEncodingSchema' | 'toEncodingData' | 'subsignature'> & {
-    subsignature?: Omit<algosdk.indexerModels.TransactionSignatureMultisigSubsignature, 'getEncodingSchema' | 'toEncodingData'>[]
+export type TransactionSignature = Omit<IndexerTransactionSignature, 'multisig' | 'logicsig'> & {
+  multisig?: Omit<IndexerTransactionSignatureMultisig, 'subsignature'> & {
+    subsignature?: IndexerTransactionSignatureMultisigSubsignature[]
   }
-  logicsig?: Omit<algosdk.indexerModels.TransactionSignatureLogicsig, 'getEncodingSchema' | 'toEncodingData'>
+  logicsig?: IndexerTransactionSignatureLogicsig
 }
 
-export type TransactionKeyreg = Omit<algosdk.indexerModels.TransactionKeyreg, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionKeyreg = IndexerTransactionKeyreg
 
-export type TransactionHeartbeat = Omit<algosdk.indexerModels.TransactionHeartbeat, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionHeartbeat = IndexerTransactionHeartbeat
 
-export type TransactionPayment = Omit<algosdk.indexerModels.TransactionPayment, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionPayment = IndexerTransactionPayment
 
-export type TransactionAssetTransfer = Omit<algosdk.indexerModels.TransactionAssetTransfer, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionAssetTransfer = IndexerTransactionAssetTransfer
 
-export type TransactionApplication = Omit<
-  algosdk.indexerModels.TransactionApplication,
-  'getEncodingSchema' | 'toEncodingData' | 'globalStateSchema' | 'localStateSchema' | 'applicationId'
-> & {
+export type TransactionApplication = Omit<IndexerTransactionApplication, 'globalStateSchema' | 'localStateSchema' | 'applicationId'> & {
   // algod returns undefined for application-id when creating an application
   applicationId?: bigint
-  globalStateSchema?: Omit<algosdk.indexerModels.StateSchema, 'getEncodingSchema' | 'toEncodingData'>
-  localStateSchema?: Omit<algosdk.indexerModels.StateSchema, 'getEncodingSchema' | 'toEncodingData'>
+  globalStateSchema?: IndexerStateSchema
+  localStateSchema?: IndexerStateSchema
 }
 
-export type TransactionAssetConfig = Omit<
-  algosdk.indexerModels.TransactionAssetConfig,
-  'getEncodingSchema' | 'toEncodingData' | 'params'
-> & {
-  params?: Omit<algosdk.indexerModels.AssetParams, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionAssetConfig = Omit<IndexerTransactionAssetConfig, 'params'> & {
+  params?: IndexerAssetParams
 }
 
-export type TransactionAssetFreeze = Omit<algosdk.indexerModels.TransactionAssetFreeze, 'getEncodingSchema' | 'toEncodingData'>
+export type TransactionAssetFreeze = IndexerTransactionAssetFreeze
