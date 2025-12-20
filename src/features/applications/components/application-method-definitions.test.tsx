@@ -594,11 +594,10 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                TransactionPayment {
+                {
                   "amount": 600000n,
                   "closeAmount": 0n,
-                  "closeRemainderTo": undefined,
-                  "receiver": "${testAccount2.addr.toString()}",
+                  "receiver": "MQMCTZV5BHA5Z3QU7GOIUDZCTCJZDQACPLWZURGLJGX3YBY5PE6RMC24RE",
                 }
               `)
 
@@ -716,11 +715,10 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                TransactionPayment {
+                {
                   "amount": 500000n,
                   "closeAmount": 0n,
-                  "closeRemainderTo": undefined,
-                  "receiver": "${testAccount2.addr.toString()}",
+                  "receiver": "KZF3PX4NYJLJH3UO3565UNP7DK2WTZHOSV2AGKDGSL3LMHTUTLTYPZOMLM",
                 }
               `)
 

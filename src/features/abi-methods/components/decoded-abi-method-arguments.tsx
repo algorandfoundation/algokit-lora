@@ -20,15 +20,17 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
         </TransactionLink>
       )
     } else if (argument.type === DecodedAbiType.Address) {
+      const addressStr = typeof argument.value === 'string' ? argument.value : argument.value.toString()
       return (
-        <AddressOrNfdLink className="text-primary underline" address={argument.value}>
-          {argument.value}
+        <AddressOrNfdLink className="text-primary underline" address={addressStr}>
+          {addressStr}
         </AddressOrNfdLink>
       )
     } else if (argument.type === DecodedAbiType.Account) {
+      const addressStr = typeof argument.value === 'string' ? argument.value : argument.value.toString()
       return (
-        <AddressOrNfdLink className="text-primary underline" address={argument.value}>
-          {argument.value}
+        <AddressOrNfdLink className="text-primary underline" address={addressStr}>
+          {addressStr}
         </AddressOrNfdLink>
       )
     } else if (argument.type === DecodedAbiType.Application) {

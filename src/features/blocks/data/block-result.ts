@@ -32,6 +32,7 @@ export const getBlockAndExtractData = async (round: Round) => {
   return [
     {
       ...block,
+      proposer: block.proposer?.toString(),
       timestamp: block.timestamp,
       transactionIds,
       txnCounter: block.txnCounter !== undefined ? BigInt(block.txnCounter) : undefined,

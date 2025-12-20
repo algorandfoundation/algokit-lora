@@ -49,13 +49,16 @@ import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/ind
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { searchTransactionsMock } from '@/tests/setup/mocks'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { AccountApplicationResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { JotaiStore } from '@/features/common/data/types'
 import { NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
+
+const { searchForTransactionsMock } = vi.hoisted(() => ({
+  searchForTransactionsMock: vi.fn(),
+}))
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -68,7 +71,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
     indexer: {
       lookupApplicationById: vi.fn().mockResolvedValue({}),
       searchForApplicationBoxes: vi.fn().mockResolvedValue({}),
-      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+      searchForTransactions: searchForTransactionsMock,
     },
   }
 })
@@ -144,9 +147,7 @@ describe('application-page', () => {
           nextToken: 'b64:AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
         } satisfies BoxesResponse)
       )
-      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
-      )
+      searchForTransactionsMock.mockResolvedValue({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
     })
 
     it('should be rendered with the correct data', () => {
@@ -360,13 +361,11 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve({
-          currentRound: 123n,
-          transactions: [transactionResult] as IndexerTransaction[],
-          nextToken: '',
-        } satisfies TransactionsResponse)
-      )
+      searchForTransactionsMock.mockResolvedValue({
+        currentRound: 123n,
+        transactions: [transactionResult] as IndexerTransaction[],
+        nextToken: '',
+      } satisfies TransactionsResponse)
 
       return executeComponentTest(
         () => {
@@ -416,9 +415,7 @@ describe('application-page', () => {
           nextToken: 'b64:AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
         } satisfies BoxesResponse)
       )
-      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
-      )
+      searchForTransactionsMock.mockResolvedValue({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
 
       return executeComponentTest(
         () => {
@@ -458,9 +455,7 @@ describe('application-page', () => {
     it('should be rendered with the correct data', async () => {
       const applicationResult = applicationResultMother['testnet-718348254']().build()
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
-      )
+      searchForTransactionsMock.mockResolvedValue({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
 
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
@@ -533,9 +528,7 @@ describe('application-page', () => {
             nextToken: 'b64:cAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAD',
           } satisfies BoxesResponse)
         )
-        vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
-        )
+        searchForTransactionsMock.mockResolvedValue({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
 
         const myStore = createStore()
         myStore.set(genesisHashAtom, 'some-hash')
@@ -598,9 +591,7 @@ describe('application-page', () => {
             nextToken: '"b64:AAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAM=',
           } satisfies BoxesResponse)
         )
-        vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
-        )
+        searchForTransactionsMock.mockResolvedValue({ currentRound: 123n, transactions: [], nextToken: '' } satisfies TransactionsResponse)
 
         const myStore = createStore()
         myStore.set(genesisHashAtom, 'some-hash')

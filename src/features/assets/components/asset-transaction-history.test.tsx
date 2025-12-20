@@ -8,16 +8,19 @@ import { render, waitFor } from '@/tests/testing-library'
 import { AssetTransactionHistory } from '@/features/assets/components/asset-transaction-history'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { getAllByRole } from '@testing-library/dom'
-import { searchTransactionsMock } from '@/tests/setup/mocks'
 import { RenderResult } from '@testing-library/react'
 import { TransactionsResponse } from '@algorandfoundation/algokit-utils/indexer-client'
+
+const { searchForTransactionsMock } = vi.hoisted(() => ({
+  searchForTransactionsMock: vi.fn(),
+}))
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
   return {
     ...original,
     indexer: {
-      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+      searchForTransactions: searchForTransactionsMock,
     },
   }
 })
@@ -30,9 +33,8 @@ describe('asset-transaction-history', () => {
     myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
     // Given 18 transactions and the page size is 10
-    vi.mocked(searchTransactionsMock.do).mockImplementation(() => {
-      const args = searchTransactionsMock.args
-      if (args.nextToken === '') {
+    searchForTransactionsMock.mockImplementation((params?: { next?: string }) => {
+      if (!params?.next) {
         return Promise.resolve({
           transactions: Array.from({ length: 18 }).map(() => transactionResultMother.transfer(asset).build()),
           nextToken: '4652AgAAAAAFAAAA',

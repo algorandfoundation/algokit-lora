@@ -25,7 +25,20 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { ABIMethod, ABIStructType, ABIType, Arc56Contract, DefaultValueSource, isAVMType, StructField } from '@algorandfoundation/algokit-utils/abi'
+import {
+  ABIMethod,
+  ABIMethodArgType,
+  ABIReferenceType,
+  ABIStructType,
+  ABITransactionType,
+  ABIType,
+  Arc56Contract,
+  DefaultValueSource,
+  argTypeIsReference,
+  argTypeIsTransaction,
+  isAVMType,
+  StructField,
+} from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -237,6 +250,29 @@ const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value:
   return asDecodedAbiStorageValue(appSpec, type, value.bytes)
 }
 
+// Helper function to convert a type string to ABIMethodArgType
+// Handles reference types (asset, account, application) and transaction types
+const parseArgType = (typeStr: string): ABIMethodArgType => {
+  // Check for reference types
+  if (typeStr === ABIReferenceType.Asset || typeStr === ABIReferenceType.Account || typeStr === ABIReferenceType.Application) {
+    return typeStr as ABIReferenceType
+  }
+  // Check for transaction types
+  if (
+    typeStr === ABITransactionType.Txn ||
+    typeStr === ABITransactionType.KeyRegistration ||
+    typeStr === ABITransactionType.Payment ||
+    typeStr === ABITransactionType.AssetFreeze ||
+    typeStr === ABITransactionType.AssetConfig ||
+    typeStr === ABITransactionType.AssetTransfer ||
+    typeStr === ABITransactionType.AppCall
+  ) {
+    return typeStr as ABITransactionType
+  }
+  // Otherwise, parse as ABI type
+  return ABIType.from(typeStr)
+}
+
 export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
   if (isArc56AppSpec(appSpec)) {
     return appSpec
@@ -251,7 +287,7 @@ export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
         description: method.desc,
         args: method.args.map((arg) => ({
           ...arg,
-          type: ABIType.from(arg.type),
+          type: parseArgType(arg.type),
         })),
         returns: {
           ...method.returns,
@@ -371,7 +407,7 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
       description: method.desc,
       args: method.args.map(({ defaultValue, ...arg }) => ({
         ...arg,
-        type: ABIType.from(arg.type),
+        type: parseArgType(arg.type),
         defaultValue: defaultValue
           ? {
               data: defaultValue.data,
