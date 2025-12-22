@@ -1,6 +1,6 @@
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { dataStore } from '@/features/common/data/data-store'
-import { asAlgosdkTransactions } from '@/features/transaction-wizard/mappers'
+import { asAlgokitTransactions } from '@/features/transaction-wizard/mappers'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -37,7 +37,7 @@ const findTransactionInGroup = async (transactions: BuildTransactionResult[], gr
 
   for (const [i, transaction] of transactions.entries()) {
     // Flattens out transactions passed as ABI method call args
-    const txns = await asAlgosdkTransactions(transaction)
+    const txns = await asAlgokitTransactions(transaction)
     txns.forEach((_) => {
       indexMap.push(i)
     })

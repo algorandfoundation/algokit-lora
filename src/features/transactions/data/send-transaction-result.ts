@@ -45,7 +45,7 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
     invariant(confirmation.txn.txn.genesisId, 'Genesis ID is required')
 
     const subscribedTransaction = getIndexerTransactionFromAlgodTransaction({
-      signedTxnWithAD: asSignedTxnWithAD(confirmation) as unknown as Parameters<typeof getIndexerTransactionFromAlgodTransaction>[0]['signedTxnWithAD'],
+      signedTxnWithAD: asSignedTxnWithAD(confirmation),
       intraRoundOffset: 0,
       transactionId: confirmation.txn.txn.txId(),
       genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),

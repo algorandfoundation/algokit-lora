@@ -1,4 +1,10 @@
-import { ABIReferenceType, ABITransactionType, ABIValue, argTypeIsReference, argTypeIsTransaction } from '@algorandfoundation/algokit-utils/abi'
+import {
+  ABIReferenceType,
+  ABITransactionType,
+  ABIValue,
+  argTypeIsReference,
+  argTypeIsTransaction,
+} from '@algorandfoundation/algokit-utils/abi'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
@@ -40,13 +46,13 @@ import {
   asPaymentTransactionParams,
   asApplicationCreateTransactionParams,
   asApplicationUpdateTransactionParams,
-} from './as-algosdk-transactions'
+} from './as-algokit-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
-import { isBuildTransactionResult, isFulfilledByTransaction, isPlaceholderTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
+import { isBuildTransactionResult, isPlaceholderTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
@@ -253,7 +259,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
-    ...('freezeTarget' in params && params.freezeTarget
+    ...(params.freezeTarget
       ? [
           {
             dt: 'Freeze target',
@@ -319,23 +325,26 @@ const asMethodArg = (
   if (argTypeIsTransaction(argumentDefinition.type)) {
     invariant(isTransactionArg(arg), 'Transaction type args must be a transaction')
 
-    const argId = isFulfilledByTransaction(arg) ? arg.fulfilledById : arg.id
-    const transactionArgs = flatten(args).filter(
-      (a): a is BuildTransactionResult | PlaceholderTransaction => isBuildTransactionResult(a) || isPlaceholderTransaction(a)
-    )
-    const resolvedArg = arg.id !== argId ? transactionArgs.find((a) => a.id === argId) : arg
+    // TODO: PD - test nested app call args
+    const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
+    const resolvedArg =
+      arg.id !== argId
+        ? flatten(args)
+            .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
+            .find((a) => a.id === argId)
+        : arg
     const argPosition = transactionPositions.get(argId)
 
     // Transaction type args are shown in the table
     return (
       <div className="float-left flex items-center gap-1.5">
         <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
-        {resolvedArg && !isFulfilledByTransaction(resolvedArg) && (
+        {resolvedArg && resolvedArg.type !== BuildableTransactionType.Fulfilled && (
           <Button
             className="text-primary size-4 p-0"
             variant="no-style"
             onClick={() => onEditTransaction(resolvedArg)}
-            {...(isPlaceholderTransaction(resolvedArg)
+            {...(resolvedArg.type === BuildableTransactionType.Placeholder
               ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
               : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
           />
@@ -348,17 +357,17 @@ const asMethodArg = (
   }
   if (argTypeIsReference(argumentDefinition.type)) {
     if (argumentDefinition.type === ABIReferenceType.Account) {
-      return <AddressOrNfdLink address={String(arg)} />
+      return <AddressOrNfdLink address={arg.toString()} />
     }
     if (argumentDefinition.type === ABIReferenceType.Asset) {
-      const assetId = BigInt(String(arg))
+      const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
     if (argumentDefinition.type === ABIReferenceType.Application) {
-      const applicationId = BigInt(String(arg))
+      const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
-    return String(arg)
+    return arg.toString()
   }
   if (argumentDefinition.struct) {
     const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as ABIValue)

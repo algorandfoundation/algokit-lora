@@ -33,7 +33,7 @@ import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send, SquarePlay } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
 import React from 'react'
-import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
+import { asAlgokitTransactionType } from '../mappers/as-algokit-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
 import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
@@ -246,7 +246,7 @@ export function TransactionsBuilder({
         transaction.type === BuildableTransactionType.Fulfilled
           ? openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Create,
-              type: asAlgosdkTransactionType(transaction.targetType),
+              type: asAlgokitTransactionType(transaction.targetType),
             })
           : openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Edit,

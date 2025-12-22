@@ -41,7 +41,7 @@ import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
 
-export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<Transaction[]> => {
+export const asAlgokitTransactions = async (transaction: BuildTransactionResult): Promise<Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return [await asPaymentTransaction(transaction)]
   }
@@ -115,7 +115,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
       } else if (isBuildTransactionResult(arg)) {
         if (arg.type !== BuildableTransactionType.MethodCall) {
           // Other transaction types only return 1 transaction
-          return (await asAlgosdkTransactions(arg))[0]
+          return (await asAlgokitTransactions(arg))[0]
         } else {
           return await asMethodCallParams(arg)
         }
@@ -127,8 +127,8 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   return {
     sender: transaction.sender.resolvedAddress,
     appId: BigInt(transaction.applicationId),
-    method: transaction.methodDefinition.abiMethod as unknown as import('@algorandfoundation/algokit-utils/abi').ABIMethod,
-    args: args as unknown as import('@algorandfoundation/algokit-utils/types/composer').AppMethodCall<import('@algorandfoundation/algokit-utils/types/composer').AppMethodCallParams>['args'],
+    method: transaction.methodDefinition.abiMethod,
+    args: args,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],

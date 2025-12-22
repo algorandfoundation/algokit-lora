@@ -1,7 +1,7 @@
 import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 
-export function asAlgosdkTransactionType(type: ABITransactionType): TransactionType | undefined {
+export function asAlgokitTransactionType(type: ABITransactionType): TransactionType | undefined {
   switch (type) {
     case ABITransactionType.Payment:
       return TransactionType.Payment
