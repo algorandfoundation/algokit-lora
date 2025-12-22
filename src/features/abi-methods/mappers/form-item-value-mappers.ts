@@ -12,6 +12,7 @@ import {
   ABIUintType,
   AVMType,
   ABIValue,
+  ABIMethodArgType,
 } from '@algorandfoundation/algokit-utils/abi'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
@@ -21,9 +22,7 @@ import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
 
-type ABIArgumentType = ABIType | ABIReferenceType
-
-export const abiFormItemValueToABIValue = (type: ABIArgumentType, value: AbiFormItemValue): ABIValue => {
+export const abiFormItemValueToABIValue = (type: ABIMethodArgType, value: AbiFormItemValue): ABIValue => {
   if (type instanceof ABIUfixedType) {
     return fixedPointDecimalStringToBigInt(value as string, type.precision)
   }

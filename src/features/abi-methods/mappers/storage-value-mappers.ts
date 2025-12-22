@@ -1,7 +1,7 @@
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import { ABIType, ABIValue, Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asAbiOrAvmType } from '.'
 import { DecodedAbiStorageValue } from '../models'
 import { asDecodedAvmValue } from './avm-value'
@@ -20,19 +20,16 @@ export const asDecodedAbiStorageValue = (appSpec: Arc56Contract, type: string, b
     } satisfies DecodedAbiStorageValue
   }
 
-  const abiType = ABIType.from(valueType.toString())
-  const decodedValue = valueType.decode(bytes) as ABIValue
-
   if (structDefinition) {
     return {
       abiType: valueType,
       struct: structDefinition,
-      value: asDecodedAbiStruct(structDefinition, decodedValue),
+      value: asDecodedAbiStruct(structDefinition, valueType.decode(bytes)),
     } satisfies DecodedAbiStorageValue
   }
 
   return {
     abiType: valueType,
-    value: asDecodedAbiValue(abiType, decodedValue),
+    value: asDecodedAbiValue(valueType, valueType.decode(bytes)),
   } satisfies DecodedAbiStorageValue
 }

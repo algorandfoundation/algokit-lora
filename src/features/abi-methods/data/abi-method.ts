@@ -1,6 +1,7 @@
 import { Atom, atom } from 'jotai'
 import {
   ABIMethod,
+  ABIMethodArgType,
   ABIReferenceType,
   ABITupleType,
   ABIType,
@@ -230,9 +231,7 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: ABIMethod): 
   // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
   if (nonTransactionTypeArgs.length > 15) {
     const [head, tail] = [nonTransactionTypeArgs.slice(0, 14), nonTransactionTypeArgs.slice(14)]
-    const results: ABIValue[] = head.map((argumentSpec, index) =>
-      mapAbiArgumentToAbiValue(argumentSpec.type as ABIType | ABIReferenceType, transactionArgs[index])
-    )
+    const results: ABIValue[] = head.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index]))
 
     const tupleType = new ABITupleType(
       tail.map((arg) =>
@@ -246,11 +245,11 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: ABIMethod): 
 
     return results
   } else {
-    return nonTransactionTypeArgs.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type as ABIType | ABIReferenceType, transactionArgs[index]))
+    return nonTransactionTypeArgs.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index]))
   }
 }
 
-const mapAbiArgumentToAbiValue = (type: ABIType | ABIReferenceType, value: Uint8Array) => {
+const mapAbiArgumentToAbiValue = (type: ABIMethodArgType, value: Uint8Array) => {
   if (type === ABIReferenceType.Asset || type === ABIReferenceType.Application || type === ABIReferenceType.Account) {
     return new ABIUintType(8).decode(value)
   }
