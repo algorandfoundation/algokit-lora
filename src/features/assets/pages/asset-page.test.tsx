@@ -39,10 +39,6 @@ import { TransactionsResponse, Transaction as IndexerTransaction } from '@algora
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 
-const { searchForTransactionsMock } = vi.hoisted(() => ({
-  searchForTransactionsMock: vi.fn(),
-}))
-
 const server = setupServer()
 
 beforeAll(() => server.listen())
@@ -58,7 +54,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
     },
     indexer: {
       lookupAssetById: vi.fn(),
-      searchForTransactions: searchForTransactionsMock,
+      searchForTransactions: vi.fn(),
     },
     algorandClient: {
       newGroup: vi.fn().mockReturnValue({
@@ -134,7 +130,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -221,7 +217,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -324,7 +320,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -412,7 +408,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -499,7 +495,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -618,7 +614,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -754,7 +750,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [
           createAssetTransactionResult as IndexerTransaction,
           reconfigureAssetTransactionResult as IndexerTransaction,
@@ -845,7 +841,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -906,7 +902,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,
@@ -977,7 +973,7 @@ describe('asset-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
-      searchForTransactionsMock.mockResolvedValue({
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
         transactions: [transactionResult as IndexerTransaction],
         nextToken: undefined,
         currentRound: 1n,

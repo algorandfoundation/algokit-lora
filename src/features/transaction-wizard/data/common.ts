@@ -5,7 +5,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { asOnCompleteLabel } from '../mappers/as-description-list-items'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
-import { asAlgosdkTransactions } from '../mappers'
+import { asAlgosdkTransactions as asAlgokitUtilsTransactions } from '../mappers'
 import { isNfd } from '@/features/nfd/data'
 import { OnApplicationComplete, makeEmptyTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 
@@ -159,7 +159,7 @@ export const commonFormData = zfd.formData(commonSchema)
 export const buildComposer = async (transactions: BuildTransactionResult[]) => {
   const composer = algorandClient.newGroup()
   for (const transaction of transactions) {
-    const txns = await asAlgosdkTransactions(transaction)
+    const txns = await asAlgokitUtilsTransactions(transaction)
     txns.forEach((txn) => composer.addTransaction(txn))
   }
   return composer
@@ -170,7 +170,7 @@ const nullSigner = makeEmptyTransactionSigner()
 export const buildComposerWithEmptySignatures = async (transactions: BuildTransactionResult[]) => {
   const composer = algorandClient.newGroup()
   for (const transaction of transactions) {
-    const txns = await asAlgosdkTransactions(transaction)
+    const txns = await asAlgokitUtilsTransactions(transaction)
     txns.forEach((txn) => composer.addTransaction(txn, nullSigner))
   }
   return composer

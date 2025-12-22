@@ -14,20 +14,20 @@ const getOrCreateLoraKmdDevWallet = async (kmd: KmdClient) => {
   const wallet = listResponse.wallets?.find((w) => w.name === loraKmdDevWalletName)
 
   if (!wallet) {
-    const createResponse = await kmd.createWallet({ walletName: loraKmdDevWalletName, walletPassword: '' })
-    return createResponse.wallet as Wallet
+    return (await kmd.createWallet({ walletName: loraKmdDevWalletName, walletPassword: '' })).wallet
   }
 
-  return wallet as Wallet
+  return wallet
 }
 
 export const createLoraKmdDevAccount = async (kmd: KmdClient): Promise<Address> => {
   const wallet = await getOrCreateLoraKmdDevWallet(kmd)
-  const initResponse = await kmd.initWalletHandle({ walletId: wallet.id, walletPassword: '' })
-  const walletHandle = initResponse.walletHandleToken
+  const walletHandle = (await kmd.initWalletHandle({ walletId: wallet.id, walletPassword: '' })).walletHandleToken
   invariant(walletHandle, 'Failed to connect to the lora KMD dev wallet')
   const generateKeyResponse = await kmd.generateKey({ walletHandleToken: walletHandle })
-  await kmd.releaseWalletHandleToken({ walletHandleToken: walletHandle })
+  if (walletHandle) {
+    await kmd.releaseWalletHandleToken({ walletHandleToken: walletHandle })
+  }
   invariant(generateKeyResponse.address, 'Failed to create dev account in KMD')
   return generateKeyResponse.address.toString()
 }

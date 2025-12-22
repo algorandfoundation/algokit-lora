@@ -10,17 +10,14 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { getAllByRole } from '@testing-library/dom'
 import { RenderResult } from '@testing-library/react'
 import { TransactionsResponse } from '@algorandfoundation/algokit-utils/indexer-client'
-
-const { searchForTransactionsMock } = vi.hoisted(() => ({
-  searchForTransactionsMock: vi.fn(),
-}))
+import { indexer } from '@/features/common/data/algo-client'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
   return {
     ...original,
     indexer: {
-      searchForTransactions: searchForTransactionsMock,
+      searchForTransactions: vi.fn(),
     },
   }
 })
@@ -33,7 +30,7 @@ describe('asset-transaction-history', () => {
     myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
     // Given 18 transactions and the page size is 10
-    searchForTransactionsMock.mockImplementation((params?: { next?: string }) => {
+    vi.mocked(indexer.searchForTransactions).mockImplementation((params?: { next?: string }) => {
       if (!params?.next) {
         return Promise.resolve({
           transactions: Array.from({ length: 18 }).map(() => transactionResultMother.transfer(asset).build()),

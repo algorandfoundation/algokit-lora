@@ -17,13 +17,17 @@ import {
 } from '../models'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
-import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult, isPlaceholderTransaction, isFulfilledByTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
+import {
+  isBuildTransactionResult,
+  isPlaceholderTransaction,
+  isFulfilledByTransaction,
+  isTransactionArg,
+} from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send, SquarePlay } from 'lucide-react'
@@ -198,9 +202,9 @@ export function TransactionsBuilder({
       setErrorMessage(undefined)
       ensureThereIsNoPlaceholderTransaction(transactions)
 
+      // TODO: PD - config resource population logic
       const composer = await buildComposer(transactions)
-      const populatedComposer = await populateAppCallResources(composer)
-      const { transactions: transactionsWithResources } = await populatedComposer.build()
+      const { transactions: transactionsWithResources } = await composer.build()
 
       setTransactions((prev) => {
         let newTransactions = [...prev]
@@ -215,8 +219,9 @@ export function TransactionsBuilder({
               assets: transactionWithResources.txn.appCall?.assetReferences?.map((a) => a) ?? [],
               applications: transactionWithResources.txn.appCall?.appReferences?.map((a) => a) ?? [],
               boxes:
-                transactionWithResources.txn.appCall?.boxReferences?.map((box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const) ??
-                [],
+                transactionWithResources.txn.appCall?.boxReferences?.map(
+                  (box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const
+                ) ?? [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }

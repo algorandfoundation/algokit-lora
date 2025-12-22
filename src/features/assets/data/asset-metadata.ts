@@ -5,6 +5,7 @@ import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import { indexer as utilsIndexer } from '@algorandfoundation/algokit-utils'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
@@ -14,6 +15,7 @@ import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 import { getArc62AppId } from '../utils/arc62'
 import { createAssetCirculatingSupplyAtom } from './circulating-supply'
+import { TransactionsResponse } from '@algorandfoundation/algokit-utils/indexer-client'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -124,23 +126,6 @@ const noteToArc69Metadata = (note: string | undefined) => {
   return undefined
 }
 
-const fetchAllAssetConfigTransactions = async (assetId: bigint): Promise<TransactionResult[]> => {
-  const allResults: TransactionResult[] = []
-  let nextToken: string | undefined
-
-  do {
-    const response = await indexer.searchForTransactions({
-      assetId,
-      txType: 'acfg',
-      next: nextToken,
-    })
-    allResults.push(...response.transactions.map((txn) => indexerTransactionToTransactionResult(txn)))
-    nextToken = response.nextToken
-  } while (nextToken)
-
-  return allResults
-}
-
 const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
   if (assetResult.id === 0n) {
     return null
@@ -159,9 +144,21 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
           .then((res) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn))) // Implicitly newest to oldest when filtering with an address.
       : []
   if (results.length === 0) {
+    // TODO: PD - investigate this import
     // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
     // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
-    results = (await fetchAllAssetConfigTransactions(assetResult.id)).reverse()
+    results = await utilsIndexer
+      .executePaginatedRequest(
+        (res: TransactionsResponse) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
+        (nextToken) => {
+          return indexer.searchForTransactions({
+            assetId: assetResult.id,
+            txType: 'acfg',
+            next: nextToken,
+          })
+        }
+      )
+      .then((res) => res.reverse()) // reverse the order, so it's newest to oldest
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {

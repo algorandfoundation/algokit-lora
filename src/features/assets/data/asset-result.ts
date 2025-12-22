@@ -19,11 +19,11 @@ export const algoAssetResult: AssetResult = {
   },
 }
 
-const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
+const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId): Promise<AssetResult> => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
     const result = await algod.assetById(assetId)
-    return result as unknown as AssetResult
+    return result
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
@@ -31,7 +31,7 @@ const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
       if (!result.asset) {
         throw new Error(`Asset ${assetId} not found`)
       }
-      return result.asset as unknown as AssetResult
+      return result.asset
     }
     throw e
   }
