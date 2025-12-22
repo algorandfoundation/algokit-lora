@@ -597,7 +597,7 @@ describe('application-method-definitions', () => {
                 {
                   "amount": 600000n,
                   "closeAmount": 0n,
-                  "receiver": "MQMCTZV5BHA5Z3QU7GOIUDZCTCJZDQACPLWZURGLJGX3YBY5PE6RMC24RE",
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -718,7 +718,7 @@ describe('application-method-definitions', () => {
                 {
                   "amount": 500000n,
                   "closeAmount": 0n,
-                  "receiver": "KZF3PX4NYJLJH3UO3565UNP7DK2WTZHOSV2AGKDGSL3LMHTUTLTYPZOMLM",
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
