@@ -54,10 +54,10 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      assetById: vi.fn().mockResolvedValue({}),
+      assetById: vi.fn(),
     },
     indexer: {
-      lookupAssetById: vi.fn().mockResolvedValue({}),
+      lookupAssetById: vi.fn(),
       searchForTransactions: searchForTransactionsMock,
     },
     algorandClient: {

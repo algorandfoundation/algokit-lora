@@ -34,7 +34,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     indexer: {
-      lookupBlock: vi.fn().mockResolvedValue({}),
+      lookupBlock: vi.fn(),
     },
   }
 })

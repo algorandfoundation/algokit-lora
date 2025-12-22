@@ -38,7 +38,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      accountInformation: vi.fn().mockResolvedValue({}),
+      accountInformation: vi.fn(),
     },
   }
 })

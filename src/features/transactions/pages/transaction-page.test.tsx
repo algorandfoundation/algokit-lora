@@ -97,10 +97,10 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      tealDisassemble: vi.fn().mockResolvedValue({ result: '' }),
+      tealDisassemble: vi.fn(),
     },
     indexer: {
-      lookupTransactionById: vi.fn().mockResolvedValue({}),
+      lookupTransactionById: vi.fn(),
     },
   }
 })

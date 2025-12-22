@@ -16,7 +16,6 @@ import {
 import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
-import { TealKeyValueStore as AlgodTealKeyValueStore } from '@algorandfoundation/algokit-utils/algod-client'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
@@ -33,8 +32,7 @@ import {
   ABITransactionType,
   ABIType,
   Arc56Contract,
-  DefaultValueSource,
-  isAVMType,
+  arc56MethodToABIMethod,
   StructField,
 } from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
@@ -135,23 +133,22 @@ const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
 }
 
 const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
-  const { key, value } = state
+  const { key: keyBytes, value } = state
+  const key = uint8ArrayToBase64(keyBytes)
 
   if (!appSpec) {
     return getRawApplicationState(state)
   }
 
-  const keyBase64 = uint8ArrayToBase64(key)
-
   try {
     // Check for local/global keys first
     for (const [keyName, storageKey] of Object.entries(appSpec.state.keys[type])) {
-      if (storageKey.key === keyBase64) {
+      if (storageKey.key === key) {
         return {
           key: {
             name: keyName,
             type: DecodedAbiStorageKeyType.Key,
-            ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, key),
+            ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
           },
           value: tealValueToAbiStorageValue(appSpec, storageKey.valueType, value),
         } satisfies DecodedApplicationState
@@ -163,10 +160,11 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
       if (!storageMap.prefix) {
         continue
       }
+      const keyBytes = base64ToBytes(key)
 
       const prefixBytes = base64ToBytes(storageMap.prefix)
-      if (uint8ArrayStartsWith(key, prefixBytes)) {
-        const keyValueBytes = key.subarray(prefixBytes.length)
+      if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
+        const keyValueBytes = keyBytes.subarray(prefixBytes.length)
 
         return {
           key: {
@@ -187,11 +185,13 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
       }
 
       try {
+        const keyValueBytes = base64ToBytes(key)
+
         return {
           key: {
             name: keyName,
             type: DecodedAbiStorageKeyType.MapKey,
-            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, key),
+            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
           },
           value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
         } satisfies DecodedApplicationState
@@ -208,7 +208,7 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
   return getRawApplicationState(state)
 }
 
-export const asLocalStateValues = (localState: TealKeyValueStore | AlgodTealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
+export const asLocalStateValues = (localState: TealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
   if (!localState) {
     return []
   }
@@ -392,25 +392,7 @@ const asOnApplicationComplete = (
 export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
   const arc56AppSpec = asArc56AppSpec(appSpec)
   return arc56AppSpec.methods.map((method) => {
-    const abiMethod = new ABIMethod({
-      name: method.name,
-      description: method.desc,
-      args: method.args.map(({ defaultValue, ...arg }) => ({
-        ...arg,
-        type: parseArgType(arg.type),
-        defaultValue: defaultValue
-          ? {
-              data: defaultValue.data,
-              source: defaultValue.source as DefaultValueSource,
-              type: defaultValue.type ? (isAVMType(defaultValue.type) ? defaultValue.type : ABIType.from(defaultValue.type)) : undefined,
-            }
-          : undefined,
-      })),
-      returns: {
-        ...method.returns,
-        type: method.returns.type === 'void' ? 'void' : ABIType.from(method.returns.type),
-      },
-    })
+    const abiMethod = arc56MethodToABIMethod(method, arc56AppSpec)
 
     const methodArgs = method.args.map((arg, i) => {
       const getStructDefinition = () => {

@@ -10,12 +10,7 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { StructDefinition } from '@/features/applications/components/struct-definition'
 import { DefaultArgument } from '@/features/applications/components/default-argument'
-import {
-  BuildableTransactionType,
-  BuildAppCallTransactionResult,
-  BuildMethodCallTransactionResult,
-  BuildTransactionResult,
-} from '@/features/transaction-wizard/models'
+import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { SimulateResult, TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
@@ -77,10 +72,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
       transaction: {
         applicationId: applicationId,
         methodDefinition: method,
-        onComplete:
-          method.callConfig && method.callConfig.call.length > 0
-            ? (method.callConfig.call[0] as BuildAppCallTransactionResult['onComplete'])
-            : undefined,
+        onComplete: method.callConfig && method.callConfig.call.length > 0 ? method.callConfig.call[0] : undefined,
       },
     })
     if (transaction && transaction.type === BuildableTransactionType.MethodCall) {

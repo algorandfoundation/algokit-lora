@@ -1,4 +1,4 @@
-import { ABIType, ABIValue, Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { TealTemplateParamDefinition } from '../models'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
@@ -24,9 +24,7 @@ export const getTemplateParamDefinition = (appSpec: Arc56Contract, paramName: st
       return asAvmValue(type, templateVariable.value)
     }
 
-    // Convert algokit-utils ABIType for asAbiFormItemValue
-    const abiType = ABIType.from(type.toString())
-    return asAbiFormItemValue(abiType, type.decode(base64ToBytes(templateVariable.value)) as ABIValue)
+    return asAbiFormItemValue(type, type.decode(base64ToBytes(templateVariable.value)))
   }
 
   return {
