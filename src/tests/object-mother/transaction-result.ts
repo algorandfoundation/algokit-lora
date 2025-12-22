@@ -5,7 +5,7 @@ import type { TransactionHeartbeat, HbProofFields } from '@algorandfoundation/al
 import { AssetResult } from '@/features/assets/data/types'
 import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { EvalDeltaKeyValue, AccountStateDelta } from '@/features/transactions/data/types'
+import type { EvalDeltaKeyValue, AccountStateDelta } from '@algorandfoundation/algokit-utils/indexer-client'
 
 const encoder = new TextEncoder()
 

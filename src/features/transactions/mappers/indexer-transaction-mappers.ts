@@ -12,7 +12,7 @@ export const indexerTransactionToTransactionResult = (transaction: IndexerTransa
     ...rest,
     innerTxns: innerTxnsWithId,
     id: transaction.id!,
-  } as TransactionResult
+  }
 }
 
 export const indexerTransactionToInnerTransactionResult = (
@@ -32,5 +32,5 @@ export const indexerTransactionToInnerTransactionResult = (
     ...transaction,
     id: transactionId,
     innerTxns,
-  } as TransactionResult
+  }
 }

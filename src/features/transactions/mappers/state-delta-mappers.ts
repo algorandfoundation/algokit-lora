@@ -16,7 +16,7 @@ import { DecodedAbiType, DecodedAbiStorageValue, DecodedAbiStorageKeyType } from
 import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { Address } from '@/features/accounts/data/types'
-import { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '../data/types'
+import type { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '@algorandfoundation/algokit-utils/indexer-client'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 export const asGlobalStateDelta = (stateDelta: EvalDeltaKeyValue[] | undefined, appSpec?: Arc56Contract): GlobalStateDelta[] => {
@@ -99,7 +99,7 @@ const asGlobalStateDeltaItem = (record: EvalDeltaKeyValue, appSpec?: Arc56Contra
 
 const asRawGlobalStateDelta = ({ key, value: state }: EvalDeltaKeyValue): RawGlobalStateDelta => {
   return {
-    key: getKeyAsString(key),
+    key: getKey(key),
     type: getType(state),
     action: getAction(state),
     value: getValue(state),
@@ -223,14 +223,14 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
 const asRawLocalStateDelta = (address: Address, { key, value }: EvalDeltaKeyValue): RawLocalStateDelta => {
   return {
     address,
-    key: getKeyAsString(key),
+    key: getKey(key),
     type: getType(value),
     action: getAction(value),
     value: getValue(value),
   }
 }
 
-const getKeyAsString = (key: Uint8Array): string => {
+const getKey = (key: Uint8Array): string => {
   const buffer = Buffer.from(key)
 
   if (isUtf8(buffer)) {
