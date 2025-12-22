@@ -1,10 +1,8 @@
-import type { Asset as IndexerAsset, AssetParams as IndexerAssetParams } from '@algorandfoundation/algokit-utils/indexer-client'
+import type { Asset as IndexerAsset } from '@algorandfoundation/algokit-utils/indexer-client'
 
 export type AssetId = bigint
 
-export type AssetResult = Omit<IndexerAsset, 'params'> & {
-  params: IndexerAssetParams
-}
+export type AssetResult = IndexerAsset
 
 type Arc16MetadataProperties = {
   traits?: Record<string, unknown>

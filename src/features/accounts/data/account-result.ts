@@ -6,16 +6,22 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
 import { asError, is400 } from '@/utils/error'
 
-const getAccountResult = async (address: Address) => {
+const getAccountResult = async (address: Address): Promise<AccountResult> => {
   try {
     const result = await algod.accountInformation(address)
-    return result as unknown as AccountResult
+    return {
+      ...result,
+      address: result.address.toString(),
+    }
   } catch (e: unknown) {
     const error = asError(e)
     if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {
       // Exclude asset and application data, as the account exceeds the limit which prevents it from loading
       const result = await algod.accountInformation(address, { exclude: 'all' })
-      return result as unknown as AccountResult
+      return {
+        ...result,
+        address: result.address.toString(),
+      }
     }
     throw e
   }
