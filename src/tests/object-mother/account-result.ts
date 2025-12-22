@@ -38,6 +38,8 @@ export const accountResultMother = {
       status: AccountStatus.Offline,
       totalAppsOptedIn: 2,
       totalAssetsOptedIn: 3,
+      totalBoxBytes: 0,
+      totalBoxes: 0,
       totalCreatedApps: 0,
       totalCreatedAssets: 0,
     } satisfies AccountResult)
@@ -175,6 +177,8 @@ export const accountResultMother = {
       status: AccountStatus.Offline,
       totalAppsOptedIn: 1,
       totalAssetsOptedIn: 6,
+      totalBoxBytes: 0,
+      totalBoxes: 0,
       totalCreatedApps: 4,
       totalCreatedAssets: 1,
     } satisfies AccountResult)
@@ -259,6 +263,8 @@ export const accountResultMother = {
       status: AccountStatus.Offline,
       totalAppsOptedIn: 8,
       totalAssetsOptedIn: 0,
+      totalBoxBytes: 0,
+      totalBoxes: 0,
       totalCreatedApps: 0,
       totalCreatedAssets: 0,
     })
@@ -281,6 +287,8 @@ export const accountResultMother = {
       status: AccountStatus.Offline,
       totalAppsOptedIn: 0,
       totalAssetsOptedIn: 984393,
+      totalBoxBytes: 0,
+      totalBoxes: 0,
       totalCreatedApps: 0,
       totalCreatedAssets: 984393,
     })
@@ -306,6 +314,8 @@ export const accountResultMother = {
       status: AccountStatus.Offline,
       totalAppsOptedIn: 0,
       totalAssetsOptedIn: 0,
+      totalBoxBytes: 0,
+      totalBoxes: 0,
       totalCreatedApps: 0,
       totalCreatedAssets: 0,
     } satisfies AccountResult)

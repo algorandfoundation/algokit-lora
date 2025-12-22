@@ -5,18 +5,17 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
 import { asError, is400 } from '@/utils/error'
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 const getAccountResult = async (address: Address) => {
   try {
     const result = await algod.accountInformation(address)
-    return removeEncodableMethods(result) as unknown as AccountResult
+    return result as unknown as AccountResult
   } catch (e: unknown) {
     const error = asError(e)
     if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {
       // Exclude asset and application data, as the account exceeds the limit which prevents it from loading
       const result = await algod.accountInformation(address, { exclude: 'all' })
-      return removeEncodableMethods(result) as unknown as AccountResult
+      return result as unknown as AccountResult
     }
     throw e
   }

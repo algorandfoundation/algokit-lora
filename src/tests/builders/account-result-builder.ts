@@ -25,6 +25,8 @@ export class AccountResultBuilder extends DataBuilder<AccountResult> {
             status: AccountStatus.Online,
             totalAppsOptedIn: randomNumber(),
             totalAssetsOptedIn: randomNumber(),
+            totalBoxBytes: 0,
+            totalBoxes: 0,
             totalCreatedApps: randomNumber(),
             totalCreatedAssets: randomNumber(),
           }

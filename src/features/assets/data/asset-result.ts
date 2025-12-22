@@ -5,7 +5,6 @@ import { readOnlyAtomCache } from '@/features/common/data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 export const algoAssetResult: AssetResult = {
   id: 0n,
@@ -24,7 +23,7 @@ const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
     const result = await algod.assetById(assetId)
-    return removeEncodableMethods(result) as unknown as AssetResult
+    return result as unknown as AssetResult
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
@@ -32,7 +31,7 @@ const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
       if (!result.asset) {
         throw new Error(`Asset ${assetId} not found`)
       }
-      return removeEncodableMethods(result.asset) as unknown as AssetResult
+      return result.asset as unknown as AssetResult
     }
     throw e
   }
