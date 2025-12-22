@@ -51,6 +51,7 @@ const findTransactionInGroup = async (transactions: BuildTransactionResult[], gr
 }
 
 export const parseCallAbiMethodError = async (e: unknown, transactions: BuildTransactionResult[]): Promise<Error> => {
+  // TODO: PD - fix this logic, the error is thrown directly now
   if (!isURLTokenBaseHTTPError(e)) {
     return asError(e)
   }
