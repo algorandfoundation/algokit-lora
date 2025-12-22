@@ -325,7 +325,6 @@ const asMethodArg = (
   if (argTypeIsTransaction(argumentDefinition.type)) {
     invariant(isTransactionArg(arg), 'Transaction type args must be a transaction')
 
-    // TODO: PD - test nested app call args
     const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
     const resolvedArg =
       arg.id !== argId

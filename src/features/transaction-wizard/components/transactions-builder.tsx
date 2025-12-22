@@ -202,7 +202,6 @@ export function TransactionsBuilder({
       setErrorMessage(undefined)
       ensureThereIsNoPlaceholderTransaction(transactions)
 
-      // TODO: PD - config resource population logic
       const composer = await buildComposer(transactions)
       const { transactions: transactionsWithResources } = await composer.build()
 

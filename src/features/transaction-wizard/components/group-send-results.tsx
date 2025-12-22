@@ -7,8 +7,7 @@ import { TransactionsGraph, TransactionsGraphData } from '@/features/transaction
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AppCallTransaction } from '@/features/transactions/models'
-import { asJson } from '@/utils/as-json'
-import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { encodeSimulateResponseToJson, SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { Download } from 'lucide-react'
 import { useCallback } from 'react'
 
@@ -76,10 +75,7 @@ const buildSimulateTraceFilename = (simulateResponse: SimulateResponse) => {
 export function GroupSendResults({ transactionGraph, transactionGraphBgClassName, sentAppCalls, simulateResponse }: Props) {
   const downloadSimulateTrace = useCallback(async () => {
     if (!simulateResponse) return
-    // TODO: PD - test download simulate trace
-    const file = new Blob([asJson(simulateResponse, undefined, 2)], {
-      type: 'application/json',
-    })
+    const file = new Blob([encodeSimulateResponseToJson(simulateResponse)], { type: 'application/json' })
     await downloadFile(buildSimulateTraceFilename(simulateResponse), file)
   }, [simulateResponse])
 

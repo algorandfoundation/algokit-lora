@@ -129,7 +129,7 @@ export function DeployApp({ machine }: Props) {
       const deployTransaction = appCallTransactions[appCallTransactions.length - 1]
 
       const appFactory = algorandClient.client.getAppFactory({
-        appSpec: state.context.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
+        appSpec: state.context.appSpec as AppSpec,
         defaultSender: activeAddress,
         appName: state.context.name,
         version: state.context.version,
