@@ -4,7 +4,7 @@ import { atomWithDefault, useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 
 const getGenesisHash = () =>
-  algod.getVersion().then((result) => {
+  algod.version().then((result) => {
     return uint8ArrayToBase64(result.genesisHashB64)
   })
 

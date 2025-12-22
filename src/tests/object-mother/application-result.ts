@@ -229,6 +229,6 @@ export const applicationResultMother = {
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }): TealKeyValue => ({
-  key,
+  key: base64ToBytes(key),
   value: { type: value.type, uint: BigInt(value.uint), bytes: base64ToBytes(value.bytes) } satisfies TealValue,
 })

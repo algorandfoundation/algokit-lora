@@ -65,7 +65,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      getApplicationById: vi.fn().mockResolvedValue({}),
+      applicationById: vi.fn().mockResolvedValue({}),
       accountApplicationInformation: vi.fn().mockResolvedValue({}),
     },
     indexer: {
@@ -93,7 +93,7 @@ describe('application-page', () => {
   describe('when rendering an application with application Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
-      vi.mocked(algod.getApplicationById).mockRejectedValue(new HttpError('boom', 404))
+      vi.mocked(algod.applicationById).mockRejectedValue(new HttpError('boom', 404))
       vi.mocked(indexer.lookupApplicationById).mockRejectedValue(new HttpError('boom', 404))
 
       return executeComponentTest(

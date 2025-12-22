@@ -23,7 +23,7 @@ export const algoAssetResult: AssetResult = {
 const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    const result = await algod.getAssetById(assetId)
+    const result = await algod.assetById(assetId)
     return removeEncodableMethods(result) as unknown as AssetResult
   } catch (e: unknown) {
     if (is404(asError(e))) {

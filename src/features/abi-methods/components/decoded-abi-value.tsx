@@ -27,7 +27,7 @@ export function DecodedAbiValue({ abiValue }: Props) {
     return <span className="text-abi-bool">{abiValue.value ? 'True' : 'False'}</span>
   }
   if (abiValue.type === DecodedAbiType.Address) {
-    const addressStr = typeof abiValue.value === 'string' ? abiValue.value : abiValue.value.toString()
-    return <AddressOrNfdLink address={addressStr} />
+    const addressArg = abiValue as { value: string }
+    return <AddressOrNfdLink address={addressArg.value} />
   }
 }

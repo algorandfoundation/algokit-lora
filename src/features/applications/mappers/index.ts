@@ -34,8 +34,6 @@ import {
   ABIType,
   Arc56Contract,
   DefaultValueSource,
-  argTypeIsReference,
-  argTypeIsTransaction,
   isAVMType,
   StructField,
 } from '@algorandfoundation/algokit-utils/abi'
@@ -101,14 +99,13 @@ export const asGlobalStateValues = (
     })
 }
 
-const asRawApplicationStateKey = (key: string): string => {
-  const bytes = base64ToBytes(key)
-  const buffer = Buffer.from(bytes)
+const asRawApplicationStateKey = (key: Uint8Array): string => {
+  const buffer = Buffer.from(key)
 
   if (isUtf8(buffer)) {
     return buffer.toString()
   } else {
-    return key
+    return uint8ArrayToBase64(key)
   }
 }
 
@@ -144,15 +141,17 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
     return getRawApplicationState(state)
   }
 
+  const keyBase64 = uint8ArrayToBase64(key)
+
   try {
     // Check for local/global keys first
     for (const [keyName, storageKey] of Object.entries(appSpec.state.keys[type])) {
-      if (storageKey.key === key) {
+      if (storageKey.key === keyBase64) {
         return {
           key: {
             name: keyName,
             type: DecodedAbiStorageKeyType.Key,
-            ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
+            ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, key),
           },
           value: tealValueToAbiStorageValue(appSpec, storageKey.valueType, value),
         } satisfies DecodedApplicationState
@@ -164,11 +163,10 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
       if (!storageMap.prefix) {
         continue
       }
-      const keyBytes = base64ToBytes(key)
 
       const prefixBytes = base64ToBytes(storageMap.prefix)
-      if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
-        const keyValueBytes = keyBytes.subarray(prefixBytes.length)
+      if (uint8ArrayStartsWith(key, prefixBytes)) {
+        const keyValueBytes = key.subarray(prefixBytes.length)
 
         return {
           key: {
@@ -189,13 +187,11 @@ const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSp
       }
 
       try {
-        const keyValueBytes = base64ToBytes(key)
-
         return {
           key: {
             name: keyName,
             type: DecodedAbiStorageKeyType.MapKey,
-            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
+            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, key),
           },
           value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
         } satisfies DecodedApplicationState
@@ -217,13 +213,7 @@ export const asLocalStateValues = (localState: TealKeyValueStore | AlgodTealKeyV
     return []
   }
 
-  // Convert algod format (Uint8Array key) to indexer format (string key) if needed
-  const normalizedState: TealKeyValueStore = localState.map((state) => ({
-    key: typeof state.key === 'string' ? state.key : uint8ArrayToBase64(state.key),
-    value: state.value,
-  }))
-
-  return normalizedState
+  return localState
     .map((state) => asApplicationState(state, 'local', appSpec))
     .sort((a, b) => {
       const aKey = typeof a.key === 'string' ? a.key : a.key.name

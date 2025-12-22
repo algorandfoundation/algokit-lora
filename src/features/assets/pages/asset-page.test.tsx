@@ -54,7 +54,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      getAssetById: vi.fn().mockResolvedValue({}),
+      assetById: vi.fn().mockResolvedValue({}),
     },
     indexer: {
       lookupAssetById: vi.fn().mockResolvedValue({}),
@@ -99,7 +99,7 @@ describe('asset-page', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
 
-      vi.mocked(algod.getAssetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(algod.assetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
       vi.mocked(indexer.lookupAssetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
@@ -114,7 +114,7 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(algod.getAssetById).mockImplementation(() => Promise.reject({}))
+      vi.mocked(algod.assetById).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),

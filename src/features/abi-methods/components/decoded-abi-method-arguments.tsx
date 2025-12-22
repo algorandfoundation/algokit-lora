@@ -19,18 +19,11 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
           {argument.value}
         </TransactionLink>
       )
-    } else if (argument.type === DecodedAbiType.Address) {
-      const addressStr = typeof argument.value === 'string' ? argument.value : argument.value.toString()
+    } else if (argument.type === DecodedAbiType.Address || argument.type === DecodedAbiType.Account) {
+      const addressArg = argument as { value: string }
       return (
-        <AddressOrNfdLink className="text-primary underline" address={addressStr}>
-          {addressStr}
-        </AddressOrNfdLink>
-      )
-    } else if (argument.type === DecodedAbiType.Account) {
-      const addressStr = typeof argument.value === 'string' ? argument.value : argument.value.toString()
-      return (
-        <AddressOrNfdLink className="text-primary underline" address={addressStr}>
-          {addressStr}
+        <AddressOrNfdLink className="text-primary underline" address={addressArg.value}>
+          {addressArg.value}
         </AddressOrNfdLink>
       )
     } else if (argument.type === DecodedAbiType.Application) {

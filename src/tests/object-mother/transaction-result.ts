@@ -5,8 +5,24 @@ import type { TransactionHeartbeat, HbProofFields } from '@algorandfoundation/al
 import { AssetResult } from '@/features/assets/data/types'
 import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { EvalDeltaKeyValue, AccountStateDelta } from '@/features/transactions/data/types'
 
 const encoder = new TextEncoder()
+
+// Helper function to convert base64 string test data to Uint8Array for state delta
+const toEvalDeltaKeyValue = (data: { key: string; value: { action: number; bytes?: string; uint?: bigint } }): EvalDeltaKeyValue => ({
+  key: base64ToBytes(data.key),
+  value: {
+    action: data.value.action,
+    bytes: data.value.bytes ? base64ToBytes(data.value.bytes) : undefined,
+    uint: data.value.uint,
+  },
+})
+
+const toAccountStateDelta = (data: { address: string; delta: Array<{ key: string; value: { action: number; bytes?: string; uint?: bigint } }> }): AccountStateDelta => ({
+  address: data.address,
+  delta: data.delta.map(toEvalDeltaKeyValue),
+})
 
 export const transactionResultMother = {
   payment: () => {
@@ -411,7 +427,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30='),
       id: 'KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ',
       innerTxns: [
@@ -475,7 +491,7 @@ export const transactionResultMother = {
                 uint: 0n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 93,
           lastValid: 36592738n,
           receiverRewards: 0n,
@@ -606,7 +622,7 @@ export const transactionResultMother = {
                 { key: 'YXNzZXRfMl9yZXNlcnZlcw==', value: { action: 2, uint: 7646891725226n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
@@ -701,7 +717,7 @@ export const transactionResultMother = {
                 { key: 'Y3VtdWxhdGl2ZV9wcmljZV91cGRhdGVfdGltZXN0YW1w', value: { action: 2, uint: 1709251670n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAeGrcA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAI81Y='),
@@ -795,7 +811,7 @@ export const transactionResultMother = {
                 { key: 'Y3VtdWxhdGl2ZV9wcmljZV91cGRhdGVfdGltZXN0YW1w', value: { action: 2, uint: 1709251670n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAGF9LxQ=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAABbk='),
@@ -855,7 +871,7 @@ export const transactionResultMother = {
           globalStateDelta: [
             { key: 'QQ==', value: { action: 2, uint: 118457344272n } },
             { key: 'Qg==', value: { action: 2, uint: 748025794n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('ugsPSBZ9wnfXr1sH8ErEfCEhXNG2F28SyHcJa26ctO0='),
           innerTxns: [
             {
@@ -1461,7 +1477,7 @@ export const transactionResultMother = {
             uint: 1196710954n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ',
       intraRoundOffset: 18,
       lastValid: 32219000n,
@@ -1576,7 +1592,7 @@ export const transactionResultMother = {
                 uint: 328787298n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 39789078n,
           localStateDelta: [
@@ -1592,7 +1608,7 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           receiverRewards: 0n,
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
@@ -1652,7 +1668,7 @@ export const transactionResultMother = {
                 uint: 328787299n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 39789078n,
           localStateDelta: [
@@ -1668,7 +1684,7 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           receiverRewards: 0n,
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
@@ -1815,7 +1831,7 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAATI8RHA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAZAAAA='),
@@ -1908,7 +1924,7 @@ export const transactionResultMother = {
             uint: 3635491114n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('vaLtvORtad8atEru3rCZaJeRetDS6S1GLLayjlruG8o='),
       id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ',
       innerTxns: [
@@ -2515,7 +2531,7 @@ export const transactionResultMother = {
                 uint: 54824658163n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 40822408n,
           receiverRewards: 0n,
@@ -2574,7 +2590,7 @@ export const transactionResultMother = {
             uint: 53n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('e8hHS1DTHzmS5ERI5G5szL2P9+EbDsfT399wjcjc7zU='),
       id: 'GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A',
       innerTxns: [
@@ -2636,7 +2652,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1717259254,
       sender: 'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
@@ -3249,7 +3265,7 @@ export const transactionResultMother = {
             uint: 705457144n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc='),
       id: 'QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A',
       innerTxns: [
@@ -3334,7 +3350,7 @@ export const transactionResultMother = {
             uint: 10000n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc='),
       id: 'MEF2BZU4JXIU2I7ORQRFZQ3QVT7ZWJ5VQQ4HZ4BWVZK4CEDERQ3A',
       intraRoundOffset: 5,
@@ -3629,7 +3645,7 @@ export const transactionResultMother = {
             bytes: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
     })
   },
   // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleOne app spec
@@ -3674,7 +3690,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'AIIGV5XLUCNTLDOBBSFXDGCLBOM6WIE42OMTADUAFBD3PHK6JL4Q',
       intraRoundOffset: 0,
       lastValid: 3707n,
@@ -3739,7 +3755,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1731017805,
       sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
@@ -3785,7 +3801,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'B65NVNGK6E6K2E2F4K2M5HRKB4VPPZMJLS55UKWLN6O2XPT2NSTA',
       intraRoundOffset: 0,
       lastValid: 4998n,
@@ -3843,7 +3859,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1731050080,
       sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
@@ -3981,7 +3997,7 @@ export const transactionResultMother = {
           key: 'ZXhwZWN0ZWRfYW1vdW50X291dA==',
           value: { action: 2, uint: 49809218n },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/1',
@@ -4184,7 +4200,7 @@ export const transactionResultMother = {
         { key: 'Y3Yy', value: { action: 2, uint: 73267881083655n } },
         { key: 'Y3YyMQ==', value: { action: 2, uint: 3391058581298893000n } },
         { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/1',
@@ -4485,7 +4501,7 @@ export const transactionResultMother = {
         localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
-      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 1n } }],
+      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 1n } }].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A/inner/1',
@@ -4538,7 +4554,7 @@ export const transactionResultMother = {
             { key: 'Y3Yy', value: { action: 2, uint: 93115144717055n } },
             { key: 'Y3YyMQ==', value: { action: 2, uint: 222747704383284860n } },
             { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('8D3J4xkE/UAFPk8dT1FWhb/w0FZu+RCHVPEZdxluWvM='),
           innerTxns: [
             {
@@ -4619,7 +4635,7 @@ export const transactionResultMother = {
         localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
-      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 2n } }],
+      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 2n } }].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ/inner/1',
@@ -4672,7 +4688,7 @@ export const transactionResultMother = {
             { key: 'Y3Yy', value: { action: 2, uint: 67644539079644n } },
             { key: 'Y3YyMQ==', value: { action: 2, uint: 8573927948060841000n } },
             { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('qPY2KSa9AzA4edTXJfJI7Kbh0M1LaXVDmNChG1rRmQo='),
           innerTxns: [
             {
@@ -4757,7 +4773,7 @@ export const transactionResultMother = {
       globalStateDelta: [
         { key: 'ZXhwZWN0ZWRfYW1vdW50X291dA==', value: { action: 2, uint: 0n } },
         { key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 0n } },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/1',
@@ -5026,7 +5042,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       logs: [
         base64ToBytes('JIoFHgva6e8yhipFXH7Jif9NZZ5i9i6CcNp+Rulz2siIdkYfAAAAAAHhq3A='),
         base64ToBytes('FR98dQva6e8yhipFXH7Jif9NZZ5i9i6CcNp+Rulz2siIdkYf'),
@@ -5204,7 +5220,7 @@ export const transactionResultMother = {
                 uint: 0n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 13,
           lastValid: 52121252n,
           receiverRewards: 0n,
@@ -5315,7 +5331,7 @@ export const transactionResultMother = {
                 uint: 1n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('+6zYx5gx0Iv3sLRso9Z1Xwr4niLcNyorFpQ+uBVkcBA='),
           innerTxns: [
             {

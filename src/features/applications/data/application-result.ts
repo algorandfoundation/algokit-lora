@@ -8,7 +8,7 @@ import { Getter, Setter } from 'jotai/index'
 const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    const result = await algod.getApplicationById(applicationId)
+    const result = await algod.applicationById(applicationId)
     return removeEncodableMethods(result) as ApplicationResult
   } catch (e: unknown) {
     if (is404(asError(e))) {
