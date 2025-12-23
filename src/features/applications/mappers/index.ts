@@ -404,10 +404,14 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
         return undefined
       }
 
+      // Convert ABIStructType back to ABITupleType for compatibility
+      const argType = abiMethod.args[i].type
+      const type = argType instanceof ABIStructType ? argType.toABITupleType() : argType
+
       return {
         name: arg.name,
         description: arg.desc,
-        type: abiMethod.args[i].type,
+        type: type,
         struct: getStructDefinition(),
         defaultArgument: arg.defaultValue,
       } satisfies ArgumentDefinition
@@ -429,7 +433,9 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
           method.returns.struct && arc56AppSpec.structs[method.returns.struct]
             ? asStructDefinition(method.returns.struct, arc56AppSpec.structs)
             : undefined,
-        type: abiMethod.returns.type,
+        // Convert ABIStructType back to ABITupleType for compatibility
+        type:
+          abiMethod.returns.type instanceof ABIStructType ? abiMethod.returns.type.toABITupleType() : abiMethod.returns.type,
       },
     } satisfies MethodDefinition
   })
