@@ -7,7 +7,7 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
 import { asAlgokitTransactions } from '../mappers'
 import { isNfd } from '@/features/nfd/data'
-import { OnApplicationComplete, makeEmptyTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import { OnApplicationComplete, Transaction, makeEmptyTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 
 export const requiredMessage = 'Required'
 
@@ -157,21 +157,29 @@ export const commonSchema = {
 export const commonFormData = zfd.formData(commonSchema)
 
 export const buildComposer = async (transactions: BuildTransactionResult[]) => {
-  const composer = algorandClient.newGroup()
+  const algokitTxns: Transaction[] = []
+
   for (const transaction of transactions) {
     const txns = await asAlgokitTransactions(transaction)
-    txns.forEach((txn) => composer.addTransaction(txn))
+    algokitTxns.push(...txns)
   }
+
+  const composer = algorandClient.newGroup()
+  algokitTxns.forEach((txn) => composer.addTransaction(txn))
   return composer
 }
 
 const nullSigner = makeEmptyTransactionSigner()
 
 export const buildComposerWithEmptySignatures = async (transactions: BuildTransactionResult[]) => {
-  const composer = algorandClient.newGroup()
+  const algokitTxns: Transaction[] = []
+
   for (const transaction of transactions) {
     const txns = await asAlgokitTransactions(transaction)
-    txns.forEach((txn) => composer.addTransaction(txn, nullSigner))
+    algokitTxns.push(...txns)
   }
+
+  const composer = algorandClient.newGroup()
+  algokitTxns.forEach((txn) => composer.addTransaction(txn, nullSigner))
   return composer
 }

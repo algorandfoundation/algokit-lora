@@ -39,7 +39,6 @@ import { asAbiTransactionType } from '../mappers'
 import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
-import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features/abi-methods/utils/parse-errors'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -155,7 +154,7 @@ export function TransactionsBuilder({
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err)
-      const error = await parseCallAbiMethodError(err, transactions)
+      const error = asError(err)
       setErrorMessage(error.message)
     } finally {
       setIsBusy(false)
@@ -189,7 +188,7 @@ export function TransactionsBuilder({
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err)
-      const error = await parseSimulateAbiMethodError(err, transactions)
+      const error = asError(err)
       setErrorMessage(error.message)
     } finally {
       setIsBusy(false)
