@@ -7,8 +7,7 @@ import { Getter, Setter } from 'jotai/index'
 const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId): Promise<ApplicationResult> => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    const result = await algod.applicationById(applicationId)
-    return result
+    return await algod.applicationById(applicationId)
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle deleted applications or applications that may not be available in algod potentially due to the node type
