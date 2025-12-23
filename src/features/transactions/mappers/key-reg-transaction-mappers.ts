@@ -1,7 +1,8 @@
 import { KeyRegTransaction, BaseKeyRegTransaction, InnerKeyRegTransaction, TransactionType, KeyRegTransactionSubType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { TransactionKeyreg, TransactionResult } from '../data/types'
+import { TransactionResult } from '../data/types'
+import type { TransactionKeyreg } from '@algorandfoundation/algokit-utils/indexer-client'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const mapSubType = (keyreg: TransactionKeyreg) =>

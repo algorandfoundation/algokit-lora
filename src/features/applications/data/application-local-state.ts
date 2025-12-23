@@ -16,7 +16,7 @@ import { failedToLoadLocalStateMessage, invalidAddressForLocalStateMessage } fro
 
 const getApplicationLocalState = async (address: Address, applicationId: ApplicationId) => {
   try {
-    const result = await algod.accountApplicationInformation(address, applicationId).do()
+    const result = await algod.accountApplicationInformation(address, applicationId)
     return result.appLocalState
   } catch (e) {
     if (is404(asError(e))) {

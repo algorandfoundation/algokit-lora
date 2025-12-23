@@ -10,12 +10,11 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
-  const results = await indexer
-    .searchForTransactions()
-    .address(address)
-    .nextToken(nextPageToken ?? '')
-    .limit(DEFAULT_FETCH_SIZE)
-    .do()
+  const results = await indexer.searchForTransactions({
+    address,
+    next: nextPageToken,
+    limit: DEFAULT_FETCH_SIZE,
+  })
   return {
     transactionResults: results.transactions.map((transaction) => indexerTransactionToTransactionResult(transaction)),
     nextPageToken: results.nextToken,

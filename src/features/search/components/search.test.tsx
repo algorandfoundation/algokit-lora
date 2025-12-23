@@ -36,13 +36,13 @@ describe('search', () => {
 
   describe('when search results have been returned', () => {
     const assetResult = assetResultMother['mainnet-140479105']().build()
-    const applicationResult = applicationResultMother.basic().withId(assetResult.index).build()
-    const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
+    const applicationResult = applicationResultMother.basic().withId(assetResult.id).build()
+    const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.id).build()
     const transactionResult = transactionResultMother.payment().withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ').build()
 
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
     myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
 
@@ -64,8 +64,8 @@ describe('search', () => {
       },
       {
         type: SearchResultType.Asset,
-        id: assetResult.index.toString(),
-        label: `${assetResult.index} (${assetResult.params.name!})`,
+        id: assetResult.id.toString(),
+        label: `${assetResult.id} (${assetResult.params.name!})`,
       },
       {
         type: SearchResultType.Application,

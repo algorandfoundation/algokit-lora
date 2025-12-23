@@ -1,37 +1,33 @@
 import { Address } from '@/features/accounts/data/types'
 import { invariant } from '@/utils/invariant'
-import algosdk from 'algosdk'
+import { KmdClient } from '@algorandfoundation/algokit-utils/kmd-client'
 
 export type Wallet = {
   id: string
   name: string
 }
 
-type GenerateKeyResponse = {
-  address?: string
-}
-
 export const loraKmdDevWalletName = 'lora-dev'
 
-const getOrCreateLoraKmdDevWallet = async (kmd: algosdk.Kmd) => {
-  const listResponse = (await kmd.listWallets()) as { wallets: Wallet[] }
-  const wallet = listResponse.wallets.find((w: { name: string }) => w.name === loraKmdDevWalletName)
+const getOrCreateLoraKmdDevWallet = async (kmd: KmdClient) => {
+  const listResponse = await kmd.listWallets()
+  const wallet = listResponse.wallets?.find((w) => w.name === loraKmdDevWalletName)
 
   if (!wallet) {
-    return (await kmd.createWallet(loraKmdDevWalletName, '')).wallet as Wallet
+    return (await kmd.createWallet({ walletName: loraKmdDevWalletName, walletPassword: '' })).wallet
   }
 
   return wallet
 }
 
-export const createLoraKmdDevAccount = async (kmd: algosdk.Kmd): Promise<Address> => {
+export const createLoraKmdDevAccount = async (kmd: KmdClient): Promise<Address> => {
   const wallet = await getOrCreateLoraKmdDevWallet(kmd)
-  const walletHandle = (await kmd.initWalletHandle(wallet.id, '')).wallet_handle_token as string | undefined
+  const walletHandle = (await kmd.initWalletHandle({ walletId: wallet.id, walletPassword: '' })).walletHandleToken
   invariant(walletHandle, 'Failed to connect to the lora KMD dev wallet')
-  const generateKeyResponse = (await kmd.generateKey(walletHandle)) as GenerateKeyResponse
+  const generateKeyResponse = await kmd.generateKey({ walletHandleToken: walletHandle })
   if (walletHandle) {
-    await kmd.releaseWalletHandle(walletHandle)
+    await kmd.releaseWalletHandleToken({ walletHandleToken: walletHandle })
   }
   invariant(generateKeyResponse.address, 'Failed to create dev account in KMD')
-  return generateKeyResponse.address
+  return generateKeyResponse.address.toString()
 }

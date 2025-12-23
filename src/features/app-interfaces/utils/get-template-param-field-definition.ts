@@ -1,4 +1,4 @@
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { TealTemplateParamDefinition } from '../models'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
