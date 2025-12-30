@@ -57,6 +57,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       }
     }
     case UtilsTransactionType.StateProof: {
+      invariant(transactionResult.stateProofTransaction, 'state-proof-transaction is not set')
       return {
         ...common,
         type: TransactionType.StateProof,
