@@ -64,7 +64,6 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       }
     }
     case UtilsTransactionType.KeyRegistration: {
-      invariant(transactionResult.keyregTransaction, 'keyreg-transaction is not set')
       return {
         ...common,
         type: TransactionType.KeyReg,
