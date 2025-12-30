@@ -25,7 +25,7 @@ const mapCommonAssetFreezeTransactionProperties = (
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetFreeze,
     subType: undefined,
-    address: assetFreeze['address'],
+    address: assetFreeze.address,
     assetId,
     asset,
     freezeStatus: assetFreeze.newFreezeStatus ? AssetFreezeStatus.Frozen : AssetFreezeStatus.Unfrozen,

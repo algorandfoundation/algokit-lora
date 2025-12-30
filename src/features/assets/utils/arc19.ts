@@ -1,7 +1,7 @@
 import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
 import { sha256 } from 'multiformats/hashes/sha2'
-import algosdk from 'algosdk'
+import { decodeAddress } from '@algorandfoundation/algokit-utils'
 
 // If the URL starts with template-ipfs://, it also follows ARC-19
 export const isArc19Url = (assetUrl: string) => assetUrl.startsWith('template-ipfs://')
@@ -36,7 +36,7 @@ export function getArc19Url(templateUrl: string, reserveAddress: string | undefi
   }
 
   const hashAlgorithm = sha256
-  const publicKey = algosdk.decodeAddress(reserveAddress!).publicKey
+  const publicKey = decodeAddress(reserveAddress!).publicKey
   const multihashDigest = digest.create(hashAlgorithm.code, publicKey)
 
   // https://github.com/TxnLab/arc3.xyz/blob/66334cb31cf46a3b0a466193f351d766df24a16c/src/lib/nft.ts#L68

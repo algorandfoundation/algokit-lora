@@ -5,12 +5,9 @@ import { Getter, Setter } from 'jotai/index'
 import { indexerTransactionToTransactionResult } from '../mappers/indexer-transaction-mappers'
 
 const getTransactionResult = (_: Getter, __: Setter, transactionId: TransactionId) =>
-  indexer
-    .lookupTransactionByID(transactionId)
-    .do()
-    .then((result) => {
-      return indexerTransactionToTransactionResult(result.transaction)
-    })
+  indexer.lookupTransactionById(transactionId).then((result) => {
+    return indexerTransactionToTransactionResult(result.transaction)
+  })
 
 const keySelector = (transactionId: TransactionId) => transactionId
 

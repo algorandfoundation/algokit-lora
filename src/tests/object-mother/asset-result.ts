@@ -6,7 +6,7 @@ const encoder = new TextEncoder()
 export const assetResultMother = {
   ['mainnet-140479105']: () => {
     return new AssetResultBuilder({
-      index: 140479105n,
+      id: 140479105n,
       params: {
         clawback: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4',
         creator: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4',
@@ -27,7 +27,7 @@ export const assetResultMother = {
   },
   ['mainnet-523683256']: () => {
     return new AssetResultBuilder({
-      index: 523683256n,
+      id: 523683256n,
       params: {
         creator: 'QUUQHH4HJ3FHUWMKTKFBUA72XTSW6F7YLLTRI7FWENJBKQYWTESSCZPQLU',
         decimals: 6,
@@ -46,7 +46,7 @@ export const assetResultMother = {
   },
   ['mainnet-312769']: () => {
     return new AssetResultBuilder({
-      index: 312769n,
+      id: 312769n,
       params: {
         clawback: 'XIU7HGGAJ3QOTATPDSIIHPFVKMICXKHMOR2FJKHTVLII4FAOA3CYZQDLG4',
         creator: 'XIU7HGGAJ3QOTATPDSIIHPFVKMICXKHMOR2FJKHTVLII4FAOA3CYZQDLG4',
@@ -67,7 +67,7 @@ export const assetResultMother = {
   },
   ['testnet-642327435']: () => {
     return new AssetResultBuilder({
-      index: 642327435n,
+      id: 642327435n,
       params: {
         clawback: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY',
         creator: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY',
@@ -86,7 +86,7 @@ export const assetResultMother = {
   },
   ['mainnet-971381860']: () => {
     return new AssetResultBuilder({
-      index: 971381860n,
+      id: 971381860n,
       params: {
         creator: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
         decimals: 6,
@@ -102,7 +102,7 @@ export const assetResultMother = {
   },
   ['mainnet-31566704']: () => {
     return new AssetResultBuilder({
-      index: 31566704n,
+      id: 31566704n,
       params: {
         creator: '2UEQTE5QDNXPI7M3TU44G6SYKLFWLPQO7EBZM7K7MHMQQMFI4QJPLHQFHM',
         decimals: 6,
@@ -122,7 +122,7 @@ export const assetResultMother = {
   },
   ['mainnet-386195940']: () => {
     return new AssetResultBuilder({
-      index: 386195940n,
+      id: 386195940n,
       params: {
         creator: 'ETGSQKACKC56JWGMDAEP5S2JVQWRKTQUVKCZTMPNUGZLDVCWPY63LSI3H4',
         decimals: 8,
@@ -142,7 +142,7 @@ export const assetResultMother = {
   },
   ['mainnet-408898501']: () => {
     return new AssetResultBuilder({
-      index: 408898501n,
+      id: 408898501n,
       params: {
         creator: 'LOOTHTGZ5LIF6M5P6URZMW4BX5UO4IS7KBELOVQDTOJFPS4VGLGD2GA5I4',
         decimals: 1,
@@ -159,7 +159,7 @@ export const assetResultMother = {
   },
   ['mainnet-1707148495']: () => {
     return new AssetResultBuilder({
-      index: 1707148495n,
+      id: 1707148495n,
       params: {
         creator: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
         decimals: 0,
@@ -181,7 +181,7 @@ export const assetResultMother = {
     return new AssetResultBuilder({
       createdAtRound: 34632901n,
       deleted: false,
-      index: 1284444444n,
+      id: 1284444444n,
       params: {
         clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         creator: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
@@ -205,7 +205,7 @@ export const assetResultMother = {
     return new AssetResultBuilder({
       createdAtRound: 36012728n,
       deleted: false,
-      index: 1494117806n,
+      id: 1494117806n,
       params: {
         clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         creator: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU',
@@ -228,7 +228,7 @@ export const assetResultMother = {
     return new AssetResultBuilder({
       createdAtRound: 38393946n,
       deleted: false,
-      index: 1800979729n,
+      id: 1800979729n,
       params: {
         clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
@@ -251,7 +251,7 @@ export const assetResultMother = {
     return new AssetResultBuilder({
       createdAtRound: 23110800n,
       deleted: false,
-      index: 854081201n,
+      id: 854081201n,
       params: {
         clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         creator: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
@@ -275,7 +275,7 @@ export const assetResultMother = {
       createdAtRound: 6354271n,
       deleted: true,
       destroyedAtRound: 6354625n,
-      index: 917559n,
+      id: 917559n,
       params: {
         clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
         creator: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
@@ -290,7 +290,7 @@ export const assetResultMother = {
   },
   'mainnet-1820067164': () => {
     return new AssetResultBuilder({
-      index: 1820067164n,
+      id: 1820067164n,
       params: {
         creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
         decimals: 0,
@@ -309,7 +309,7 @@ export const assetResultMother = {
   },
   'mainnet-924268058': () => {
     return new AssetResultBuilder({
-      index: 924268058n,
+      id: 924268058n,
       params: {
         creator: 'V6SGZIWO6OAKUTKERDUFACQBPXMGPCNGEYMUANHRZA475YONW5B4BBLVL4',
         decimals: 6,
@@ -328,7 +328,7 @@ export const assetResultMother = {
   },
   'mainnet-1010208883': () => {
     return new AssetResultBuilder({
-      index: 1010208883n,
+      id: 1010208883n,
       params: {
         creator: 'XSKED5VKZZCSYNDWXZJI65JM2HP7HZFJWCOBIMOONKHTK5UVKENBNVDEYM',
         decimals: 6,
@@ -347,7 +347,7 @@ export const assetResultMother = {
   },
   'mainnet-1096015467': () => {
     return new AssetResultBuilder({
-      index: 1096015467n,
+      id: 1096015467n,
       params: {
         creator: 'B34VMB7AAF2JZHLUZL4ROAFAV7Q5TY2JXFCDGAJFYHNQAMVE5BCGGVEGAE',
         decimals: 4,
@@ -364,7 +364,7 @@ export const assetResultMother = {
   },
   'mainnet-1162292622': () => {
     return new AssetResultBuilder({
-      index: 1162292622n,
+      id: 1162292622n,
       params: {
         clawback: 'X2GAK5VORHXKCO54XYSP3AMP2MRFLGJTLDTZ66OA5XH4UEXIMPWHFWTQTA',
         creator: 'X2GAK5VORHXKCO54XYSP3AMP2MRFLGJTLDTZ66OA5XH4UEXIMPWHFWTQTA',
@@ -384,7 +384,7 @@ export const assetResultMother = {
   },
   'mainnet-1294765516': () => {
     return new AssetResultBuilder({
-      index: 1294765516n,
+      id: 1294765516n,
       params: {
         creator: 'XSKED5VKZZCSYNDWXZJI65JM2HP7HZFJWCOBIMOONKHTK5UVKENBNVDEYM',
         decimals: 6,
@@ -403,7 +403,7 @@ export const assetResultMother = {
   },
   'mainnet-1355858325': () => {
     return new AssetResultBuilder({
-      index: 1355858325n,
+      id: 1355858325n,
       params: {
         clawback: 'JTVFQXCOHCRFZ6FE3WRNAKXTV32OWIJLG6XVVQPYNWGTWO3R3PIQEFVXEU',
         creator: 'JTVFQXCOHCRFZ6FE3WRNAKXTV32OWIJLG6XVVQPYNWGTWO3R3PIQEFVXEU',
@@ -423,7 +423,7 @@ export const assetResultMother = {
   },
   'mainnet-1355898842': () => {
     return new AssetResultBuilder({
-      index: 1355898842n,
+      id: 1355898842n,
       params: {
         clawback: 'OOHFIBQPTGCV7XVSFC7A73ZW5GQRWX2Q2HM5SISPMTA3FN6S7N7ZPEJZLI',
         creator: 'OOHFIBQPTGCV7XVSFC7A73ZW5GQRWX2Q2HM5SISPMTA3FN6S7N7ZPEJZLI',
@@ -443,7 +443,7 @@ export const assetResultMother = {
   },
   'mainnet-1024439078': () => {
     return new AssetResultBuilder({
-      index: 1024439078n,
+      id: 1024439078n,
       params: {
         clawback: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
         creator: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
@@ -464,7 +464,7 @@ export const assetResultMother = {
   },
   'mainnet-850924184': () => {
     return new AssetResultBuilder({
-      index: 850924184n,
+      id: 850924184n,
       params: {
         creator: 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
         decimals: 0,
@@ -483,7 +483,7 @@ export const assetResultMother = {
   },
   'mainnet-847594689': () => {
     return new AssetResultBuilder({
-      index: 847594689n,
+      id: 847594689n,
       params: {
         creator: 'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
         decimals: 0,
@@ -504,7 +504,7 @@ export const assetResultMother = {
   },
   'mainnet-880903652': () => {
     return new AssetResultBuilder({
-      index: 880903652n,
+      id: 880903652n,
       params: {
         clawback: 'EP3I5HF6N3B7NSLVJ5YOZNTW3B4L46RUTELW6GIWZZ6ZCV5XOVT5PTOHAI',
         creator: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE',
@@ -526,7 +526,7 @@ export const assetResultMother = {
   },
   'testnet-210971834': () => {
     return new AssetResultBuilder({
-      index: 210971834n,
+      id: 210971834n,
       params: {
         clawback: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
         creator: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
@@ -547,7 +547,7 @@ export const assetResultMother = {
   },
   'mainnet-909935715': () => {
     return new AssetResultBuilder({
-      index: 909935715n,
+      id: 909935715n,
       params: {
         creator: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
         decimals: 0,
@@ -566,7 +566,7 @@ export const assetResultMother = {
   },
   'testnet-705735468': () => {
     return new AssetResultBuilder({
-      index: 705735468n,
+      id: 705735468n,
       params: {
         clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
         creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
@@ -583,7 +583,7 @@ export const assetResultMother = {
   },
   'testnet-705736233': () => {
     return new AssetResultBuilder({
-      index: 705736233n,
+      id: 705736233n,
       params: {
         clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
         creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
@@ -600,7 +600,7 @@ export const assetResultMother = {
   },
   'testnet-705736805': () => {
     return new AssetResultBuilder({
-      index: 705736805n,
+      id: 705736805n,
       params: {
         clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
         creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
@@ -617,7 +617,7 @@ export const assetResultMother = {
   },
   'testnet-705457144': () => {
     return new AssetResultBuilder({
-      index: 705457144n,
+      id: 705457144n,
       params: {
         clawback: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
         creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
@@ -638,7 +638,7 @@ export const assetResultMother = {
   },
   ['mainnet-465865291']: () => {
     return new AssetResultBuilder({
-      index: 465865291n,
+      id: 465865291n,
       params: {
         creator: '3EPGHSNBBN5M2LD6V7A63EHZQQLATVQHDBYJQIZ6BLCBTIXA5XR7ZOZEB4',
         decimals: 6,
@@ -657,7 +657,7 @@ export const assetResultMother = {
   },
   ['mainnet-2982339967']: () => {
     return new AssetResultBuilder({
-      index: 2982339967n,
+      id: 2982339967n,
       params: {
         creator: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
         decimals: 6,
@@ -675,7 +675,7 @@ export const assetResultMother = {
   },
   ['mainnet-2982339968']: () => {
     return new AssetResultBuilder({
-      index: 2982339968n,
+      id: 2982339968n,
       params: {
         creator: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
         decimals: 6,
@@ -695,7 +695,7 @@ export const assetResultMother = {
   // Add new asset that uses an arc3 to create an arc62 asset here to be used in the test suite
   'testnet-740315456': () => {
     return new AssetResultBuilder({
-      index: 740315456n,
+      id: 740315456n,
       params: {
         creator: 'Q3ROBYOB5QODCSNZKDYLH33NO5V4FN3YKMOHE43RPPC2LUPG56DNSU446I',
         decimals: 0,

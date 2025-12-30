@@ -1,10 +1,10 @@
-import algosdk from 'algosdk'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import {
+  optionalAddressFieldSchema,
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions,
-  optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -83,7 +83,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     }
     return {
       sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
-      onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
+      onComplete: OnApplicationComplete.NoOp.toString(),
       fee: {
         setAutomatically: true,
       },

@@ -9,13 +9,12 @@ import { indexer } from '@/features/common/data/algo-client'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 
-const getApplicationTransactionResults = async (applicationID: ApplicationId, nextPageToken?: string) => {
-  const results = await indexer
-    .searchForTransactions()
-    .applicationID(applicationID)
-    .nextToken(nextPageToken ?? '')
-    .limit(DEFAULT_FETCH_SIZE)
-    .do()
+const getApplicationTransactionResults = async (applicationId: ApplicationId, nextPageToken?: string) => {
+  const results = await indexer.searchForTransactions({
+    applicationId,
+    next: nextPageToken,
+    limit: DEFAULT_FETCH_SIZE,
+  })
   return {
     transactionResults: results.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
     nextPageToken: results.nextToken,
@@ -42,9 +41,9 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const createApplicationTransactionResultsAtom = (applicationID: ApplicationId, nextPageToken?: string) => {
+const createApplicationTransactionResultsAtom = (applicationId: ApplicationId, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await getApplicationTransactionResults(applicationID, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await getApplicationTransactionResults(applicationId, nextPageToken)
 
     get(createSyncEffect(transactionResults))
 
@@ -55,9 +54,9 @@ const createApplicationTransactionResultsAtom = (applicationID: ApplicationId, n
   })
 }
 
-export const createLoadableApplicationTransactionsPage = (applicationID: ApplicationId) => {
+export const createLoadableApplicationTransactionsPage = (applicationId: ApplicationId) => {
   return createLoadableViewModelPageAtom({
-    fetchRawData: (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationID, nextPageToken),
+    fetchRawData: (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationId, nextPageToken),
     createViewModelPageAtom: (rawDataPage) =>
       atom((get) => {
         return {

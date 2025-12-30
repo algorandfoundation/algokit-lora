@@ -1,9 +1,10 @@
 import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { TransactionResult, TransactionSignature } from '@/features/transactions/data/types'
+import { TransactionResult } from '@/features/transactions/data/types'
+import type { TransactionSignature } from '@algorandfoundation/algokit-utils/indexer-client'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import algosdk from 'algosdk'
+import { encodeAddress } from '@algorandfoundation/algokit-utils'
 import { isDefined } from '@/utils/is-defined'
 import { normaliseAlgoSdkData } from '@/utils/as-json'
 import { asJson } from '@/utils/as-json'
@@ -40,7 +41,7 @@ export const transformSignature = (signature?: TransactionSignature) => {
       version: signature.multisig.version,
       threshold: signature.multisig.threshold,
       subsigners: signature.multisig.subsignature
-        ?.map((subsignature) => (subsignature.publicKey ? algosdk.encodeAddress(subsignature.publicKey) : undefined))
+        ?.map((subsignature) => (subsignature.publicKey ? encodeAddress(subsignature.publicKey) : undefined))
         .filter(isDefined),
     } satisfies Multisig
   }
