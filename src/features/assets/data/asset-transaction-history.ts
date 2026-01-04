@@ -10,12 +10,11 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 
 const getAssetTransactionResults = async (assetId: AssetId, nextPageToken?: string) => {
-  const results = await indexer
-    .searchForTransactions()
-    .assetID(assetId)
-    .nextToken(nextPageToken ?? '')
-    .limit(DEFAULT_FETCH_SIZE)
-    .do()
+  const results = await indexer.searchForTransactions({
+    assetId,
+    next: nextPageToken,
+    limit: DEFAULT_FETCH_SIZE,
+  })
   return {
     transactionResults: results.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
     nextPageToken: results.nextToken,

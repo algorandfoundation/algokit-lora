@@ -1,4 +1,4 @@
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'

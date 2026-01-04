@@ -1,7 +1,7 @@
 import { AssetTransferTransactionSubType, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { AccountVertical, ApplicationVertical, Vertical } from '../models'
 import { distinct } from '@/utils/distinct'
-import { getApplicationAddress } from 'algosdk'
+import { getApplicationAddress } from '@algorandfoundation/algokit-utils'
 
 export const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): Vertical[] => {
   const rawVerticals = asRawVerticals(transactions)

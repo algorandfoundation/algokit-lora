@@ -1,14 +1,19 @@
 import { PropsWithChildren } from 'react'
 import { useSetActiveWalletState } from '@/features/wallet/data/active-wallet'
 import { useWallet, WalletManager, WalletProvider } from '@txnlab/use-wallet-react'
+import { encodeTransactionRaw, Transaction } from '@algorandfoundation/algokit-utils/transact'
 
 type Props = PropsWithChildren<{
   walletManager: WalletManager
 }>
 
 function SetActiveWalletState({ children }: PropsWithChildren) {
-  const { isReady, activeAddress, transactionSigner } = useWallet()
-  useSetActiveWalletState(isReady, activeAddress ?? undefined, transactionSigner)
+  const { isReady, activeAddress, signTransactions } = useWallet()
+  useSetActiveWalletState(isReady, activeAddress ?? undefined, async (txnGroup: Transaction[], indexesToSign: number[]) => {
+    const encodedTxns = txnGroup.map((txn) => encodeTransactionRaw(txn))
+    const signResults = await signTransactions(encodedTxns, indexesToSign)
+    return signResults.filter((r) => r !== null)
+  })
 
   return <>{children}</>
 }

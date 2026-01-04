@@ -1,21 +1,20 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
-import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { Getter, Setter } from 'jotai/index'
 import { TransactionResult } from '@/features/transactions/data/types'
-import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 import { getArc62AppId } from '../utils/arc62'
 import { createAssetCirculatingSupplyAtom } from './circulating-supply'
+import { executePaginatedRequest, TransactionsResponse } from '@algorandfoundation/algokit-utils/indexer-client'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -52,7 +51,7 @@ const createAssetMetadataResult = async (
     // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
-      : getArc3Url(assetResult.index, assetResult.params.url)
+      : getArc3Url(assetResult.id, assetResult.params.url)
 
     if (metadataUrl) {
       const gatewayMetadataUrl = replaceIpfsWithGatewayIfNeeded(metadataUrl)
@@ -67,7 +66,7 @@ const createAssetMetadataResult = async (
         const arc62AppId = getArc62AppId(arc3MetadataResult)
 
         if (arc62AppId) {
-          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.index))
+          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.id))
           if (circulatingSupply !== undefined) {
             arc62MetadataResult = {
               circulatingSupply,
@@ -127,39 +126,39 @@ const noteToArc69Metadata = (note: string | undefined) => {
 }
 
 const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
-  if (assetResult.index === 0n) {
+  if (assetResult.id === 0n) {
     return null
   }
 
-  let results =
+  let results: TransactionResult[] =
     assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
       ? await indexer
-          .searchForTransactions()
-          .assetID(assetResult.index)
-          .txType('acfg')
-          .address(assetResult.params.manager)
-          .addressRole('sender')
-          .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
-          .do()
+          .searchForTransactions({
+            assetId: assetResult.id,
+            txType: 'acfg',
+            address: assetResult.params.manager,
+            addressRole: 'sender',
+            limit: 2, // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
+          })
           .then((res) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn))) // Implicitly newest to oldest when filtering with an address.
       : []
   if (results.length === 0) {
     // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
     // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
     results = await executePaginatedRequest(
-      (res: algosdk.indexerModels.TransactionsResponse) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
+      (res: TransactionsResponse) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
       (nextToken) => {
-        let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
-        if (nextToken) {
-          s = s.nextToken(nextToken)
-        }
-        return s
+        return indexer.searchForTransactions({
+          assetId: assetResult.id,
+          txType: 'acfg',
+          next: nextToken,
+        })
       }
     ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
-    const isAssetConfigTransaction = t.txType === TransactionType.acfg
+    const isAssetConfigTransaction = t.txType === TransactionType.AssetConfig
     const isDestroyTransaction = t.assetConfigTransaction?.params === undefined
     return isAssetConfigTransaction && !isDestroyTransaction
   })
@@ -173,5 +172,5 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
 
 export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = readOnlyAtomCache(
   getAssetMetadataResult,
-  (assetResult) => assetResult.index
+  (assetResult) => assetResult.id
 )

@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
-import { Buffer } from 'buffer'
+import { encodeAddress } from '@algorandfoundation/algokit-utils'
+import { base64ToBytes } from './base64-to-bytes'
 
-export const publicKeyToAddress = (publicKey: string) => algosdk.encodeAddress(Buffer.from(publicKey, 'base64'))
+export const publicKeyToAddress = (publicKey: string) => encodeAddress(base64ToBytes(publicKey))

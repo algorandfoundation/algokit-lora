@@ -8,7 +8,7 @@ export class AssetResultBuilder extends DataBuilder<AssetResult> {
       initialState
         ? initialState
         : {
-            index: randomBigInt(),
+            id: randomBigInt(),
             params: {
               creator: randomString(52, 52),
               total: randomBigInt(),

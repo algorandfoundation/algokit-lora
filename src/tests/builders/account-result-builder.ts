@@ -13,7 +13,7 @@ export class AccountResultBuilder extends DataBuilder<AccountResult> {
             amount: randomBigInt(),
             amountWithoutPendingRewards: randomBigInt(),
             appsLocalState: [],
-            appsTotalSchema: { numByteSlice: 0, numUint: 0 },
+            appsTotalSchema: { numByteSlices: 0, numUints: 0 },
             assets: [],
             createdApps: [],
             createdAssets: [],

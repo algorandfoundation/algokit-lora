@@ -9,7 +9,8 @@ import {
 } from '@/features/transaction-wizard/models'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
@@ -26,7 +27,7 @@ import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfou
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
@@ -82,7 +83,7 @@ export function DeployApp({ machine }: Props) {
       } satisfies AppClientMethodCallParams & CreateOnComplete & CreateSchema
     } else if (transaction.type === BuildableTransactionType.AppCall) {
       const { appId: _, ...params } = asAppCallTransactionParams(transaction)
-      invariant(params.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
+      invariant(params.onComplete !== OnApplicationComplete.ClearState, 'Clear state is not supported for app creates')
       return {
         ...params,
         onComplete: params.onComplete,
@@ -105,7 +106,7 @@ export function DeployApp({ machine }: Props) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={algosdk.TransactionType.appl}
+        transactionType={TransactionType.AppCall}
         type={props.data.type}
         defaultValues={props.data.transaction}
         onCancel={props.onCancel}
@@ -128,7 +129,7 @@ export function DeployApp({ machine }: Props) {
       const deployTransaction = appCallTransactions[appCallTransactions.length - 1]
 
       const appFactory = algorandClient.client.getAppFactory({
-        appSpec: state.context.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
+        appSpec: state.context.appSpec as AppSpec,
         defaultSender: activeAddress,
         appName: state.context.name,
         version: state.context.version,
@@ -177,7 +178,7 @@ export function DeployApp({ machine }: Props) {
       appSpec?: Arc32AppSpec | Arc56Contract,
       method?: MethodDefinition
     ) => {
-      const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== algosdk.OnApplicationComplete.UpdateApplicationOC)
+      const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== OnApplicationComplete.UpdateApplication)
       const onComplete = createCallConfig.length > 0 ? (createCallConfig[0] as BuildAppCallTransactionResult['onComplete']) : undefined
       const transaction = await open({
         type,

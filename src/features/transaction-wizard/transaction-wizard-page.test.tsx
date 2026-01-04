@@ -202,10 +202,9 @@ describe('transaction-wizard-page', () => {
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
             expect(result.transaction.sender).toBe(testAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-              TransactionPayment {
+              {
                 "amount": 500000n,
                 "closeAmount": 0n,
-                "closeRemainderTo": undefined,
                 "receiver": "${testAccount2.addr}",
               }
             `)
@@ -308,7 +307,7 @@ describe('transaction-wizard-page', () => {
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
             expect(result.transaction.sender).toBe(testAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-              TransactionPayment {
+              {
                 "amount": 0n,
                 "closeAmount": 9999000n,
                 "closeRemainderTo": "${testAccount2.addr}",
@@ -481,7 +480,7 @@ describe('transaction-wizard-page', () => {
           approvalProgram: '#pragma version 10\nint 1\nreturn',
           clearStateProgram: '#pragma version 10\nint 1\nreturn',
         })
-        const appId = Number(appCreateResult.confirmation.applicationIndex!)
+        const appId = Number(appCreateResult.confirmation.appId!)
 
         await executeComponentTest(
           () => {

@@ -1,7 +1,8 @@
 import { ApplicationResult } from '@/features/applications/data/types'
 import { randomBigInt } from '@/tests/utils/random-bigint'
 import { DataBuilder, dossierProxy, randomString } from '@makerx/ts-dossier'
-import algosdk, { base64ToBytes } from 'algosdk'
+import { Address } from '@algorandfoundation/algokit-utils'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export class ApplicationResultBuilder extends DataBuilder<ApplicationResult> {
   constructor(initialState?: ApplicationResult) {
@@ -11,7 +12,7 @@ export class ApplicationResultBuilder extends DataBuilder<ApplicationResult> {
         : {
             id: randomBigInt(),
             params: {
-              creator: algosdk.Address.zeroAddress(),
+              creator: Address.zeroAddress(),
               approvalProgram: base64ToBytes(randomString(10, 100)),
               clearStateProgram: base64ToBytes(randomString(10, 100)),
               globalState: [],

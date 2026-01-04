@@ -12,37 +12,34 @@ import { indexerTransactionToTransactionResult } from '@/features/transactions/m
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
-  return await indexer
-    .lookupBlock(round)
-    .do()
-    .then((result) => {
-      const { transactions, ...block } = result
-      const [transactionIds, groupResults] = (transactions ?? [])
-        .map((txn) => indexerTransactionToTransactionResult(txn))
-        .reduce(
-          (acc, t) => {
-            // Accumulate transactions
-            acc[0].push(t.id)
+  const result = await indexer.lookupBlock(round)
+  const { transactions, ...block } = result
+  const [transactionIds, groupResults] = (transactions ?? [])
+    .map((txn) => indexerTransactionToTransactionResult(txn))
+    .reduce(
+      (acc, t) => {
+        // Accumulate transactions
+        acc[0].push(t.id)
 
-            // Accumulate group results
-            accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
+        // Accumulate group results
+        accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
 
-            return acc
-          },
-          [[], new Map()] as [string[], Map<GroupId, GroupResult>]
-        )
+        return acc
+      },
+      [[], new Map()] as [string[], Map<GroupId, GroupResult>]
+    )
 
-      return [
-        {
-          ...block,
-          timestamp: block.timestamp,
-          transactionIds,
-          txnCounter: block.txnCounter !== undefined ? BigInt(block.txnCounter) : undefined,
-        } as BlockResult,
-        (transactions ?? []).map((txn) => indexerTransactionToTransactionResult(txn)),
-        Array.from(groupResults.values()),
-      ] as const
-    })
+  return [
+    {
+      ...block,
+      proposer: block.proposer?.toString(),
+      timestamp: block.timestamp,
+      transactionIds,
+      txnCounter: block.txnCounter !== undefined ? BigInt(block.txnCounter) : undefined,
+    } as BlockResult,
+    (transactions ?? []).map((txn) => indexerTransactionToTransactionResult(txn)),
+    Array.from(groupResults.values()),
+  ] as const
 }
 
 export const accumulateGroupsFromTransaction = (

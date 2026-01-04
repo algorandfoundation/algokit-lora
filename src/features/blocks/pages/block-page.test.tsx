@@ -34,9 +34,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     indexer: {
-      lookupBlock: vi.fn().mockReturnValue({
-        do: vi.fn(),
-      }),
+      lookupBlock: vi.fn(),
     },
   }
 })
@@ -58,7 +56,7 @@ describe('block-page', () => {
   describe('when rendering a block that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456' }))
-      vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupBlock).mockRejectedValue(new HttpError('boom', 404))
 
       return executeComponentTest(
         () => render(<BlockPage />),
@@ -72,7 +70,7 @@ describe('block-page', () => {
   describe('when rendering a block that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456' }))
-      vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupBlock).mockRejectedValue({})
 
       return executeComponentTest(
         () => render(<BlockPage />),
@@ -163,7 +161,7 @@ describe('block-page', () => {
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
-        myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+        myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1n)
 
         return executeComponentTest(

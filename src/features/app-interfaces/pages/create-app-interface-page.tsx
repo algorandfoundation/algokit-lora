@@ -17,7 +17,7 @@ import { asError } from '@/utils/error'
 import { useTitle } from '@/utils/use-title'
 import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { useSelectedNetwork } from '@/features/network/data'
 
 export const createAppInterfacePageTitle = 'Create App Interface'

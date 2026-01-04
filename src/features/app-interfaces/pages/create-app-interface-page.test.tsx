@@ -12,7 +12,7 @@ import { selectOption } from '@/tests/utils/select-option'
 import { getButton } from '@/tests/utils/get-button'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleTwo from '@/tests/test-app-specs/arc56/sample-two.json'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { getByRole } from '@testing-library/react'
 
 describe('create-app-interface', () => {
