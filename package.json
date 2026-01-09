@@ -78,7 +78,7 @@
     "react-json-view-lite": "^1.4.0",
     "react-number-format": "^5.4.4",
     "react-qr-code": "^2.0.15",
-    "react-router-dom": "6.24.0",
+    "react-router-dom": "6.30.3",
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.2.1",
     "use-debounce": "^10.0.3",
