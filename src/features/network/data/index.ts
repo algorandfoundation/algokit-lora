@@ -39,10 +39,63 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   biatec: 'Biatec',
 }
 
+// URL parsing utility for custom network configuration
+function parseServiceUrl(url: string): { server: string; port: number } {
+  const urlObj = new URL(url)
+  const port = urlObj.port ? parseInt(urlObj.port, 10) : urlObj.protocol === 'https:' ? 443 : 80
+
+  // Construct server with protocol, hostname, and pathname (preserving any path)
+  let server = `${urlObj.protocol}//${urlObj.hostname}${urlObj.pathname}`
+
+  // Ensure trailing slash (matches existing network config format)
+  if (!server.endsWith('/')) {
+    server += '/'
+  }
+
+  return { server, port }
+}
+
+// Build custom network configuration from environment variables
+function buildCustomNetworkConfig(): { id: string; config: NetworkConfig } | null {
+  const name = import.meta.env.VITE_CUSTOM_NETWORK_NAME
+  const id = import.meta.env.VITE_CUSTOM_NETWORK_ID
+  const algodUrl = import.meta.env.VITE_CUSTOM_NETWORK_ALGOD_URL
+  const algodToken = import.meta.env.VITE_CUSTOM_NETWORK_ALGOD_TOKEN
+  const indexerUrl = import.meta.env.VITE_CUSTOM_NETWORK_INDEXER_URL
+  const indexerToken = import.meta.env.VITE_CUSTOM_NETWORK_INDEXER_TOKEN
+
+  // All required vars must be present
+  if (!name || !id || !algodUrl || !indexerUrl) {
+    return null
+  }
+
+  const algod = parseServiceUrl(algodUrl)
+  const indexer = parseServiceUrl(indexerUrl)
+
+  return {
+    id,
+    config: {
+      name,
+      algod: {
+        ...algod,
+        token: algodToken,
+      },
+      indexer: {
+        ...indexer,
+        token: indexerToken,
+      },
+      walletIds: [WalletId.LUTE, WalletId.MNEMONIC],
+    },
+  }
+}
+
 export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
 export const TESTNET_FEE_SINK_ADDRESS = 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE'
 export const BETANET_FEE_SINK_ADDRESS = 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE'
 export const FNET_FEE_SINK_ADDRESS = 'FEESINK7OJKODDB5ZB4W2SRYPUSTOTK65UDCUYZ5DB4BW3VOHDHGO6JUNE'
+export const CUSTOM_NETWORK_FEE_SINK_ADDRESS = import.meta.env.VITE_CUSTOM_NETWORK_FEE_SINK_ADDRESS
+
+const customNetwork = buildCustomNetworkConfig()
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
@@ -118,6 +171,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
     walletIds: nonLocalnetWalletIds,
     nfdApiUrl: 'https://api.nf.domains',
   },
+  ...(customNetwork ? { [customNetwork.id]: customNetwork.config } : {}),
 }
 
 export const temporaryLocalNetSearchParams = {
@@ -249,7 +303,9 @@ export const useDeleteCustomNetworkConfig = () => {
   )
 }
 
-export const storedSelectedNetworkIdAtom = atomWithStorage('network', mainnetId, createAtomStorageWithoutSubscription(), {
+const defaultNetworkId = import.meta.env.VITE_DEFAULT_NETWORK_ID || mainnetId
+
+export const storedSelectedNetworkIdAtom = atomWithStorage('network', defaultNetworkId, createAtomStorageWithoutSubscription(), {
   getOnInit: true,
 })
 export const selectedNetworkAtomId = atomWithRefresh((get) => {
