@@ -45,7 +45,7 @@ type FormInnerProps = {
 
 function FormInner({ helper }: FormInnerProps) {
   const formCtx = useFormContext<z.infer<typeof schema>>()
-  const { setValue, trigger } = formCtx
+  const { setValue, setError, clearErrors } = formCtx
   const loadableAppInterfaces = useLoadableAppInterfacesAtom()
   const appInterfaceNameFieldValue = formCtx.watch('name')
   const [appInterfaceName] = useDebounce(appInterfaceNameFieldValue, 500)
@@ -56,9 +56,17 @@ function FormInner({ helper }: FormInnerProps) {
         (appInterface) => appInterface.name.toLowerCase() === appInterfaceName.toLowerCase()
       )
       setValue('appInterfaceExists', appInterfaceExists)
-      trigger('name')
+
+      if (appInterfaceExists) {
+        setError('name', {
+          type: 'manual',
+          message: 'App interface with this name already exists',
+        })
+      } else {
+        clearErrors('name')
+      }
     }
-  }, [appInterfaceName, loadableAppInterfaces, setValue, trigger])
+  }, [appInterfaceName, loadableAppInterfaces, setValue, setError, clearErrors])
 
   return (
     <>

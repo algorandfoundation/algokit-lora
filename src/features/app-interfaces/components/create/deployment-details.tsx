@@ -73,7 +73,6 @@ function FormInner({
       )
       setValue('appInterfaceExists', appInterfaceExists)
 
-      // Manually set/clear error on the name field
       if (appInterfaceExists) {
         setError('name', {
           type: 'manual',
