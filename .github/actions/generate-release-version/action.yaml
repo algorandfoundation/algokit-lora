@@ -7,7 +7,7 @@ inputs:
   node-version:
     description: 'The Node version'
     required: true
-    default: '20'
+    default: '22'
 outputs:
   release-published:
     description: 'If the release was published'
