@@ -26,7 +26,7 @@ describe('resolving ABI method', () => {
     it('should resolve the correct data with arc32 appspec', async () => {
       const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
@@ -60,7 +60,7 @@ describe('resolving ABI method', () => {
     it('should resolve the correct data with arc4 appspec', async () => {
       const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)

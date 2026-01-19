@@ -17,7 +17,7 @@ import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/
 import { selectOption } from '@/tests/utils/select-option'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
 import { getTestStore } from '@/tests/utils/get-test-store'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
@@ -294,7 +294,7 @@ describe('application-method-definitions', () => {
               await user.click(await component.findByRole('button', { name: sendButtonLabel }))
 
               const errorMessage = await component.findByText(
-                'Network request error. Received status 400 (Bad Request): txgroup had 0 in fees, which is less than the minimum 1 * 1000'
+                'Request to /v2/transactions/simulate failed with status 400: txgroup had 0 in fees, which is less than the minimum 1 * 1000'
               )
               expect(errorMessage).toBeInTheDocument()
             }
@@ -468,10 +468,9 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                TransactionPayment {
+                {
                   "amount": 500000n,
                   "closeAmount": 0n,
-                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
@@ -595,10 +594,9 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                TransactionPayment {
+                {
                   "amount": 600000n,
                   "closeAmount": 0n,
-                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
@@ -717,10 +715,9 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                TransactionPayment {
+                {
                   "amount": 500000n,
                   "closeAmount": 0n,
-                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)

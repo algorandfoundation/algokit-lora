@@ -13,7 +13,9 @@ import {
   DecodedBoxDescriptor,
   RawBoxDescriptor,
 } from '../models'
-import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
+import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
@@ -22,7 +24,17 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { Arc56Contract, getABITupleTypeFromABIStructDefinition, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import {
+  ABIMethod,
+  ABIMethodArgType,
+  ABIReferenceType,
+  ABIStructType,
+  ABITransactionType,
+  ABIType,
+  Arc56Contract,
+  arc56MethodToABIMethod,
+  StructField,
+} from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -49,18 +61,18 @@ export const asApplication = (
     account: getApplicationAddress(application.id).toString(),
     globalStateSchema: application.params.globalStateSchema
       ? {
-          numByteSlice: application.params.globalStateSchema.numByteSlice,
-          numUint: application.params.globalStateSchema.numUint,
+          numByteSlice: application.params.globalStateSchema.numByteSlices,
+          numUint: application.params.globalStateSchema.numUints,
         }
       : undefined,
     localStateSchema: application.params.localStateSchema
       ? {
-          numByteSlice: application.params.localStateSchema.numByteSlice,
-          numUint: application.params.localStateSchema.numUint,
+          numByteSlice: application.params.localStateSchema.numByteSlices,
+          numUint: application.params.localStateSchema.numUints,
         }
       : undefined,
-    approvalProgram: uint8ArrayToBase64(application.params.approvalProgram),
-    clearStateProgram: uint8ArrayToBase64(application.params.clearStateProgram),
+    approvalProgram: application.params.approvalProgram ? uint8ArrayToBase64(application.params.approvalProgram) : '',
+    clearStateProgram: application.params.clearStateProgram ? uint8ArrayToBase64(application.params.clearStateProgram) : '',
     globalState: asGlobalStateValues(application.params.globalState, appSpec),
     isDeleted: application.deleted ?? false,
     json: asJson(normaliseAlgoSdkData(application)),
@@ -102,7 +114,7 @@ const asRawApplicationStateValue = (bytes: Uint8Array) => {
   return base64ToUtf8IfValid(uint8ArrayToBase64(bytes))
 }
 
-const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationState => {
+const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
   if (state.value.type === 1) {
     return {
       key: asRawApplicationStateKey(state.key),
@@ -120,7 +132,7 @@ const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationSta
   throw new Error(`Unknown type ${state.value.type}`)
 }
 
-const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
+const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
   const { key: keyBytes, value } = state
   const key = uint8ArrayToBase64(keyBytes)
 
@@ -196,7 +208,7 @@ const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'globa
   return getRawApplicationState(state)
 }
 
-export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?: Arc56Contract): ApplicationState[] => {
+export const asLocalStateValues = (localState: TealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
   if (!localState) {
     return []
   }
@@ -210,12 +222,12 @@ export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?
     })
 }
 
-const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: modelsv2.TealValue): DecodedAbiStorageValue => {
+const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: TealValue): DecodedAbiStorageValue => {
   if (value.type === 2) {
     // When the teal value is uint, display it as uint64
     const b = BigInt(value.uint)
     return {
-      abiType: algosdk.ABIUintType.from('uint64'),
+      abiType: ABIType.from('uint64'),
       value: {
         type: DecodedAbiType.Uint,
         value: b,
@@ -228,6 +240,29 @@ const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value:
   return asDecodedAbiStorageValue(appSpec, type, value.bytes)
 }
 
+// Helper function to convert a type string to ABIMethodArgType
+// Handles reference types (asset, account, application) and transaction types
+const parseArgType = (typeStr: string): ABIMethodArgType => {
+  // Check for reference types
+  if (typeStr === ABIReferenceType.Asset || typeStr === ABIReferenceType.Account || typeStr === ABIReferenceType.Application) {
+    return typeStr as ABIReferenceType
+  }
+  // Check for transaction types
+  if (
+    typeStr === ABITransactionType.Txn ||
+    typeStr === ABITransactionType.KeyRegistration ||
+    typeStr === ABITransactionType.Payment ||
+    typeStr === ABITransactionType.AssetFreeze ||
+    typeStr === ABITransactionType.AssetConfig ||
+    typeStr === ABITransactionType.AssetTransfer ||
+    typeStr === ABITransactionType.AppCall
+  ) {
+    return typeStr as ABITransactionType
+  }
+  // Otherwise, parse as ABI type
+  return ABIType.from(typeStr)
+}
+
 export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
   if (isArc56AppSpec(appSpec)) {
     return appSpec
@@ -237,11 +272,17 @@ export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
   }
   if (isArc4AppSpec(appSpec)) {
     const abiMethods = appSpec.methods.map((method) => {
-      return new algosdk.ABIMethod({
+      return new ABIMethod({
         name: method.name,
-        desc: method.desc,
-        args: method.args,
-        returns: method.returns,
+        description: method.desc,
+        args: method.args.map((arg) => ({
+          ...arg,
+          type: parseArgType(arg.type),
+        })),
+        returns: {
+          ...method.returns,
+          type: method.returns.type === 'void' ? 'void' : ABIType.from(method.returns.type),
+        },
       })
     })
 
@@ -314,7 +355,7 @@ export const asStructDefinition = (structName: string, structs: Record<string, S
         type: getStructFieldType(structField.type),
       }))
     }
-    return algosdk.ABIType.from(structFieldType)
+    return ABIType.from(structFieldType)
   }
 
   invariant(structs[structName], 'Struct not found')
@@ -331,48 +372,46 @@ export const asStructDefinition = (structName: string, structs: Record<string, S
 
 const asOnApplicationComplete = (
   action: 'NoOp' | 'OptIn' | 'CloseOut' | 'ClearState' | 'UpdateApplication' | 'DeleteApplication'
-): algosdk.OnApplicationComplete => {
+): OnApplicationComplete => {
   switch (action) {
     case 'NoOp':
-      return algosdk.OnApplicationComplete.NoOpOC
+      return OnApplicationComplete.NoOp
     case 'OptIn':
-      return algosdk.OnApplicationComplete.OptInOC
+      return OnApplicationComplete.OptIn
     case 'CloseOut':
-      return algosdk.OnApplicationComplete.CloseOutOC
+      return OnApplicationComplete.CloseOut
     case 'ClearState':
-      return algosdk.OnApplicationComplete.ClearStateOC
+      return OnApplicationComplete.ClearState
     case 'UpdateApplication':
-      return algosdk.OnApplicationComplete.UpdateApplicationOC
+      return OnApplicationComplete.UpdateApplication
     case 'DeleteApplication':
-      return algosdk.OnApplicationComplete.DeleteApplicationOC
+      return OnApplicationComplete.DeleteApplication
   }
 }
 
 export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
   const arc56AppSpec = asArc56AppSpec(appSpec)
   return arc56AppSpec.methods.map((method) => {
-    const abiMethod = new algosdk.ABIMethod({
-      name: method.name,
-      desc: method.desc,
-      args: method.args,
-      returns: method.returns,
-    })
+    const abiMethod = arc56MethodToABIMethod(method, arc56AppSpec)
 
     const methodArgs = method.args.map((arg, i) => {
       const getStructDefinition = () => {
         if (!arg.struct) return undefined
-        const structFields = arc56AppSpec.structs[arg.struct]
-        const structTupleType = getABITupleTypeFromABIStructDefinition(structFields, arc56AppSpec.structs)
+        const structTupleType = ABIStructType.fromStruct(arg.struct, arc56AppSpec.structs).toABITupleType()
         if (structTupleType.toString() === abiMethod.args[i].type.toString()) {
           return asStructDefinition(arg.struct, arc56AppSpec.structs)
         }
         return undefined
       }
 
+      // Convert ABIStructType back to ABITupleType for compatibility
+      const argType = abiMethod.args[i].type
+      const type = argType instanceof ABIStructType ? argType.toABITupleType() : argType
+
       return {
         name: arg.name,
         description: arg.desc,
-        type: abiMethod.args[i].type,
+        type: type,
         struct: getStructDefinition(),
         defaultArgument: arg.defaultValue,
       } satisfies ArgumentDefinition
@@ -394,7 +433,9 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
           method.returns.struct && arc56AppSpec.structs[method.returns.struct]
             ? asStructDefinition(method.returns.struct, arc56AppSpec.structs)
             : undefined,
-        type: abiMethod.returns.type,
+        // Convert ABIStructType back to ABITupleType for compatibility
+        type:
+          abiMethod.returns.type instanceof ABIStructType ? abiMethod.returns.type.toABITupleType() : abiMethod.returns.type,
       },
     } satisfies MethodDefinition
   })

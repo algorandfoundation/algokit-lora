@@ -1,6 +1,5 @@
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import algosdk from 'algosdk'
+import { ABIType, AVMType } from '@algorandfoundation/algokit-utils/abi'
 
-export const isAVMType = (type: string | algosdk.ABIType): type is AVMType => {
+export const isAVMType = (type: string | ABIType | AVMType): type is AVMType => {
   return typeof type === 'string' && ['AVMBytes', 'AVMString', 'AVMUint64'].includes(type)
 }

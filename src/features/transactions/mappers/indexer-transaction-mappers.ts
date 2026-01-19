@@ -1,9 +1,8 @@
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 import { TransactionId, TransactionResult } from '../data/types'
-import algosdk from 'algosdk'
+import { Transaction as IndexerTransaction } from '@algorandfoundation/algokit-utils/indexer-client'
 
-export const indexerTransactionToTransactionResult = (transaction: algosdk.indexerModels.Transaction): TransactionResult => {
-  const { innerTxns, ...rest } = removeEncodableMethods(transaction)
+export const indexerTransactionToTransactionResult = (transaction: IndexerTransaction): TransactionResult => {
+  const { innerTxns, ...rest } = transaction
 
   const innerTxnsWithId = innerTxns?.map((innerTxn, index) =>
     indexerTransactionToInnerTransactionResult(innerTxn, transaction.id!, index + 1)
@@ -17,7 +16,7 @@ export const indexerTransactionToTransactionResult = (transaction: algosdk.index
 }
 
 export const indexerTransactionToInnerTransactionResult = (
-  transaction: algosdk.indexerModels.Transaction,
+  transaction: IndexerTransaction,
   parentTransactionId: TransactionId,
   offset: number
 ): TransactionResult => {
@@ -30,7 +29,7 @@ export const indexerTransactionToInnerTransactionResult = (
   )
 
   return {
-    ...removeEncodableMethods(transaction),
+    ...transaction,
     id: transactionId,
     innerTxns,
   }

@@ -1,4 +1,5 @@
-import algosdk from 'algosdk'
+import { ABIAddressType, ABIReferenceType, ABIValue, argTypeIsTransaction } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
@@ -176,9 +177,9 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.methodDefinition.arguments[index]
-          const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
-          if (!algosdk.abiTypeIsTransaction(type)) {
-            acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
+          const field = `${methodArgPrefix}-${index}${type instanceof ABIAddressType || type === ABIReferenceType.Account ? '.value' : ''}`
+          if (!argTypeIsTransaction(type)) {
+            acc[field] = asFieldInput(type, arg as ABIValue)
           } else {
             acc[field] = arg
           }
@@ -320,7 +321,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
             dt: 'Type',
             dd: arg.struct ? (
               <StructDefinition struct={arg.struct} />
-            ) : algosdk.abiTypeIsTransaction(arg.type) ? (
+            ) : argTypeIsTransaction(arg.type) ? (
               <div className="flex items-center gap-1.5">
                 <span>{arg.type.toString()}</span>
                 <Tooltip>
@@ -354,9 +355,9 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         return false
       } else if (!selectedMethodForm?.callConfig) {
         return true
-      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as OnApplicationComplete)) {
         return true
-      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as OnApplicationComplete)) {
         return true
       }
       return false

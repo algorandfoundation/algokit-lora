@@ -1,4 +1,12 @@
-import algosdk, { Address } from 'algosdk'
+import {
+  ABIReferenceType,
+  ABITransactionType,
+  ABIValue,
+  argTypeIsReference,
+  argTypeIsTransaction,
+} from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
@@ -38,13 +46,13 @@ import {
   asPaymentTransactionParams,
   asApplicationCreateTransactionParams,
   asApplicationUpdateTransactionParams,
-} from './as-algosdk-transactions'
+} from './as-algokit-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import { isBuildTransactionResult, isPlaceholderTransaction, isTransactionArg } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
@@ -251,11 +259,11 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
-    ...('account' in params && params.account
+    ...(params.freezeTarget
       ? [
           {
             dt: 'Freeze target',
-            dd: <AddressOrNfdLink address={params.account} />,
+            dd: <AddressOrNfdLink address={params.freezeTarget} />,
           },
         ]
       : []),
@@ -299,7 +307,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
 
 const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
   return args.reduce((acc, arg) => {
-    if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.MethodCall) {
+    if (isBuildTransactionResult(arg) && arg.type === BuildableTransactionType.MethodCall) {
       return [...acc, ...flatten(arg.methodArgs), arg]
     }
     return [...acc, arg]
@@ -314,8 +322,8 @@ const asMethodArg = (
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   const arg = args[argIndex]
-  if (algosdk.abiTypeIsTransaction(argumentDefinition.type)) {
-    invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
+  if (argTypeIsTransaction(argumentDefinition.type)) {
+    invariant(isTransactionArg(arg), 'Transaction type args must be a transaction')
 
     const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
     const resolvedArg =
@@ -346,26 +354,26 @@ const asMethodArg = (
   if (arg === undefined) {
     return 'Not set'
   }
-  if (algosdk.abiTypeIsReference(argumentDefinition.type)) {
-    if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
+  if (argTypeIsReference(argumentDefinition.type)) {
+    if (argumentDefinition.type === ABIReferenceType.Account) {
       return <AddressOrNfdLink address={arg.toString()} />
     }
-    if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
+    if (argumentDefinition.type === ABIReferenceType.Asset) {
       const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
-    if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
+    if (argumentDefinition.type === ABIReferenceType.Application) {
       const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
   }
   if (argumentDefinition.struct) {
-    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as algosdk.ABIValue)
+    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as ABIValue)
     return <DecodedAbiStruct struct={structModel} />
   }
 
-  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
+  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as ABIValue)
   return <DecodedAbiValue abiValue={abiValue} />
 }
 
@@ -383,7 +391,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -436,7 +444,7 @@ const asMethodCallTransaction = (
     ...(transaction.methodDefinition ? [{ dt: 'Method', dd: transaction.methodDefinition.name }] : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -497,7 +505,7 @@ const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
     : []
 
 const asResourcesItem = (
-  accounts?: (string | Address)[],
+  accounts?: ReadableAddress[],
   assets?: bigint[],
   apps?: bigint[],
   boxes?: CommonAppCallParams['boxReferences']
@@ -516,7 +524,7 @@ const asResourcesItem = (
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
                       <AddressOrNfdLink address={address} className="text-primary inline underline">
-                        {typeof address === 'string' ? address : address.toString()}
+                        {getAddress(address).toString()}
                       </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -621,36 +629,36 @@ const asResourcesItem = (
   ]
 }
 
-export const asOnCompleteLabel = (onComplete: algosdk.OnApplicationComplete) => {
+export const asOnCompleteLabel = (onComplete: OnApplicationComplete) => {
   switch (onComplete) {
-    case algosdk.OnApplicationComplete.NoOpOC:
+    case OnApplicationComplete.NoOp:
       return 'Call (NoOp)'
-    case algosdk.OnApplicationComplete.OptInOC:
+    case OnApplicationComplete.OptIn:
       return 'Opt-in'
-    case algosdk.OnApplicationComplete.CloseOutOC:
+    case OnApplicationComplete.CloseOut:
       return 'Close-out'
-    case algosdk.OnApplicationComplete.ClearStateOC:
+    case OnApplicationComplete.ClearState:
       return 'Clear state'
-    case algosdk.OnApplicationComplete.UpdateApplicationOC:
+    case OnApplicationComplete.UpdateApplication:
       return 'Update'
-    case algosdk.OnApplicationComplete.DeleteApplicationOC:
+    case OnApplicationComplete.DeleteApplication:
       return 'Delete'
   }
 }
 
-export const asTransactionLabelFromTransactionType = (type: algosdk.ABITransactionType) => {
+export const asTransactionLabelFromTransactionType = (type: ABITransactionType) => {
   switch (type) {
-    case algosdk.ABITransactionType.pay:
+    case ABITransactionType.Payment:
       return BuildableTransactionType.Payment
-    case algosdk.ABITransactionType.appl:
+    case ABITransactionType.AppCall:
       return TransactionType.AppCall
-    case algosdk.ABITransactionType.axfer:
+    case ABITransactionType.AssetTransfer:
       return TransactionType.AssetFreeze
-    case algosdk.ABITransactionType.acfg:
+    case ABITransactionType.AssetConfig:
       return TransactionType.AssetConfig
-    case algosdk.ABITransactionType.afrz:
+    case ABITransactionType.AssetFreeze:
       return TransactionType.AssetFreeze
-    case algosdk.ABITransactionType.keyreg:
+    case ABITransactionType.KeyRegistration:
       return TransactionType.KeyReg
     default:
       return 'Transaction'
@@ -696,7 +704,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
   return [
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -759,7 +767,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
+      dd: asOnCompleteLabel(OnApplicationComplete.UpdateApplication),
     },
     {
       dt: 'Sender',

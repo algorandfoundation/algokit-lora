@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { AppSpec, Arc32AppSpec, Arc4AppSpec } from '../app-interfaces/data/types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

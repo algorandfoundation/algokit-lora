@@ -38,9 +38,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      accountInformation: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
+      accountInformation: vi.fn(),
     },
   }
 })
@@ -62,9 +60,7 @@ describe('account-page', () => {
   describe('when rendering an account that failed to load', () => {
     it('should render an error message', () => {
       vi.mocked(useParams).mockReturnValue({ address: '7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ' })
-      vi.mocked(algod.accountInformation('7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ').do).mockImplementation(() =>
-        Promise.reject({})
-      )
+      vi.mocked(algod.accountInformation).mockRejectedValue({})
 
       return executeComponentTest(
         () => render(<AccountPage />),

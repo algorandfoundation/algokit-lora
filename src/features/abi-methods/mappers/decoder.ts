@@ -1,16 +1,28 @@
 import { StructDefinition, StructFieldDefinition } from '@/features/applications/models'
 import { sum } from '@/utils/sum'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import algosdk from 'algosdk'
+import {
+  ABIAddressType,
+  ABIArrayDynamicType,
+  ABIArrayStaticType,
+  ABIBoolType,
+  ABIByteType,
+  ABIStringType,
+  ABITupleType,
+  ABIType,
+  ABIUfixedType,
+  ABIUintType,
+  ABIValue,
+} from '@algorandfoundation/algokit-utils/abi'
 import { DecodedAbiStruct, DecodedAbiStructField, DecodedAbiType, DecodedAbiValue } from '../models'
 import { bigIntToFixedPointDecimalString } from './ufixed-mappers'
 
 export const MAX_LINE_LENGTH = 20
 
-export const asDecodedAbiStruct = (struct: StructDefinition, abiValue: algosdk.ABIValue): DecodedAbiStruct => {
-  const decodeStructField = (field: StructFieldDefinition, abiValue: algosdk.ABIValue): DecodedAbiStructField => {
+export const asDecodedAbiStruct = (struct: StructDefinition, abiValue: ABIValue): DecodedAbiStruct => {
+  const decodeStructField = (field: StructFieldDefinition, abiValue: ABIValue): DecodedAbiStructField => {
     if (Array.isArray(field.type)) {
-      const valueAsArray = abiValue as algosdk.ABIValue[]
+      const valueAsArray = abiValue as ABIValue[]
       const childrenFields = field.type.map((childField, index) => {
         return decodeStructField(childField, valueAsArray[index])
       })
@@ -31,7 +43,7 @@ export const asDecodedAbiStruct = (struct: StructDefinition, abiValue: algosdk.A
     }
   }
 
-  const abiValues = abiValue as algosdk.ABIValue[]
+  const abiValues = abiValue as ABIValue[]
   const fields = struct.fields.map((structField, index) => {
     return decodeStructField(structField, abiValues[index])
   })
@@ -46,10 +58,10 @@ export const asDecodedAbiStruct = (struct: StructDefinition, abiValue: algosdk.A
   }
 }
 
-export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): DecodedAbiValue => {
-  if (abiType instanceof algosdk.ABITupleType) {
+export const asDecodedAbiValue = (abiType: ABIType, abiValue: ABIValue): DecodedAbiValue => {
+  if (abiType instanceof ABITupleType) {
     const childTypes = abiType.childTypes
-    const abiValues = abiValue as algosdk.ABIValue[]
+    const abiValues = abiValue as ABIValue[]
     if (childTypes.length !== abiValues.length) {
       throw new Error('Tuple type has different number of child types than abi values')
     }
@@ -64,9 +76,9 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       length,
     }
   }
-  if (abiType instanceof algosdk.ABIArrayStaticType || abiType instanceof algosdk.ABIArrayDynamicType) {
+  if (abiType instanceof ABIArrayStaticType || abiType instanceof ABIArrayDynamicType) {
     const childType = abiType.childType
-    if (childType instanceof algosdk.ABIByteType) {
+    if (childType instanceof ABIByteType) {
       // Treat bytes arrays as strings
       const base64Value = uint8ArrayToBase64(abiValue as Uint8Array)
       return {
@@ -76,7 +88,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
         length: base64Value.length,
       }
     } else {
-      const abiValues = abiValue as algosdk.ABIValue[]
+      const abiValues = abiValue as ABIValue[]
       const childrenValues = abiValues.map((abiValue) => asDecodedAbiValue(childType, abiValue))
       const length = sum(childrenValues.map((v) => v.length))
       const multiline = childrenValues.some((v) => v.multiline) || length > MAX_LINE_LENGTH
@@ -89,7 +101,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       }
     }
   }
-  if (abiType instanceof algosdk.ABIStringType) {
+  if (abiType instanceof ABIStringType) {
     const stringValue = abiValue as string
     return {
       type: DecodedAbiType.String,
@@ -98,7 +110,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       multiline: false,
     }
   }
-  if (abiType instanceof algosdk.ABIAddressType) {
+  if (abiType instanceof ABIAddressType) {
     const stringValue = abiValue as string
     return {
       type: DecodedAbiType.Address,
@@ -107,7 +119,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       multiline: false,
     }
   }
-  if (abiType instanceof algosdk.ABIBoolType) {
+  if (abiType instanceof ABIBoolType) {
     const boolValue = abiValue as boolean
     return {
       type: DecodedAbiType.Boolean,
@@ -116,7 +128,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       multiline: false,
     }
   }
-  if (abiType instanceof algosdk.ABIUintType) {
+  if (abiType instanceof ABIUintType) {
     const bigintValue = abiValue as bigint
     return {
       type: DecodedAbiType.Uint,
@@ -125,7 +137,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       multiline: false,
     }
   }
-  if (abiType instanceof algosdk.ABIUfixedType) {
+  if (abiType instanceof ABIUfixedType) {
     const stringValue = bigIntToFixedPointDecimalString(abiValue as bigint, abiType.precision)
     return {
       type: DecodedAbiType.Ufixed,
@@ -134,7 +146,7 @@ export const asDecodedAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.AB
       multiline: false,
     }
   }
-  if (abiType instanceof algosdk.ABIByteType) {
+  if (abiType instanceof ABIByteType) {
     const numberValue = abiValue as number
     return {
       type: DecodedAbiType.Byte,

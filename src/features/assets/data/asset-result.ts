@@ -5,10 +5,9 @@ import { readOnlyAtomCache } from '@/features/common/data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 export const algoAssetResult: AssetResult = {
-  index: 0n,
+  id: 0n,
   createdAtRound: 0n,
   params: {
     creator: ZERO_ADDRESS,
@@ -20,26 +19,19 @@ export const algoAssetResult: AssetResult = {
   },
 }
 
-const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
+const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId): Promise<AssetResult> => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    return await algod
-      .getAssetByID(assetId)
-      .do()
-      .then((result) => removeEncodableMethods(result) as AssetResult)
+    const result = await algod.assetById(assetId)
+    return result
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
-      return await indexer
-        .lookupAssetByID(assetId)
-        .includeAll(true) // Returns destroyed assets
-        .do()
-        .then((result) => {
-          if (!result.asset) {
-            throw new Error(`Asset ${assetId} not found`)
-          }
-          return removeEncodableMethods(result.asset) as AssetResult
-        })
+      const result = await indexer.lookupAssetById(assetId, { includeAll: true }) // Returns destroyed assets
+      if (!result.asset) {
+        throw new Error(`Asset ${assetId} not found`)
+      }
+      return result.asset
     }
     throw e
   }
@@ -51,4 +43,4 @@ export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache<
   Parameters<typeof keySelector>,
   ReturnType<typeof keySelector>,
   Promise<AssetResult> | AssetResult
->(getAssetResult, keySelector, new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]]))
+>(getAssetResult, keySelector, new Map([[algoAssetResult.id, [atom(() => algoAssetResult), -1]]]))

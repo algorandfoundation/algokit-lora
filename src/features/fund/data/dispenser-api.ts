@@ -183,7 +183,7 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
           throw new Error(`Failed to refund. ${sendResult.confirmation.poolError ?? ''}`)
         }
 
-        await refund(dispenserApiUrl, token, sendResult.transaction.txID())
+        await refund(dispenserApiUrl, token, sendResult.transaction.txId())
       },
       [dispenserAddress, dispenserApiUrl, getAccessTokenSilently]
     )

@@ -10,27 +10,24 @@ import { Round } from '@/features/blocks/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { asAssetSummary } from '@/features/assets/mappers'
 import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
-import algosdk, { SignedTxnWithAD } from 'algosdk'
+import { PendingTransactionResponse, SignedTxnWithAD } from '@algorandfoundation/algokit-utils/algod-client'
 import { accumulateGroupsFromTransaction } from '@/features/blocks/data'
 import { subscribedTransactionToTransactionResult } from '../mappers/subscriber-transaction-mappers'
 
-const asSignedTxnWithAD = (res: algosdk.modelsv2.PendingTransactionResponse): SignedTxnWithAD => {
-  return new SignedTxnWithAD({
-    signedTxn: new algosdk.SignedTransaction({
-      txn: res.txn.txn,
-      sgnr: res.txn.sgnr,
-    }),
-    applyData: new algosdk.ApplyData({
-      configAsset: res.assetIndex,
-      applicationID: res.applicationIndex,
+const asSignedTxnWithAD = (res: PendingTransactionResponse): SignedTxnWithAD => {
+  return {
+    signedTxn: res.txn,
+    applyData: {
+      configAsset: res.assetId,
+      applicationId: res.appId,
       closingAmount: res.closingAmount,
       assetClosingAmount: res.assetClosingAmount,
-      evalDelta: new algosdk.EvalDelta({
+      evalDelta: {
         logs: res.logs,
         innerTxns: res.innerTxns?.map((inner) => asSignedTxnWithAD(inner)),
-      }),
-    }),
-  })
+      },
+    },
+  }
 }
 
 export const asTransactionFromSendResult = (result: SendTransactionResults): Transaction[] => {
@@ -45,20 +42,20 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
   // This mapping does some approximations, which are fine for the contexts we currently use it for.
   const transactionResults = result.confirmations.map((confirmation, i) => {
     invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
-    invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
+    invariant(confirmation.txn.txn.genesisId, 'Genesis ID is required')
 
     const subscribedTransaction = getIndexerTransactionFromAlgodTransaction({
       signedTxnWithAD: asSignedTxnWithAD(confirmation),
       intraRoundOffset: 0,
-      transactionId: confirmation.txn.txn.txID(),
+      transactionId: confirmation.txn.txn.txId(),
       genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),
-      genesisId: confirmation.txn.txn.genesisID,
+      genesisId: confirmation.txn.txn.genesisId,
       roundNumber: confirmation.confirmedRound ?? 0n,
       roundTimestamp: Math.floor(now.getTime() / 1000),
       transaction: result.transactions[i],
       logs: confirmation.logs,
-      createdAssetId: confirmation.assetIndex,
-      createdAppId: confirmation.applicationIndex,
+      createdAssetId: confirmation.assetId,
+      createdAppId: confirmation.appId,
       closeAmount: confirmation.closingAmount,
       assetCloseAmount: confirmation.assetClosingAmount,
     })
@@ -90,7 +87,7 @@ const assetSummaryResolver = (assetId: AssetId) =>
       return asAssetSummary(assetResult)
     } catch {
       return asAssetSummary({
-        index: assetId,
+        id: assetId,
         params: {
           creator: '',
           decimals: 0,

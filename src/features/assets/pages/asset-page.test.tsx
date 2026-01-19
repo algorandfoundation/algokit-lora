@@ -35,8 +35,7 @@ import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
-import { searchTransactionsMock } from '@/tests/setup/mocks'
-import algosdk from 'algosdk'
+import { TransactionsResponse, Transaction as IndexerTransaction } from '@algorandfoundation/algokit-utils/indexer-client'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 
@@ -51,17 +50,11 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      getAssetByID: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
+      assetById: vi.fn(),
     },
     indexer: {
-      lookupAssetByID: vi.fn().mockReturnValue({
-        includeAll: vi.fn().mockReturnValue({
-          do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        }),
-      }),
-      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+      lookupAssetById: vi.fn(),
+      searchForTransactions: vi.fn(),
     },
     algorandClient: {
       newGroup: vi.fn().mockReturnValue({
@@ -102,8 +95,8 @@ describe('asset-page', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
 
-      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
-      vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(algod.assetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupAssetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<AssetPage />),
@@ -117,7 +110,7 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(algod.assetById).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),
@@ -134,20 +127,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
           return HttpResponse.json({
@@ -227,20 +214,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreidt263gwlss4t5kdg6tekxhlxsedb42l5ntvt5mzbv5jywzrzk2ku', () => {
           return HttpResponse.json({
@@ -336,20 +317,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
 
       return executeComponentTest(
         () => {
@@ -430,20 +405,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi', () => {
           return HttpResponse.json({
@@ -523,20 +492,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreihwm3mg4t4bgdvsf6j4epr4v7qwmuhbk6dv3qt3kmtmmm7uagrji4', () => {
           return HttpResponse.json({
@@ -648,20 +611,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj', () => {
           return HttpResponse.json({
@@ -790,22 +747,18 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [
-              createAssetTransactionResult as algosdk.indexerModels.Transaction,
-              reconfigureAssetTransactionResult as algosdk.indexerModels.Transaction,
-              destroyAssetTransactionResult as algosdk.indexerModels.Transaction,
-            ],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [
+          createAssetTransactionResult as IndexerTransaction,
+          reconfigureAssetTransactionResult as IndexerTransaction,
+          destroyAssetTransactionResult as IndexerTransaction,
+        ],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
 
       return executeComponentTest(
         () => {
@@ -838,9 +791,9 @@ describe('asset-page', () => {
   describe('when rendering the algo asset', () => {
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.id.toString() }))
 
       return executeComponentTest(
         () => {
@@ -885,20 +838,14 @@ describe('asset-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
           return HttpResponse.json({
@@ -952,20 +899,14 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
       server.use(
         http.head('https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd', () => {
           return new Response(null, { status: 200, headers: { 'Content-Type': 'image/png' } })
@@ -1028,21 +969,15 @@ describe('asset-page', () => {
 
     it('Asset details component display the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions).mockResolvedValue({
+        transactions: [transactionResult as IndexerTransaction],
+        nextToken: undefined,
+        currentRound: 1n,
+      } satisfies TransactionsResponse)
 
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreiaiknhipiu27yujskcqv3t4ie5mqbfwhela4quwxiippmlnuscy74', () => {

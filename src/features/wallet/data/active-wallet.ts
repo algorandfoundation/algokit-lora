@@ -5,7 +5,7 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { Address } from '@/features/accounts/data/types'
 import { useEffect, useMemo } from 'react'
 import { atomEffect } from 'jotai-effect'
-import algosdk from 'algosdk'
+import { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 
 const activeWalletAddressAtom = atom<Promise<Address | undefined> | (Address | undefined)>(new Promise<Address | undefined>(() => {}))
 export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccount | undefined>>(async (get) => {
@@ -17,7 +17,7 @@ export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccou
   }
 })
 
-export const useSetActiveWalletState = (isReady: boolean, activeAddress: string | undefined, signer: algosdk.TransactionSigner) => {
+export const useSetActiveWalletState = (isReady: boolean, activeAddress: string | undefined, signer: TransactionSigner) => {
   const setActiveWalletAddress = useSetAtom(activeWalletAddressAtom)
   useEffect(() => {
     if (isReady) {
