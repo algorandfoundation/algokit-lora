@@ -1,1 +1,7 @@
-{}
+{
+  "1112255": {
+    "active": true,
+    "expiry": "2026-02-15",
+    "notes": "tar vulnerability in @semantic-release/npm -> npm bundled dependency. Waiting for fix from npm."
+  }
+}

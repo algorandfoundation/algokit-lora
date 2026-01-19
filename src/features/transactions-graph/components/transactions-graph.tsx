@@ -116,7 +116,7 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
           </div>
         </div>
         {downloadable && (
-          <div className="bottom-0 flex h-10 w-full md:absolute md:justify-end">
+          <div className="right-0 bottom-0 flex h-10 w-auto md:absolute md:justify-end">
             {/* Don't change this id value, it's used by a bot Alessandro is building. */}
             <Button id="download-transactions-visual" className="w-32" variant="outline" onClick={downloadImage}>
               <Download className="mr-2 size-4" />
