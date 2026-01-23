@@ -47,8 +47,8 @@ import {
   asApplicationCreateTransactionParams,
   asApplicationUpdateTransactionParams,
 } from './as-algokit-transactions'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
+import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'

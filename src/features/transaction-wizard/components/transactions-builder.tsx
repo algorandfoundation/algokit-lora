@@ -36,7 +36,7 @@ import React from 'react'
 import { asAlgokitTransactionType } from '../mappers/as-algokit-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
-import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 

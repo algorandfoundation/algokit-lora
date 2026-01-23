@@ -35,7 +35,7 @@ import {
   OfflineKeyRegistrationParams,
   OnlineKeyRegistrationParams,
   PaymentParams,
-} from '@algorandfoundation/algokit-utils/types/composer'
+} from '@algorandfoundation/algokit-utils/composer'
 import { Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'

@@ -1,6 +1,6 @@
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppSpec } from '@algorandfoundation/algokit-utils/app-spec'
+import { AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/app-factory'
 import { Address, AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { JotaiStore } from '@/features/common/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
