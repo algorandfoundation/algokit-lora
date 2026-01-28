@@ -1,7 +1,7 @@
 {
-  "1112255": {
+  "1112496": {
     "active": true,
     "expiry": "2026-02-15",
-    "notes": "tar vulnerability in @semantic-release/npm -> npm bundled dependency. Waiting for fix from npm."
+    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump to v6.23.0+."
   }
 }
