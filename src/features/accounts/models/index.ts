@@ -1,4 +1,4 @@
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
 import { Address } from '../data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { ApplicationId } from '@/features/applications/data/types'

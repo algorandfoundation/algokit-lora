@@ -19,7 +19,7 @@ import { Parentheses } from 'lucide-react'
 import { buildComposer } from '@/features/transaction-wizard/data/common'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendTransactionResults } from '@algorandfoundation/algokit-utils/transaction'
 import { GroupSendResults, SendResults } from '@/features/transaction-wizard/components/group-send-results'
 
 type Props = {

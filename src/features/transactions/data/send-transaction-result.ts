@@ -1,5 +1,5 @@
 import { Transaction } from '../models'
-import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SendTransactionResults } from '@algorandfoundation/algokit-utils/transaction'
 import { invariant } from '@/utils/invariant'
 import { asTransaction } from '../mappers'
 import { getAssetResultAtom } from '@/features/assets/data'

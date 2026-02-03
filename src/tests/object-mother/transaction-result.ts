@@ -3,7 +3,7 @@ import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { Address } from '@algorandfoundation/algokit-utils'
 import type { TransactionHeartbeat, HbProofFields } from '@algorandfoundation/algokit-utils/indexer-client'
 import { AssetResult } from '@/features/assets/data/types'
-import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import type { EvalDeltaKeyValue, AccountStateDelta } from '@algorandfoundation/algokit-utils/indexer-client'
 
@@ -19,7 +19,10 @@ const toEvalDeltaKeyValue = (data: { key: string; value: { action: number; bytes
   },
 })
 
-const toAccountStateDelta = (data: { address: string; delta: Array<{ key: string; value: { action: number; bytes?: string; uint?: bigint } }> }): AccountStateDelta => ({
+const toAccountStateDelta = (data: {
+  address: string
+  delta: Array<{ key: string; value: { action: number; bytes?: string; uint?: bigint } }>
+}): AccountStateDelta => ({
   address: data.address,
   delta: data.delta.map(toEvalDeltaKeyValue),
 })

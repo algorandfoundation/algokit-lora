@@ -1,5 +1,5 @@
 import type { Application as IndexerApplication } from '@algorandfoundation/algokit-utils/indexer-client'
-import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/composer'
 
 export type ApplicationId = bigint
 

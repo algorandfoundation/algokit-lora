@@ -21,7 +21,7 @@ import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { AppSpec, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
-import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
 import {
@@ -434,8 +434,7 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
             ? asStructDefinition(method.returns.struct, arc56AppSpec.structs)
             : undefined,
         // Convert ABIStructType back to ABITupleType for compatibility
-        type:
-          abiMethod.returns.type instanceof ABIStructType ? abiMethod.returns.type.toABITupleType() : abiMethod.returns.type,
+        type: abiMethod.returns.type instanceof ABIStructType ? abiMethod.returns.type.toABITupleType() : abiMethod.returns.type,
       },
     } satisfies MethodDefinition
   })

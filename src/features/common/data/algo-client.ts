@@ -3,7 +3,7 @@ import { networkConfigAtom } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
 import { WalletId } from '@txnlab/use-wallet-react'
 import { localnetId, NetworkConfig, NetworkConfigWithId } from '@/features/network/data/types'
-import { ClientManager } from '@algorandfoundation/algokit-utils/types/client-manager'
+import { ClientManager } from '@algorandfoundation/algokit-utils/client-manager'
 
 Config.configure({
   logger: Config.getLogger(true),

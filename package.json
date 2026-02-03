@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^4.0.0-alpha.6",
-    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.29",
+    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.32",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
@@ -138,6 +138,9 @@
     "ws@>7.0.0 <7.5.9": "7.5.10",
     "esbuild": "0.25.0",
     "js-yaml": "4.1.1",
-    "qs": "6.14.1"
+    "qs": "6.14.1",
+    "lodash": "4.17.23",
+    "lodash-es": "4.17.23",
+    "npm": "11.8.0"
   }
 }

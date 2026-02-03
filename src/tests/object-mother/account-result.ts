@@ -1,6 +1,6 @@
 import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
-import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AccountStatus } from '@algorandfoundation/algokit-utils/indexer'
 import { Address } from '@algorandfoundation/algokit-utils'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
