@@ -4,6 +4,7 @@ import {
   networkConfigAtom,
   BETANET_FEE_SINK_ADDRESS,
   FNET_FEE_SINK_ADDRESS,
+  CUSTOM_NETWORK_FEE_SINK_ADDRESS,
 } from '@/features/network/data'
 import { TransactionSender } from '../models'
 import { settingsStore } from '@/features/settings/data'
@@ -19,6 +20,16 @@ export async function resolveTransactionSender(data: { value?: string; resolvedA
   }
 
   const { id: networkId } = settingsStore.get(networkConfigAtom)
+  const customNetworkId = import.meta.env.VITE_CUSTOM_NETWORK_ID
+
+  // Check custom network first
+  if (customNetworkId && networkId === customNetworkId && CUSTOM_NETWORK_FEE_SINK_ADDRESS) {
+    return {
+      value: CUSTOM_NETWORK_FEE_SINK_ADDRESS,
+      resolvedAddress: CUSTOM_NETWORK_FEE_SINK_ADDRESS,
+      autoPopulated: true,
+    }
+  }
 
   if (networkId === mainnetId) {
     return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
