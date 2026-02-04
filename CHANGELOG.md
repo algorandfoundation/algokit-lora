@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.2.1...v2.3.0) (2026-02-04)
+
+### ♻️ Code Refactoring
+
+* rename resolveSenderAddress to resolveTransactionSender and improve optional sender handling ([aa66da7](https://github.com/algorandfoundation/algokit-lora/commit/aa66da7582fe1de17edfc4c8804051c41acba013))
+* **resolve_address:** refactor the resolve sender address to simplify the function and make it named export ([bb29210](https://github.com/algorandfoundation/algokit-lora/commit/bb292107d32327757284424768f51a91fa5c7eb4))
+* **use-search-params:** refactor transactions wizard page test to use case wallet variables instead of test suite walletAddress ([444a3cf](https://github.com/algorandfoundation/algokit-lora/commit/444a3cfc73f589b22b2f54beb0283caa0445ef65))
+* **use-search-params:** refactor use search params transaction to use jotai for async auto population ([fb2a694](https://github.com/algorandfoundation/algokit-lora/commit/fb2a694d171cafb974e7c7ab28ca9efd973e95b2))
+
+### 🐛 Bug Fixes
+
+* add try catch to handle app state decode error ([ed1b91e](https://github.com/algorandfoundation/algokit-lora/commit/ed1b91e4ec0bb65ae5ac8d43b47813028891213e))
+* double scroll bar when viewing application programs ([dbc8c04](https://github.com/algorandfoundation/algokit-lora/commit/dbc8c0457be85a7f53be4be5f18837b583b8032b))
+* fix dispenser spelling+ small refactors ([748168e](https://github.com/algorandfoundation/algokit-lora/commit/748168e42298742b42b9223e5e49753e0a02dfec))
+* fix download button blocking txn click txn graph ([199ef67](https://github.com/algorandfoundation/algokit-lora/commit/199ef6708086ae269d0b8dc70ac98de8cc1114aa))
+* fix failing tests for auto populating and simulating transactions ([4f57874](https://github.com/algorandfoundation/algokit-lora/commit/4f578742dada019c59f8f2d1ad89ecaddc678371))
+* fix npm audit error by extending acceptance of vulnerability ([887c88c](https://github.com/algorandfoundation/algokit-lora/commit/887c88c24e4f03e9d272f91d9d6624a2719616a7))
+* fix npm audit error by extending acceptance of vulnerability ([c81b576](https://github.com/algorandfoundation/algokit-lora/commit/c81b57640d629bc4846eab7d83e9ad6c05266991))
+* ignore npm audit issue 1112255 ([797c242](https://github.com/algorandfoundation/algokit-lora/commit/797c2425d1d893c79b4da33caeb8b6b3527036ce))
+* lint error blocking CI ([55986c0](https://github.com/algorandfoundation/algokit-lora/commit/55986c0ec96ab972aef9330a235fa254aafb925f))
+* npm audit (ignore them) ([#556](https://github.com/algorandfoundation/algokit-lora/issues/556)) ([58b9b5d](https://github.com/algorandfoundation/algokit-lora/commit/58b9b5d02739d2776e3c9ca2b2c18489b7585269))
+* qs audit issue ([2f51435](https://github.com/algorandfoundation/algokit-lora/commit/2f51435faad2ca0e20605692a4d09c5e178bb48d))
+* remove remaining Tauri remnants ([#535](https://github.com/algorandfoundation/algokit-lora/issues/535)) ([85b94b9](https://github.com/algorandfoundation/algokit-lora/commit/85b94b9588d56d00ffd250d5570c21777964d09b))
+* **search_params:** fix two tests that were failing only on CI/CD ([669d16f](https://github.com/algorandfoundation/algokit-lora/commit/669d16fd2685e55f8e40ed320309052fec7241aa))
+* **test:** add racing condition to wait asset-opt out render before testing ([799967c](https://github.com/algorandfoundation/algokit-lora/commit/799967c4b0ef3675557b49cc321ab6c86c888e7b))
+* **test:** add racing condition to wait render before testing ([a874ce9](https://github.com/algorandfoundation/algokit-lora/commit/a874ce91de1f0cb38e28735458bf42b4e83aa6a8))
+* **test:** add racing condition to wait render before testing ([02b70e6](https://github.com/algorandfoundation/algokit-lora/commit/02b70e6603235be5c436c1d1369768ba0b27f177))
+* upgrade semantic-release to fix npm audit ([b85ce52](https://github.com/algorandfoundation/algokit-lora/commit/b85ce52c863a6225efa440ddeb4df0cf1687fb25))
+* upgrade to react-router-dom@6.30.3 to fix npm audit ([20ecf40](https://github.com/algorandfoundation/algokit-lora/commit/20ecf405b7658df8f177e6dc3c3f537fb07fe456))
+* use setError in app details too ([684d762](https://github.com/algorandfoundation/algokit-lora/commit/684d7624f51521fe68e0bdd081cea9dcb59b38ec))
+* use setError instead of trigger to show validation error ([eba8ac0](https://github.com/algorandfoundation/algokit-lora/commit/eba8ac070b4a7e2f0b9e6c80d0bf7bd4eebfc0ad))
+
+### 🚀 Features
+
+* **optional_sender:** Add optional sender at latest squashed to solve unsigned commits ([0e78c0f](https://github.com/algorandfoundation/algokit-lora/commit/0e78c0f6549564062ce121241b4f69f6b2d184e8))
+* **transaction-wizard:** auto-populate sender from localnet dispenser in URL params ([fac30c1](https://github.com/algorandfoundation/algokit-lora/commit/fac30c16c963fa3b9af1fbe11e405245a565db90))
+
 ## [2.2.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.2.0...v2.2.1) (2025-11-24)
 
 ### ♻️ Code Refactoring
