@@ -6,6 +6,7 @@ import { Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { formatDecimalAmount } from '@/utils/number-format'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import {
   assetAddressesLabel,
@@ -84,12 +85,12 @@ export function AssetDetails({ asset }: Props) {
         : undefined,
       {
         dt: assetTotalSupplyLabel,
-        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+        dd: `${formatDecimalAmount(new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals)))} ${asset.unitName ?? ''}`,
       },
       asset.circulatingSupply !== undefined
         ? {
             dt: circulatingSupplyLabel,
-            dd: `${new Decimal(asset.circulatingSupply.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+            dd: `${formatDecimalAmount(new Decimal(asset.circulatingSupply.toString()).div(new Decimal(10).pow(asset.decimals)))} ${asset.unitName ?? ''}`,
           }
         : undefined,
       {
