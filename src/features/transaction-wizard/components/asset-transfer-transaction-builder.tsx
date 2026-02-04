@@ -82,6 +82,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
         helpText: `Asset amount to transfer to the '${receiverLabel}' account`,
         decimalScale: asset && asset.decimals ? asset.decimals : 0,
+        thousandSeparator: true,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />

@@ -3,7 +3,7 @@ import { forwardRef, useMemo } from 'react'
 import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
-import { getThousandSeparator, getDecimalSeparator, getLocale } from '@/utils/number-format'
+import { getThousandSeparator, getDecimalSeparator, getLocale, getThousandsGroupStyle } from '@/utils/number-format'
 
 type NumericFormatWithRefProps<TSchema extends Record<string, unknown> = Record<string, unknown>> = {
   decimalScale?: number
@@ -22,6 +22,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
     const locale = useMemo(() => getLocale(), [])
     const localeThousandSeparator = useMemo(() => getThousandSeparator(locale), [locale])
     const localeDecimalSeparator = useMemo(() => getDecimalSeparator(locale), [locale])
+    const localeThousandsGroupStyle = useMemo(() => getThousandsGroupStyle(locale), [locale])
 
     return (
       <NumericFormat
@@ -35,6 +36,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
         getInputRef={ref}
         value={value === undefined ? '' : value.toString()}
         thousandSeparator={thousandSeparator ? localeThousandSeparator : false}
+        thousandsGroupStyle={localeThousandsGroupStyle}
         decimalSeparator={localeDecimalSeparator}
         decimalScale={decimalScale ?? 0}
         onValueChange={(target) => {

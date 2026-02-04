@@ -140,6 +140,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
             ),
             decimalScale: 6,
             helpText: `Amount to pay the '${receiverLabel}' account. Leave blank if '${closeRemainderToLabel}' account should get the full balance`,
+            thousandSeparator: true,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
