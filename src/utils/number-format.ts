@@ -46,6 +46,7 @@ export const formatDecimalAmount = (value: Decimal, locale?: string): string => 
   const resolvedLocale = locale || getLocale()
   const formatter = new Intl.NumberFormat(resolvedLocale, {
     maximumFractionDigits: ALGORAND_MAX_DECIMALS,
+    numberingSystem: 'latn', // Always use Western digits (0-9) for consistency
   })
   // Intl.NumberFormat.format() accepts strings to preserve arbitrary precision,
   // but TypeScript's type definitions don't reflect this yet
