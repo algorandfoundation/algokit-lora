@@ -33,28 +33,21 @@ export const getDecimalSeparator = (locale?: string): string => {
 }
 
 /**
+ * Maximum decimal places supported by Algorand assets.
+ */
+const ALGORAND_MAX_DECIMALS = 19
+
+/**
  * Format a Decimal value preserving its precision for display.
  * This is used for amounts where we need to show the exact decimal representation
- * but with locale-appropriate separators.
+ * with locale-appropriate separators and numerals.
  */
 export const formatDecimalAmount = (value: Decimal, locale?: string): string => {
   const resolvedLocale = locale || getLocale()
-  const stringValue = value.toString()
-
-  // Split into integer and decimal parts
-  const [intPart, decPart] = stringValue.split('.')
-  const decimalSeparator = getDecimalSeparator(resolvedLocale)
-
-  // Format the integer part with thousand separators
-  // Handle negative numbers by extracting the sign
-  const isNegative = intPart.startsWith('-')
-  const absIntPart = isNegative ? intPart.slice(1) : intPart
-  const formattedInt = BigInt(absIntPart).toLocaleString(resolvedLocale)
-  const signedFormattedInt = isNegative ? `-${formattedInt}` : formattedInt
-
-  if (!decPart) {
-    return signedFormattedInt
-  }
-
-  return `${signedFormattedInt}${decimalSeparator}${decPart}`
+  const formatter = new Intl.NumberFormat(resolvedLocale, {
+    maximumFractionDigits: ALGORAND_MAX_DECIMALS,
+  })
+  // Intl.NumberFormat.format() accepts strings to preserve arbitrary precision,
+  // but TypeScript's type definitions don't reflect this yet
+  return formatter.format(value.toString() as unknown as number)
 }

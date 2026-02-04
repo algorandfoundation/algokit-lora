@@ -4,12 +4,6 @@ import { getLocale, getThousandSeparator, getDecimalSeparator, formatDecimalAmou
 
 describe('number-format', () => {
   describe('getLocale', () => {
-    it('returns the browser locale', () => {
-      const locale = getLocale()
-      expect(typeof locale).toBe('string')
-      expect(locale.length).toBeGreaterThan(0)
-    })
-
     it('falls back to en-US when navigator.language is not available', () => {
       const originalNavigator = global.navigator
       // @ts-expect-error - testing fallback behavior
@@ -23,96 +17,113 @@ describe('number-format', () => {
   })
 
   describe('getThousandSeparator', () => {
-    it('returns comma for en-US locale', () => {
-      const separator = getThousandSeparator('en-US')
-      expect(separator).toBe(',')
+    it('returns the correct thousand separator for each locale', () => {
+      expect(getThousandSeparator('en-US')).toBe(',')
+      expect(getThousandSeparator('de-DE')).toBe('.')
+      expect(getThousandSeparator('fr-FR')).toBe('\u202f')
+      expect(getThousandSeparator('ar-SA')).toBe('٬')
+      expect(getThousandSeparator('hi-IN')).toBe(',')
+      expect(getThousandSeparator('zh-CN')).toBe(',')
+      expect(getThousandSeparator('ja-JP')).toBe(',')
     })
 
-    it('returns period for de-DE locale', () => {
-      const separator = getThousandSeparator('de-DE')
-      expect(separator).toBe('.')
-    })
-
-    it('returns space for fr-FR locale', () => {
-      const separator = getThousandSeparator('fr-FR')
-      // French uses narrow no-break space (U+202F)
-      expect(separator.trim()).toBe('')
-    })
-
-    it('returns comma for default locale when not specified', () => {
-      const separator = getThousandSeparator()
-      expect(typeof separator).toBe('string')
+    it('returns a string for default locale when not specified', () => {
+      expect(typeof getThousandSeparator()).toBe('string')
     })
   })
 
   describe('getDecimalSeparator', () => {
-    it('returns period for en-US locale', () => {
-      const separator = getDecimalSeparator('en-US')
-      expect(separator).toBe('.')
+    it('returns the correct decimal separator for each locale', () => {
+      expect(getDecimalSeparator('en-US')).toBe('.')
+      expect(getDecimalSeparator('de-DE')).toBe(',')
+      expect(getDecimalSeparator('fr-FR')).toBe(',')
+      expect(getDecimalSeparator('ar-SA')).toBe('٫')
+      expect(getDecimalSeparator('hi-IN')).toBe('.')
+      expect(getDecimalSeparator('zh-CN')).toBe('.')
+      expect(getDecimalSeparator('ja-JP')).toBe('.')
     })
 
-    it('returns comma for de-DE locale', () => {
-      const separator = getDecimalSeparator('de-DE')
-      expect(separator).toBe(',')
-    })
-
-    it('returns comma for fr-FR locale', () => {
-      const separator = getDecimalSeparator('fr-FR')
-      expect(separator).toBe(',')
-    })
-
-    it('returns separator for default locale when not specified', () => {
-      const separator = getDecimalSeparator()
-      expect(typeof separator).toBe('string')
+    it('returns a string for default locale when not specified', () => {
+      expect(typeof getDecimalSeparator()).toBe('string')
     })
   })
 
   describe('formatDecimalAmount', () => {
-    it('formats a simple decimal with en-US locale', () => {
-      const result = formatDecimalAmount(new Decimal('1234.56'), 'en-US')
-      expect(result).toBe('1,234.56')
-    })
-
-    it('formats a simple decimal with de-DE locale', () => {
-      const result = formatDecimalAmount(new Decimal('1234.56'), 'de-DE')
-      expect(result).toBe('1.234,56')
+    it('formats a simple decimal', () => {
+      const value = new Decimal('1234.56')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('1,234.56')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('1.234,56')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('1\u202f234,56')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('١٬٢٣٤٫٥٦')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('1,234.56')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('1,234.56')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('1,234.56')
     })
 
     it('formats a large integer', () => {
-      const result = formatDecimalAmount(new Decimal('100000000'), 'en-US')
-      expect(result).toBe('100,000,000')
+      const value = new Decimal('100000000')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('100,000,000')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('100.000.000')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('100\u202f000\u202f000')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('١٠٠٬٠٠٠٬٠٠٠')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('10,00,00,000')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('100,000,000')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('100,000,000')
     })
 
     it('handles decimal values without fractional part', () => {
-      const result = formatDecimalAmount(new Decimal('1000'), 'en-US')
-      expect(result).toBe('1,000')
+      const value = new Decimal('1000')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('1,000')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('1.000')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('1\u202f000')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('١٬٠٠٠')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('1,000')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('1,000')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('1,000')
     })
 
     it('formats small decimals preserving precision', () => {
-      const result = formatDecimalAmount(new Decimal('0.123456'), 'en-US')
-      expect(result).toBe('0.123456')
+      const value = new Decimal('0.123456')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('0.123456')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('0,123456')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('0,123456')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('٠٫١٢٣٤٥٦')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('0.123456')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('0.123456')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('0.123456')
     })
 
     it('handles values with many decimal places', () => {
-      const result = formatDecimalAmount(new Decimal('1234.123456789'), 'en-US')
-      expect(result).toBe('1,234.123456789')
+      const value = new Decimal('1234.123456789')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('1,234.123456789')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('1.234,123456789')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('1\u202f234,123456789')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('١٬٢٣٤٫١٢٣٤٥٦٧٨٩')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('1,234.123456789')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('1,234.123456789')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('1,234.123456789')
     })
 
     it('handles values with large integer part', () => {
-      const highPrecisionValue = new Decimal('12345678901234567890.12345')
-      const result = formatDecimalAmount(highPrecisionValue, 'en-US')
-      expect(result).toBe('12,345,678,901,234,567,890.12345')
+      const value = new Decimal('12345678901234567890.12345')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('12,345,678,901,234,567,890.12345')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('12.345.678.901.234.567.890,12345')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('12\u202f345\u202f678\u202f901\u202f234\u202f567\u202f890,12345')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('١٢٬٣٤٥٬٦٧٨٬٩٠١٬٢٣٤٬٥٦٧٬٨٩٠٫١٢٣٤٥')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('1,23,45,67,89,01,23,45,67,890.12345')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('12,345,678,901,234,567,890.12345')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('12,345,678,901,234,567,890.12345')
     })
 
     it('handles negative decimal values', () => {
-      const result = formatDecimalAmount(new Decimal('-1234.56'), 'en-US')
-      expect(result).toBe('-1,234.56')
-    })
-
-    it('formats with fr-FR locale', () => {
-      const result = formatDecimalAmount(new Decimal('1234.56'), 'fr-FR')
-      // French uses narrow no-break space (U+202F) as thousand separator
-      expect(result).toBe('1\u202f234,56')
+      const value = new Decimal('-1234.56')
+      expect(formatDecimalAmount(value, 'en-US')).toBe('-1,234.56')
+      expect(formatDecimalAmount(value, 'de-DE')).toBe('-1.234,56')
+      expect(formatDecimalAmount(value, 'fr-FR')).toBe('-1\u202f234,56')
+      expect(formatDecimalAmount(value, 'ar-SA')).toBe('\u061c-١٬٢٣٤٫٥٦')
+      expect(formatDecimalAmount(value, 'hi-IN')).toBe('-1,234.56')
+      expect(formatDecimalAmount(value, 'zh-CN')).toBe('-1,234.56')
+      expect(formatDecimalAmount(value, 'ja-JP')).toBe('-1,234.56')
     })
   })
 })
