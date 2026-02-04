@@ -6,6 +6,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
 import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
+import { formatDecimalAmount } from '@/utils/number-format'
 import { transactionSenderLabel } from './labels'
 import { replaceIpfsWithGatewayIfNeeded } from '@/features/assets/utils/replace-ipfs-with-gateway-if-needed'
 import { addHttpsSchemeIfNeeded } from '@/features/assets/utils/add-https-scheme-if-needed'
@@ -64,7 +65,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
               transaction.total != null
                 ? {
                     dt: assetTotalSupplyLabel,
-                    dd: `${new Decimal(transaction.total.toString()).div(new Decimal(10).pow((transaction.decimals ?? 0).toString()))} ${transaction.unitName ?? ''}`,
+                    dd: `${formatDecimalAmount(new Decimal(transaction.total.toString()).div(new Decimal(10).pow(transaction.decimals ?? 0)))} ${transaction.unitName ?? ''}`,
                   }
                 : undefined,
               transaction.decimals != null

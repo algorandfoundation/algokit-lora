@@ -58,6 +58,7 @@ function FormFields({ helper }: FormFieldsProps) {
         field: 'total',
         label: 'Total',
         helpText: "Total number of units to create. Can't be changed after creation",
+        thousandSeparator: true,
       })}
       {helper.numberField({
         field: 'decimals',

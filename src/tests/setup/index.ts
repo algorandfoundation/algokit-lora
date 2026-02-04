@@ -5,6 +5,12 @@ import { selectedNetworkAtomId, storedSelectedNetworkIdAtom } from '@/features/n
 import { localnetId } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
 
+// Mock navigator.language to ensure consistent locale in tests (en-US)
+Object.defineProperty(navigator, 'language', {
+  get: () => 'en-US',
+  configurable: true,
+})
+
 afterEach(() => {
   cleanup()
 })
