@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -23,12 +23,13 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
 export const assetTransferFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   ...receiverFieldSchema,
   asset: z
     .object({
@@ -67,7 +68,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to transfer from. Sends the transaction and pays the fee',
+        helpText: 'Account to transfer from. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -161,7 +162,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetTransfer,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         receiver: data.receiver,
         amount: data.amount!,
         fee: data.fee,
@@ -175,7 +176,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

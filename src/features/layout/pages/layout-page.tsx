@@ -3,7 +3,6 @@ import { Header } from '../components/header'
 import { LeftSideBarMenu } from '../components/left-side-bar-menu'
 import { cn } from '@/features/common/utils'
 import 'react-toastify/dist/ReactToastify.css'
-import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 import { ScrollRestoration, useNavigate } from 'react-router-dom'
 import { SubscriberStatus } from '../components/subscriber-status'
 import { useNetworkConfig, useShouldPromptForTokens } from '@/features/network/data'
@@ -11,22 +10,18 @@ import { TokenPromptDialog } from '@/features/network/components/token-prompt-di
 import { AppState, Auth0Provider } from '@auth0/auth0-react'
 import { Urls } from '@/routes/urls'
 import config from '@/config'
-import { LORA_URI_SCHEME } from '@/features/common/constants'
 
 type Props = {
   children?: ReactNode
 }
 
-const callbackUrl = window.__TAURI_INTERNALS__
-  ? `${LORA_URI_SCHEME}:/${Urls.FundAuthCallback.build({})}`
-  : `${window.location.origin}${Urls.FundAuthCallback.build({})}`
+const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
 // Set to -1 to force Auth0 to not store the session in cookies
 // It means every time the user visits, they will have to login again
 const sessionCheckExpiryDays = -1
 
 export function LayoutPage({ children }: Props) {
-  useDeepLink()
   const shouldPromptForTokens = useShouldPromptForTokens()
   const networkConfig = useNetworkConfig()
   const mainContent = useRef<HTMLDivElement>(null)

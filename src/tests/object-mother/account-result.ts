@@ -1,7 +1,8 @@
 import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
-import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
-import algosdk, { base64ToBytes } from 'algosdk'
+import { AccountStatus } from '@algorandfoundation/algokit-utils/indexer'
+import { Address } from '@algorandfoundation/algokit-utils'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 const encoder = new TextEncoder()
 
@@ -14,14 +15,14 @@ export const accountResultMother = {
       appsLocalState: [
         {
           id: 1209868169n,
-          schema: { numByteSlice: 1, numUint: 0 },
+          schema: { numByteSlices: 1, numUints: 0 },
         },
         {
           id: 1210178396n,
-          schema: { numByteSlice: 1, numUint: 0 },
+          schema: { numByteSlices: 1, numUints: 0 },
         },
       ],
-      appsTotalSchema: { numByteSlice: 2, numUint: 0 },
+      appsTotalSchema: { numByteSlices: 2, numUints: 0 },
       assets: [
         { amount: 2002560000n, assetId: 924268058n, isFrozen: false },
         { amount: 0n, assetId: 1010208883n, isFrozen: false },
@@ -51,15 +52,15 @@ export const accountResultMother = {
           id: 1284326447n,
           keyValue: [],
           schema: {
-            numByteSlice: 0,
-            numUint: 1,
+            numByteSlices: 0,
+            numUints: 1,
           },
         },
       ],
       appsTotalExtraPages: 3,
       appsTotalSchema: {
-        numByteSlice: 38,
-        numUint: 66,
+        numByteSlices: 38,
+        numUints: 66,
       },
       assets: [
         { amount: 1n, assetId: 1162292622n, isFrozen: true },
@@ -77,15 +78,15 @@ export const accountResultMother = {
               'CSAFAAGAgNGUtXQGAiYODmhhbHZpbmdfc3VwcGx5BmVmZm9ydApsYXN0X21pbmVyFGN1cnJlbnRfbWluZXJfZWZmb3J0DG1pbmVyX3Jld2FyZAV0b2tlbgdoYWx2aW5nDG1pbmVkX3N1cHBseRFsYXN0X21pbmVyX2VmZm9ydA1jdXJyZW50X21pbmVyBWJsb2NrDHRvdGFsX2VmZm9ydBJ0b3RhbF90cmFuc2FjdGlvbnMPc3RhcnRfdGltZXN0YW1wMRgiDSULMRkIjQgCBgInAAAAAAAAAAACGQIoAIgAAiNDigAAJwUiZycKImcnCyJnJwwiZycGImcogYDAqMqaOmcnByJnJwSBgICAAmcqMgNnJwgiZycJMgNnKyJnJw2BgIHIrAZniYoAACcFsYEDshCABk9yYW5nZbImgANPUkGyJTIKsikyA7IqMgOyKzIDsiwksiIlsiOAFGh0dHBzOi8vb3Jhbmdlcy5tZW1lsicisgGztDxniYgAAiNDigAAJwVkIhJBAAOI/5wxACkiZomKAwAnBmSBDxJBABMrImcnBCJngAhHb29kYnllLrCJMgYyBoEFGAmM/ycKZIv/E0EAuipkJwVkcABMSEEAbihkJwRkDUEABicEZEIAAihkjP6xgQSyECcFZLIRKmSyFIv+shIisgGzJwcnB2SL/ghnKChki/4JZyhkIhJBAC4nBicGZCMIZycGZIEOEkEACigkJwdkCWdCABMoJCcHZAkhBApnJwQnBGQhBApnKmQ2MgBhQQAdKmQpYoz9KmQpi/0nCGQNQQAJi/0nCGQJQgABImYnCWQrZBZQsCcKi/9nKicJZGcnCCtkZysiZ4k2GgFJFYEgEkSIAAIjQ4oBAIv/NjIAKWNMSEQyBycNZA9EMQGBoJwBDkSAAEcCiP7iJwsnC2QxAQhnJwwnDGQjCGeL/ymL/yliMQEIZov/KWIrZA1BAAsnCYv/ZyuL/yliZ4kxG0H99oAEuER7NjYaAI4B/ekAgASrI3DMNhoAjgH/fQAAMRtB/nAA'
             ),
             clearStateProgram: base64ToBytes('CQ=='),
-            creator: algosdk.Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
+            creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -96,15 +97,15 @@ export const accountResultMother = {
               'CSAFAAGAgNGUtXQGAiYPDmhhbHZpbmdfc3VwcGx5Cmxhc3RfbWluZXIUY3VycmVudF9taW5lcl9lZmZvcnQMbWluZXJfcmV3YXJkEWxhc3RfbWluZXJfZWZmb3J0BmVmZm9ydAV0b2tlbgdoYWx2aW5nDG1pbmVkX3N1cHBseQ1jdXJyZW50X21pbmVyBWJsb2NrDHRvdGFsX2VmZm9ydBJ0b3RhbF90cmFuc2FjdGlvbnMPc3RhcnRfdGltZXN0YW1wADEYIg0lCzEZCI0IAioCSwAAAAAAAAAAAj0CTACIAAIjQ4oAACcGImcnCiJnJwsiZycMImcnByJnKIGAwKjKmjpnJwgiZyuBgICAAmcpMgNnJwQiZycJMgNnKiJnJw2BgIHIrAZniYoAACcGsYEDshCABk9yYW5nZbImgANPUkGyJTIKsikyA7IqMgOyKzIDsiwksiIlsiOAFGh0dHBzOi8vb3Jhbmdlcy5tZW1lsicisgGztDxniYgAAiNDigAAJwZkIhJBAAOI/5wxACcFImaJigMAJwdkgQ8SQQASKiJnKyJngAhHb29kYnllLrCJMgYyBoEFGAmM/ycKZIv/E0EAuClkJwZkcABMSEEAaihkK2QNQQAFK2RCAAIoZIz+sYEEshAnBmSyESlkshSL/rISIrIBsycIJwhki/4IZygoZIv+CWcoZCISQQAsJwcnB2QjCGcnB2SBDhJBAAooJCcIZAlnQgARKCQnCGQJIQQKZysrZCEECmcpZDYyAGFBAB8pZCcFYoz9KWQnBYv9JwRkDUEACYv9JwRkCUIAASJmJwlkKmQWULAnCov/ZyknCWRnJwQqZGcqImeJJw5JNhoBSRWBIBJEiAACI0OKAwCL/zYyACcFY0xIRDIHJw1kD0QxAYGgnAEORCcORwKI/uEnCycLZDEBCGcnDCcMZCMIZ4v/JwViMQEIjP6L/ycFi/5mi/6M/Slki/8SQQAVi/0nBGQNQQAJi/4nBGQJQgABIoz9i/0qZA1BAAknCYv/ZyqL/WeJMRtB/dKABLhEezY2GgCOAf3FAIAEqyNwzDYaAI4B/1YAADEbQf5LAA=='
             ),
             clearStateProgram: base64ToBytes('CQ=='),
-            creator: algosdk.Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
+            creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -115,15 +116,15 @@ export const accountResultMother = {
               'CSAFAAGAgKSPxPlaEAImDwpsYXN0X21pbmVyDmhhbHZpbmdfc3VwcGx5EWxhc3RfbWluZXJfZWZmb3J0BmVmZm9ydAV0b2tlbgdoYWx2aW5nDG1pbmVkX3N1cHBseQxtaW5lcl9yZXdhcmQUY3VycmVudF9taW5lcl9lZmZvcnQFYmxvY2sMdG90YWxfZWZmb3J0EnRvdGFsX3RyYW5zYWN0aW9ucw1jdXJyZW50X21pbmVyD3N0YXJ0X3RpbWVzdGFtcAAxGCINgQYLMRkIjQgDCgMrAAAAAAAAAAADHQMsAIgAAiNDigAAJwQiZycJImcnCiJnJwsiZycFImcpgYCA0ofivC1nJwYiZycHgYCAgDJnKDIDZyoiZycMMgNnJwgiZycNgYCByKwGZ4mKAAAnBLGBA7IQgAZPcmFuZ2WyJoADT1JBsiUyCrIpMgqyKjIDsisyA7IsJLIigQiyI4A6aXBmczovL1FtVWl0eEp1UEpKcmN1QWRBaVZkRUVwdXpHbXNFTEdnQXZoTGQ1RmlYUlNoRXUjYXJjM7IngCDT/VG+LujCsXp66CbTScDfIP6rik1oAwNAHHQVYMMkNrIoIrIBgKgBSm9obiBBbGFuIFdvb2RzIDAxL0RlYy8yMDIzIFlvdSBrbm93LCBJIGNhbiBwdWxsIG1ldHJpY3Mgb3V0IG9mIHRoZSBhaXIgdG9vLCB3aGF0ZXZlciwgOCBtaWxsaW9uIHRyYW5zYWN0aW9ucyBvdmVyIHRoZSBsYXN0IHdlZWssIEkgZG9uJ3Qga25vdywgbXkgbW9tIGhhcyBmb3VyIG9yYW5nZXMusgWztDxniYgAAiNDigAAJwRkIhJBAAOI/qQxACsiZomKAwAyBjIGgQUYCYz/Jwlki/8TQQC3KGQnBGRwAExIQQB0KWQnB2QNQQAGJwdkQgACKWSM/rGBBLIQJwRkshEoZLIUi/6yEiKyAbMoZCpkFlCwJwYnBmSL/ghnKSlki/4JZylkIhJBAC0nBScFZCMIZycFZCUPQQAKKSQnBmQJZ0IAEykkJwZkCSEECmcnBycHZCEECmcoZDYyAGFBABsoZCtijP0oZCuL/SpkDUEACIv9KmQJQgABImYnCYv/ZygnDGRnKicIZGcnCCJniScOSTYaAUkVgSASRIgAAiNDigMAi/82MgArY0xIRDIHJw1kD0QnBWQlDkQxAYGgnAEORCcORwKI/vgnCicKZDEBCGcnCycLZCMIZ4v/K2IxAQiM/ov/K4v+Zov+jP0oZIv/EkEAE4v9KmQNQQAIi/0qZAlCAAEijP2L/ScIZA1BAAonDIv/ZycIi/1niTEbQfzygAS4RHs2NhoAjgH85QCABKsjcMw2GgCOAf9TAAAxG0H+ZQA='
             ),
             clearStateProgram: base64ToBytes('CQ=='),
-            creator: algosdk.Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
+            creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 2,
-              numUint: 11,
+              numByteSlices: 2,
+              numUints: 11,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 1,
+              numByteSlices: 0,
+              numUints: 1,
             },
           },
         },
@@ -134,23 +135,23 @@ export const accountResultMother = {
               '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'
             ),
             clearStateProgram: base64ToBytes('CQ=='),
-            creator: algosdk.Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
+            creator: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'),
             extraProgramPages: 3,
             globalState: [],
             globalStateSchema: {
-              numByteSlice: 32,
-              numUint: 32,
+              numByteSlices: 32,
+              numUints: 32,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
           },
         },
       ],
       createdAssets: [
         {
-          index: 1336655079n,
+          id: 1336655079n,
           params: {
             creator: 'ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA',
             decimals: 0,
@@ -187,67 +188,67 @@ export const accountResultMother = {
         {
           id: 811554792n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811555774n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811556459n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811563899n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811564745n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 811565811n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 812246978n,
           schema: {
-            numByteSlice: 0,
-            numUint: 0,
+            numByteSlices: 0,
+            numUints: 0,
           },
         },
         {
           id: 829144306n,
           keyValue: [],
           schema: {
-            numByteSlice: 0,
-            numUint: 1,
+            numByteSlices: 0,
+            numUints: 1,
           },
         },
       ],
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 1,
+        numByteSlices: 0,
+        numUints: 1,
       },
       assets: [],
-      authAddr: algosdk.Address.fromString('K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E'),
+      authAddr: Address.fromString('K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E'),
       createdApps: [],
       createdAssets: [],
       minBalance: 2228500n,
@@ -268,10 +269,10 @@ export const accountResultMother = {
       amount: 273116395038n,
       amountWithoutPendingRewards: 273116395038n,
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 0,
+        numByteSlices: 0,
+        numUints: 0,
       },
-      authAddr: algosdk.Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
+      authAddr: Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
       minBalance: 98439400000n,
       pendingRewards: 0n,
       rewardBase: 218288n,
@@ -291,8 +292,8 @@ export const accountResultMother = {
       amountWithoutPendingRewards: 1915706350n,
       appsLocalState: [],
       appsTotalSchema: {
-        numByteSlice: 0,
-        numUint: 0,
+        numByteSlices: 0,
+        numUints: 0,
       },
       assets: [],
       createdApps: [],

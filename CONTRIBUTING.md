@@ -16,16 +16,10 @@ Configure your environment
 cp .env.sample .env
 ```
 
-To run the web version locally
+To run locally
 
 ```
 npm run dev
-```
-
-To run the app version locally
-
-```
-npm run tauri dev
 ```
 
 Note: For the best dev experience we recommend using VSCode with the recommended extensions.
@@ -45,7 +39,7 @@ Depending on where you have sourced the svg, you may wish to make a few tweaks t
 
 ### Versioning Strategy
 
-Lora uses [semantic versioning](https://semver.org/) with automated releases based on [conventional commits](https://www.conventionalcommits.org/). Our versioning system supports both web and desktop applications with synchronized version numbers.
+Lora uses [semantic versioning](https://semver.org/) with automated releases based on [conventional commits](https://www.conventionalcommits.org/).
 
 ### Branch Strategy
 
@@ -53,7 +47,6 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
   - Triggers production deployments to [lora.algokit.io](https://lora.algokit.io)
   - Creates stable releases (e.g., `v1.2.0`)
-  - Desktop releases are built and distributed
 
 - **`main`** - Staging releases (prerelease)
 
@@ -117,7 +110,7 @@ Feature branch → main → (manual promotion) → release → production
 **Branch Behavior:**
 
 - **Main branch**: `release.yaml` creates beta versions (e.g., `v1.2.0-beta.1`) but doesn't deploy to production
-- **Release branch**: `release.yaml` creates stable versions (e.g., `v1.2.0`) and deploys to production (web + desktop)
+- **Release branch**: `release.yaml` creates stable versions (e.g., `v1.2.0`) and deploys to production
 
 This ensures that:
 

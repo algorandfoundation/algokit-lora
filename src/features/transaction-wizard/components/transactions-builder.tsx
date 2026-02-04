@@ -1,9 +1,10 @@
-import algosdk from 'algosdk'
+import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
+import type { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
-import { algod } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { invariant } from '@/utils/invariant'
 import {
@@ -16,29 +17,33 @@ import {
 } from '../models'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
-import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import {
+  isBuildTransactionResult,
+  isPlaceholderTransaction,
+  isFulfilledByTransaction,
+  isTransactionArg,
+} from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send, SquarePlay } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
 import React from 'react'
-import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
+import { asAlgokitTransactionType } from '../mappers/as-algokit-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
-import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
-import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features/abi-methods/utils/parse-errors'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
+const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -91,7 +96,7 @@ export function TransactionsBuilder({
     dialogBody: (
       props: DialogBodyProps<
         {
-          type?: algosdk.TransactionType
+          type?: TransactionType
           mode: TransactionBuilderMode
           transaction?: BuildTransactionResult
           defaultValues?: Partial<BuildTransactionResult>
@@ -149,7 +154,7 @@ export function TransactionsBuilder({
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err)
-      const error = await parseCallAbiMethodError(err, transactions)
+      const error = asError(err)
       setErrorMessage(error.message)
     } finally {
       setIsBusy(false)
@@ -163,13 +168,14 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
-        execTraceConfig: new algosdk.modelsv2.SimulateTraceConfig({
+        execTraceConfig: {
           enable: true,
           scratchChange: true,
           stackChange: true,
           stateChange: true,
-        }),
+        } satisfies SimulateTraceConfig,
       } satisfies SimulateOptions
+
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
         : (await buildComposerWithEmptySignatures(transactions)).simulate({
@@ -182,7 +188,7 @@ export function TransactionsBuilder({
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err)
-      const error = await parseSimulateAbiMethodError(err, transactions)
+      const error = asError(err)
       setErrorMessage(error.message)
     } finally {
       setIsBusy(false)
@@ -196,9 +202,7 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
-      const { atc } = await composer.build()
-      const populatedAtc = await populateAppCallResources(atc, algod)
-      const transactionsWithResources = populatedAtc.buildGroup()
+      const { transactions: transactionsWithResources } = await composer.build()
 
       setTransactions((prev) => {
         let newTransactions = [...prev]
@@ -209,12 +213,13 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
-              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
-              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
+              accounts: transactionWithResources.txn.appCall?.accountReferences?.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.appCall?.assetReferences?.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.appCall?.appReferences?.map((a) => a) ?? [],
               boxes:
-                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
-                [],
+                transactionWithResources.txn.appCall?.boxReferences?.map(
+                  (box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const
+                ) ?? [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
@@ -239,7 +244,7 @@ export function TransactionsBuilder({
         transaction.type === BuildableTransactionType.Fulfilled
           ? openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Create,
-              type: asAlgosdkTransactionType(transaction.targetType),
+              type: asAlgokitTransactionType(transaction.targetType),
             })
           : openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Edit,
@@ -327,6 +332,15 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
+    const hasAutoPopulatedSender = transactions.some((t) => t.sender?.autoPopulated === true)
+
+    if (hasAutoPopulatedSender) {
+      return {
+        disabled: true,
+        disabledReason: onlySimulateOptionalSenderMessage,
+      }
+    }
+
     if (!activeAddress) {
       return {
         disabled: true,
@@ -335,7 +349,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps])
+  }, [transactions, activeAddress, commonButtonDisableProps])
 
   return (
     <div>
@@ -461,12 +475,7 @@ const buildRelatedTransactionsGroup = (transaction: BuildTransactionResult) => {
       (acc, arg) => {
         if (isBuildTransactionResult(arg)) {
           acc.push(...buildRelatedTransactionsGroup(arg).concat(arg))
-        }
-        if (
-          typeof arg === 'object' &&
-          'type' in arg &&
-          [BuildableTransactionType.Placeholder, BuildableTransactionType.Fulfilled].includes(arg.type)
-        ) {
+        } else if (isPlaceholderTransaction(arg) || isFulfilledByTransaction(arg)) {
           acc.push(arg)
         }
         return acc
@@ -516,8 +525,8 @@ export const patchTransactions = (
 
             if (
               previousRelatedTransactionType === argType ||
-              previousRelatedTransactionType === algosdk.ABITransactionType.any ||
-              argType === algosdk.ABITransactionType.any
+              previousRelatedTransactionType === ABITransactionType.Txn ||
+              argType === ABITransactionType.Txn
             ) {
               replacements.push([
                 previousRelatedTransaction.id,
@@ -531,7 +540,7 @@ export const patchTransactions = (
 
               if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
-              } else if (argType === algosdk.ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
+              } else if (argType === ABITransactionType.Txn && arg.type === BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
               }
             } else {
@@ -603,7 +612,7 @@ const setTransaction = (
     }
 
     transaction.methodArgs = transaction.methodArgs.map((arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
+      if (isTransactionArg(arg)) {
         return trySet(arg)
       }
       return arg

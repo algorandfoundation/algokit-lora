@@ -7,17 +7,16 @@ import { loadable } from 'jotai/utils'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 import { indexer } from '@/features/common/data/algo-client'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asBoxDescriptor } from '../mappers'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const getApplicationBoxNames = async (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
-  const results = await indexer
-    .searchForApplicationBoxes(applicationId)
-    .nextToken(nextPageToken ?? '')
-    .limit(DEFAULT_FETCH_SIZE)
-    .do()
+  const results = await indexer.searchForApplicationBoxes(applicationId, {
+    next: nextPageToken,
+    limit: DEFAULT_FETCH_SIZE,
+  })
 
   return {
     boxes: results.boxes.map((box) => asBoxDescriptor(Buffer.from(box.name).toString('base64'), appSpec)),
@@ -26,7 +25,7 @@ const getApplicationBoxNames = async (applicationId: ApplicationId, appSpec?: Ar
 }
 
 const getApplicationBox = (applicationId: ApplicationId, base64BoxName: string) =>
-  indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(base64BoxName, 'base64')).do()
+  indexer.lookupApplicationBoxByIdAndName(applicationId, Buffer.from(base64BoxName, 'base64'))
 
 const createApplicationBoxResultsAtom = (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
   return atom(async () => {

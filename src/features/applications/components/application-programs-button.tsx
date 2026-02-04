@@ -69,7 +69,7 @@ export function ApplicationProgramsButton({ application }: Props) {
               </div>
             </OverflowAutoTabsContent>
             <OverflowAutoTabsContent value={clearStateBase64ProgramTabId}>
-              <pre className="h-96  overflow-y-auto text-wrap break-all">{application.clearStateProgram ?? 'No program available.'}</pre>
+              <pre className="h-96 overflow-y-auto text-wrap break-all">{application.clearStateProgram ?? 'No program available.'}</pre>
             </OverflowAutoTabsContent>
             <OverflowAutoTabsContent value={clearStateTealProgramTabId}>
               <div className="h-96 overflow-y-auto">

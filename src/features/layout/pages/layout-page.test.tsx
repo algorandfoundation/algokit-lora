@@ -1,17 +1,10 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor } from '@/tests/testing-library'
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
-import { networkConfigAtom, useSetSelectedNetwork } from '@/features/network/data'
-import { useNavigate } from 'react-router-dom'
-import { settingsStore } from '@/features/settings/data'
-import { getCurrent, onOpenUrl } from '@/features/deep-link/hooks/tauri-deep-link'
-import { localnetId, mainnetId } from '@/features/network/data/types'
-import { renderHook } from '@testing-library/react'
-import algosdk from 'algosdk'
-import { LORA_URI_SCHEME } from '@/features/common/constants'
+import { AlgodClient } from '@algorandfoundation/algokit-utils/algod-client'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -123,7 +116,7 @@ describe('when rendering the layout page', () => {
               },
             ] as unknown as Wallet[],
             activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
-            algodClient: {} as unknown as algosdk.Algodv2,
+            algodClient: {} as unknown as AlgodClient,
             activeNetwork: NetworkId.LOCALNET,
             setActiveNetwork: vi.fn(),
             setAlgodClient: vi.fn(),
@@ -148,120 +141,6 @@ describe('when rendering the layout page', () => {
           }
         )
       })
-    })
-  })
-  describe('and the user opens a deep link to mainnet', () => {
-    beforeAll(() => {
-      window.__TAURI_INTERNALS__ = {}
-      vi.mocked(getCurrent).mockResolvedValue([`${LORA_URI_SCHEME}://mainnet`])
-    })
-    afterAll(() => {
-      window.__TAURI_INTERNALS__ = undefined
-      localStorage.clear()
-    })
-
-    it('mainnet should be selected', async () => {
-      const mockNavigate = vi.fn()
-      vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-      vi.mocked(onOpenUrl).mockResolvedValue(vi.fn())
-
-      await executeComponentTest(
-        () => render(<LayoutPage />),
-        async (component) => {
-          await waitFor(() => {
-            const network = component.findByText('MainNet')
-            expect(network).toBeTruthy()
-            const networkConfig = settingsStore.get(networkConfigAtom)
-            expect(networkConfig.id).toBe('mainnet')
-          })
-        }
-      )
-    })
-
-    describe('then they open another deep link to testnet', () => {
-      beforeAll(() => {
-        vi.mocked(getCurrent).mockResolvedValue([`${LORA_URI_SCHEME}://testnet`])
-      })
-      afterAll(() => {
-        window.__TAURI_INTERNALS__ = undefined
-        localStorage.clear()
-      })
-
-      it('testnet should be selected', async () => {
-        const mockNavigate = vi.fn()
-        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-        vi.mocked(onOpenUrl).mockResolvedValue(vi.fn())
-
-        await executeComponentTest(
-          () => render(<LayoutPage />),
-          async (component) => {
-            await waitFor(() => {
-              const network = component.getAllByText('TestNet')
-              expect(network).toBeTruthy()
-              const networkConfig = settingsStore.get(networkConfigAtom)
-              expect(networkConfig.id).toBe('testnet')
-            })
-          }
-        )
-      })
-    })
-  })
-
-  describe('and the user opens a deep link to a transaction', () => {
-    beforeAll(() => {
-      window.__TAURI_INTERNALS__ = {}
-      vi.mocked(getCurrent).mockResolvedValue([
-        `${LORA_URI_SCHEME}://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`,
-      ])
-      vi.mocked(onOpenUrl).mockResolvedValue(vi.fn())
-    })
-    afterAll(() => {
-      window.__TAURI_INTERNALS__ = undefined
-      localStorage.clear()
-    })
-
-    it('localnet should be selected', async () => {
-      renderHook(async () => {
-        const setSelectedNetwork = useSetSelectedNetwork()
-        await setSelectedNetwork(mainnetId)
-      })
-
-      return executeComponentTest(
-        () => render(<LayoutPage />),
-        async (component) => {
-          await waitFor(() => {
-            const networks = component.getAllByText('MainNet')
-            expect(networks.length).toBeGreaterThan(0)
-            const networkConfig = settingsStore.get(networkConfigAtom)
-            expect(networkConfig.id).toBe(mainnetId)
-          })
-        }
-      )
-    })
-  })
-
-  describe('and no deep link is selected', async () => {
-    beforeEach(async () => {
-      window.__TAURI_INTERNALS__ = undefined
-    })
-
-    it('localnet should be selected', async () => {
-      renderHook(async () => {
-        const setSelectedNetwork = useSetSelectedNetwork()
-        await setSelectedNetwork(localnetId)
-      })
-
-      return executeComponentTest(
-        () => render(<LayoutPage />),
-        async (component) => {
-          await waitFor(() => {
-            const networks = component.getAllByText('LocalNet')
-            expect(networks.length).toBeGreaterThan(0)
-            const networkConfig = settingsStore.get(networkConfigAtom)
-            expect(networkConfig.id).toBe(localnetId)
-          })
-        }
-      )
     })
   })
 })

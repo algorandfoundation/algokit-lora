@@ -28,7 +28,7 @@ import {
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
-import { isBuildTransactionResult } from '../utils/transaction-result-narrowing'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { transactionActionsLabel } from './labels'
 import { Button } from '@/features/common/components/button'
 
@@ -271,8 +271,7 @@ const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransact
     (acc, arg) => {
       if (isBuildTransactionResult(arg)) {
         acc.push(...[...getSubTransactions(arg), arg])
-      }
-      if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder) {
+      } else if (isPlaceholderTransaction(arg)) {
         acc.push(arg)
       }
       return acc

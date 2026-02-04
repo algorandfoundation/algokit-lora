@@ -1,10 +1,31 @@
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
-import algosdk, { TransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { Address } from '@algorandfoundation/algokit-utils'
+import type { TransactionHeartbeat, HbProofFields } from '@algorandfoundation/algokit-utils/indexer-client'
 import { AssetResult } from '@/features/assets/data/types'
-import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import type { EvalDeltaKeyValue, AccountStateDelta } from '@algorandfoundation/algokit-utils/indexer-client'
 
 const encoder = new TextEncoder()
+
+// Helper function to convert base64 string test data to Uint8Array for state delta
+const toEvalDeltaKeyValue = (data: { key: string; value: { action: number; bytes?: string; uint?: bigint } }): EvalDeltaKeyValue => ({
+  key: base64ToBytes(data.key),
+  value: {
+    action: data.value.action,
+    bytes: data.value.bytes ? base64ToBytes(data.value.bytes) : undefined,
+    uint: data.value.uint,
+  },
+})
+
+const toAccountStateDelta = (data: {
+  address: string
+  delta: Array<{ key: string; value: { action: number; bytes?: string; uint?: bigint } }>
+}): AccountStateDelta => ({
+  address: data.address,
+  delta: data.delta.map(toEvalDeltaKeyValue),
+})
 
 export const transactionResultMother = {
   payment: () => {
@@ -52,7 +73,7 @@ export const transactionResultMother = {
   },
   assetConfig: () => {
     return transactionResultBuilder()
-      .withTxType(TransactionType.acfg)
+      .withTxType(TransactionType.AssetConfig)
       .withAssetConfigTransaction({
         assetId: 1234n,
         params: {
@@ -77,19 +98,19 @@ export const transactionResultMother = {
       genesisId: 'mainnet-v1.0',
       intraRoundOffset: 26,
       lastValid: 34676052n,
-      heartbeatTransaction: new algosdk.indexerModels.TransactionHeartbeat({
+      heartbeatTransaction: {
         hbAddress: '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
         hbKeyDilution: 1001n,
-        hbProof: new algosdk.indexerModels.HbProofFields({
+        hbProof: {
           hbPk: base64ToBytes('6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM='),
           hbPk1sig: base64ToBytes('IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag=='),
           hbPk2: base64ToBytes('EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0='),
           hbPk2sig: base64ToBytes('Uj5lV61RtbCl0WjmeX+6AKAX93unmpjXxw7QST+np0VQhiei0qcp0feKj1oz8tEJScB/vHtvQM4uC8yNELBMCQ=='),
           hbSig: base64ToBytes('NGIPT/Q+2EaBkU/wPOK0bJrQdc2TNj08IaZRZxrL4tJnq1vT87p6m2kF5wYyrPK4cdhhaw4pK7lxPOlKQ+YHAg=='),
-        }),
+        } satisfies HbProofFields,
         hbSeed: base64ToBytes('OU1+MWj4jCD4xstyaYpS/6ec7aHxqaQpdJO1h3e3Uu0='),
         hbVoteId: base64ToBytes('wibDDqw0IqhBTI4Kz7bBGC1KU4rpjVyLH75aXWnQ8Q8='),
-      }),
+      } satisfies TransactionHeartbeat,
       receiverRewards: 0n,
       roundTime: 1703439471,
       sender: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
@@ -97,7 +118,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('HEARTBEATSIGNATURE123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ=='),
       },
-      txType: TransactionType.hb,
+      txType: TransactionType.Heartbeat,
     })
   },
   'localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ': () => {
@@ -107,24 +128,24 @@ export const transactionResultMother = {
       firstValid: 34675052n,
       genesisHash: base64ToBytes('x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8='),
       genesisId: 'dockernet-v1',
-      heartbeatTransaction: new algosdk.indexerModels.TransactionHeartbeat({
+      heartbeatTransaction: {
         hbAddress: '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
         hbKeyDilution: 1001n,
-        hbProof: new algosdk.indexerModels.HbProofFields({
+        hbProof: {
           hbPk: base64ToBytes('6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM='),
           hbPk1sig: base64ToBytes('IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag=='),
           hbPk2: base64ToBytes('EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0='),
           hbPk2sig: base64ToBytes('Uj5lV61RtbCl0WjmeX+6AKAX93unmpjXxw7QST+np0VQhiei0qcp0feKj1oz8tEJScB/vHtvQM4uC8yNELBMCQ=='),
           hbSig: base64ToBytes('NGIPT/Q+2EaBkU/wPOK0bJrQdc2TNj08IaZRZxrL4tJnq1vT87p6m2kF5wYyrPK4cdhhaw4pK7lxPOlKQ+YHAg=='),
-        }),
+        } satisfies HbProofFields,
         hbSeed: base64ToBytes('OU1+MWj4jCD4xstyaYpS/6ec7aHxqaQpdJO1h3e3Uu0='),
         hbVoteId: base64ToBytes('wibDDqw0IqhBTI4Kz7bBGC1KU4rpjVyLH75aXWnQ8Q8='),
-      }),
+      } satisfies TransactionHeartbeat,
       id: 'HEARTBEATHS44RJ4BQ6HOMWZCGOJW5WWOQ5CR7XHSZHFP2ZQCDOA',
       lastValid: 34676052n,
       roundTime: 1703439471,
       sender: 'GAU5WA6DT2EPFS6LKOA333BQP67NXIHZ7JPOOHMZWJDPZRL4XMHDDDUCKA',
-      txType: TransactionType.hb,
+      txType: TransactionType.Heartbeat,
       closeRewards: 0n,
       closingAmount: 0n,
       intraRoundOffset: 0,
@@ -157,7 +178,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('4cwwpWiOnldnkW+M8Epwg2iaJvxdIvnUa9jM+uZxRcBTESRCD/BcsvbPVYrqEf6YwGCtsupNbNo6SwdUQRa2CQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']: () => {
@@ -193,7 +214,7 @@ export const transactionResultMother = {
           ),
         },
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']: () => {
@@ -205,7 +226,7 @@ export const transactionResultMother = {
         closeAmount: 0n,
         receiver: 'OCD5PQECXPYOVTLWVS3FHIODQX5FOV4QNNVMU22BSVDMP2FAJD52OV4IFA',
       },
-      authAddr: algosdk.Address.fromString('P5F3CASEUYS5MBY56CZCKZM4EMJRG5MTYXIGVK6EHEB6FXRYMLE5VCTSUU'),
+      authAddr: Address.fromString('P5F3CASEUYS5MBY56CZCKZM4EMJRG5MTYXIGVK6EHEB6FXRYMLE5VCTSUU'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37351572n,
@@ -226,7 +247,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hk4FtHwulzfGDFq13MFsJfVS4UVdQAGhqFvsp9CjF9F6dD3V/P0XtW4V3cv2l8u0M1TDQoUsNbueW+SaQbD7DA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']: () => {
@@ -255,7 +276,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('fK9vks0Sk2Sfa0PN+9wHSYYh2OKCFxSGBN2B4agVmVNoui17XcwXj4DbLJZWoknbVH/0gaKweKEYMIz4Oe8tDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']: () => {
@@ -285,7 +306,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('eXs6In2s6DdoRIBHLesRRS9BX+UWykWX4YGPuTdOLJTn33NXM5paD7kZiB+4FQ27a+F7W2QEWJYU8QEzDHTVAQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA']: () => {
@@ -296,7 +317,7 @@ export const transactionResultMother = {
         closeAmount: 0n,
         receiver: 'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54',
       },
-      authAddr: algosdk.Address.fromString('7R7I3FN4ACXN2CEU5WPDZJZR475OYQP43QESNXA3NDC4SUQZZSI5OGCVME'),
+      authAddr: Address.fromString('7R7I3FN4ACXN2CEU5WPDZJZR475OYQP43QESNXA3NDC4SUQZZSI5OGCVME'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38008738n,
@@ -315,7 +336,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('2+WUUuw7ZHKjBFx3/ct+rdGQK/sv0u5ZSCN3+cnEE2KtvSbAMN3HYJaId9+tCWTlThGwHU0po4aCn1zFSh8hBg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']: () => {
@@ -346,7 +367,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('LYTng1fmA+JQ8AocqDfp/OBvrds/WXa936muT3b4Ym98qIzouEnbMf7cOj099GV+ABecBzmw6+JrzOH/WU7TDQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']: () => {
@@ -366,16 +387,16 @@ export const transactionResultMother = {
         foreignApps: [971350278n],
         foreignAssets: [0n, 971381860n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: ApplicationOnComplete.noop,
       },
-      authAddr: algosdk.Address.fromString('7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE'),
+      authAddr: Address.fromString('7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 36591812n,
@@ -409,7 +430,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30='),
       id: 'KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ',
       innerTxns: [
@@ -431,7 +452,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ/inner/2',
@@ -449,12 +470,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: ApplicationOnComplete.noop,
           },
@@ -473,14 +494,14 @@ export const transactionResultMother = {
                 uint: 0n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 93,
           lastValid: 36592738n,
           receiverRewards: 0n,
           roundTime: 1709251673,
           sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 93,
@@ -493,7 +514,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('trh33yIw7Tp52x0vgBmXhDB8um8QbIo6ncEL47vlzEt8DFZkVIeRYDwwiIPFipWTe99JEGK/T/fjYp9PGNRaCQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']: () => {
@@ -501,9 +522,9 @@ export const transactionResultMother = {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4'),
-          algosdk.Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM'),
-          algosdk.Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM'),
+          Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4'),
+          Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM'),
+          Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM'),
         ],
         applicationArgs: [
           base64ToBytes('AAAAAAAqRH0='),
@@ -517,8 +538,8 @@ export const transactionResultMother = {
         applicationId: 1201559522n,
         foreignApps: [645869114n, 1002541853n],
         foreignAssets: [31566704n, 386195940n, 408898501n],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
       closeRewards: 0n,
@@ -550,18 +571,18 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM')],
+            accounts: [Address.fromString('2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
             foreignAssets: [31566704n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -590,7 +611,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: '2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -604,7 +625,7 @@ export const transactionResultMother = {
                 { key: 'YXNzZXRfMl9yZXNlcnZlcw==', value: { action: 2, uint: 7646891725226n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
@@ -620,7 +641,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/3',
@@ -642,18 +663,18 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/4',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM')],
+            accounts: [Address.fromString('FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
             foreignAssets: [408898501n, 31566704n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -682,7 +703,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -699,7 +720,7 @@ export const transactionResultMother = {
                 { key: 'Y3VtdWxhdGl2ZV9wcmljZV91cGRhdGVfdGltZXN0YW1w', value: { action: 2, uint: 1709251670n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAeGrcA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAI81Y='),
@@ -715,7 +736,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/5',
@@ -737,18 +758,18 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/6',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4')],
+            accounts: [Address.fromString('EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAAAAA=')],
             applicationId: 1002541853n,
             foreignApps: [],
             foreignAssets: [408898501n, 386195940n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -777,7 +798,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -793,7 +814,7 @@ export const transactionResultMother = {
                 { key: 'Y3VtdWxhdGl2ZV9wcmljZV91cGRhdGVfdGltZXN0YW1w', value: { action: 2, uint: 1709251670n } },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAAGF9LxQ=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAAABbk='),
@@ -809,7 +830,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/7',
@@ -831,7 +852,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/8',
@@ -841,8 +862,8 @@ export const transactionResultMother = {
             applicationId: 645869114n,
             foreignApps: [],
             foreignAssets: [0n, 386195940n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -853,7 +874,7 @@ export const transactionResultMother = {
           globalStateDelta: [
             { key: 'QQ==', value: { action: 2, uint: 118457344272n } },
             { key: 'Qg==', value: { action: 2, uint: 748025794n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('ugsPSBZ9wnfXr1sH8ErEfCEhXNG2F28SyHcJa26ctO0='),
           innerTxns: [
             {
@@ -874,7 +895,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'IWT4WOUKYQBCAO76UKWZ5E4CPIJVLBE5R3NX5QH3BXMTG34WU7ZCLJ4RVY',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 111,
@@ -883,7 +904,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/9',
@@ -896,11 +917,11 @@ export const transactionResultMother = {
           lastValid: 36591814n,
           paymentTransaction: { amount: 0n, closeAmount: 0n, receiver: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A' },
           receiverRewards: 0n,
-          rekeyTo: algosdk.Address.fromString('AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A'),
+          rekeyTo: Address.fromString('AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A'),
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       intraRoundOffset: 111,
@@ -908,12 +929,12 @@ export const transactionResultMother = {
       lease: base64ToBytes('Gvgsil8YwDJH4I9KsGqx4t0GkPqJxFpLldBGIq1klAI='),
       note: base64ToBytes('AAHOu8yhPy8SoRmmHsKmDSPsAL5Cap8uJ47IkmHXVYavS26egWoIW7hGSsWoByA='),
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('GEAW6VVQY2QPYKEI6HAHAH3MNQNMXYOVKYVVI3B7X72CPW74HRVYXWGITU'),
+      rekeyTo: Address.fromString('GEAW6VVQY2QPYKEI6HAHAH3MNQNMXYOVKYVVI3B7X72CPW74HRVYXWGITU'),
       roundTime: 1709251673,
       sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('nay7aDZL7TCxfX/ZOLncmGlCmjlBbB/ZxifrtBCKns9Jpotb/eMEcyvp1QmBUXyO5Ft/77x+gRN0O6lIbcxlDg==') },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     }) // The type definition for App Call transaction in indexer seems to be wrong
   },
   ['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']: () => {
@@ -939,7 +960,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('54NGN00vwOQdEeoev5qb7NFV5a8JNY+L/GgNgQrCVjWQtb2rzlO+/OMOY3o984zs2zOYY75Hdy0SXD25GmJvCw=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']: () => {
@@ -962,11 +983,11 @@ export const transactionResultMother = {
           urlB64: base64ToBytes('aHR0cHM6Ly9hc3NldHMuZGF0YWhpc3Rvcnkub3JnL3F1YWtlL3VzNjAwMG10NDAucG5nI2k='),
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38185488n,
-      createdAssetIndex: 1781083085n,
+      createdAssetId: 1781083085n,
       fee: 1000n,
       firstValid: 38185486n,
       genesisHash: base64ToBytes('wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='),
@@ -984,7 +1005,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('NpftYxI2D/QWlIk3D8sxnfA2fVA4g4iX6Da5xiwl9kOOtVxlSkheJGqyc9Dp/ggBFxmqB7fKEAKmadIaXRuxBA=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']: () => {
@@ -1001,7 +1022,7 @@ export const transactionResultMother = {
           total: 0n,
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37544845n,
@@ -1022,7 +1043,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('B9QPA7n9QGK0uAHja5g2rK0tkPoWM1h4usQUVgZTffkNVMBGgpe2XtpQBrhjDSbTW5GbCHEKr44ckI6RUu2YDg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA']: () => {
@@ -1033,7 +1054,7 @@ export const transactionResultMother = {
         assetId: 1707148495n,
         newFreezeStatus: true,
       },
-      authAddr: algosdk.Address.fromString('FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4'),
+      authAddr: Address.fromString('FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 37463564n,
@@ -1053,7 +1074,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('7RUentpSD0yu+vP+sCkITzeexaEANTtOFN3uXC8+HNi3Q0zDvpUzDlmBR5s51CWfoQ6BkFse0sH4MqSj2QdBAA=='),
       },
-      txType: TransactionType.afrz,
+      txType: TransactionType.AssetFreeze,
     })
   },
   ['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']: () => {
@@ -1106,7 +1127,7 @@ export const transactionResultMother = {
           version: 1,
         },
       },
-      txType: TransactionType.keyreg,
+      txType: TransactionType.KeyRegistration,
     })
   },
   ['mainnet-BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ']: () => {
@@ -1161,7 +1182,7 @@ export const transactionResultMother = {
           version: 1,
         },
       },
-      txType: TransactionType.keyreg,
+      txType: TransactionType.KeyRegistration,
     })
   },
   ['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']: () => {
@@ -1174,12 +1195,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [0n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: ApplicationOnComplete.noop,
       },
@@ -1201,7 +1222,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('0b7E1n67IzmPYtzYbrVCIN+WwAPqF1j0NrP0OQvFu10Phv77vFkrvWGtoUxZtZZZt8uqHylJA1MEln2wLrHpDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     }) // The type definition for App Call transaction in indexer seems to be wrong
   },
   ['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']: () => {
@@ -1218,7 +1239,7 @@ export const transactionResultMother = {
           total: 0n,
         },
       },
-      authAddr: algosdk.Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
+      authAddr: Address.fromString('5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38394154n,
@@ -1237,7 +1258,7 @@ export const transactionResultMother = {
       sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('xQjGgT33TOy7dQm0vzDFsHbTDl4BHnzOOp0gHDkexH3Ci5ZFrNgQYnSVyncJ3Cw9MsSybw/3cZwoboK7/O2RDg==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']: () => {
@@ -1263,7 +1284,7 @@ export const transactionResultMother = {
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 23110800n,
-      createdAssetIndex: 854081201n,
+      createdAssetId: 854081201n,
       fee: 1000n,
       firstValid: 23110798n,
       genesisHash: base64ToBytes('wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='),
@@ -1280,7 +1301,7 @@ export const transactionResultMother = {
       sender: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('kQlJT5RVh7TKuQnIkOw4FI9BJ7k++wSuOcXXxLn6srgnAS/sIuTomN2UNzG9DZIFXjoqlap1wpmcNsl5LVvdAw==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q']: () => {
@@ -1306,7 +1327,7 @@ export const transactionResultMother = {
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 6354271n,
-      createdAssetIndex: 917559n,
+      createdAssetId: 917559n,
       fee: 1000n,
       firstValid: 6354269n,
       genesisHash: base64ToBytes('wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='),
@@ -1321,7 +1342,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('bIT1lgB15oU6F9/vQ5ZFLUyPePRkJ/cxmqUFR9kagkljiA3LCzHva/pUg75iiLV59fBleMzXPo+H9OOec9nKDA=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q']: () => {
@@ -1357,7 +1378,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Lm1ap4lB/0SyCYK4Gb2UbVyJrAega3OccpeGPMh4GJNyqG4of0fwhPdVigW7ImkaVDTzguYqK3UYV9mEvMxZCg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']: () => {
@@ -1383,7 +1404,7 @@ export const transactionResultMother = {
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 38688486n,
-      createdAssetIndex: 1820067164n,
+      createdAssetId: 1820067164n,
       fee: 1000n,
       firstValid: 38688195n,
       genesisHash: base64ToBytes('wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='),
@@ -1397,7 +1418,7 @@ export const transactionResultMother = {
       sender: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('e5usiTCw+xuiY5whu1xESgOqnCmahpDRhJ8fOWIMD80crhgR1O3/05BiMIJnlEvu9icv5+7tarvomyNExdEdDA==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']: () => {
@@ -1418,19 +1439,19 @@ export const transactionResultMother = {
         foreignApps: [1196710954n],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 2,
-          numUint: 1,
+          numByteSlices: 2,
+          numUints: 1,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 1,
+          numByteSlices: 0,
+          numUints: 1,
         },
         onCompletion: 'noop',
       },
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 32218016n,
-      createdApplicationIndex: 1196727051n,
+      createdAppId: 1196727051n,
       fee: 1000n,
       firstValid: 32218000n,
       genesisHash: base64ToBytes('wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='),
@@ -1459,7 +1480,7 @@ export const transactionResultMother = {
             uint: 1196710954n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ',
       intraRoundOffset: 18,
       lastValid: 32219000n,
@@ -1473,7 +1494,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hogSpsFw9RMBA7wlp1bf66qInAlIQ9Q762bWwd/Wah2o5jeZ0dNp29QhXsposgCalhThD5PLVrr6N77vdWZICg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']: () => {
@@ -1495,20 +1516,20 @@ export const transactionResultMother = {
         receiver: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
       },
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA'),
+      rekeyTo: Address.fromString('QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA'),
       roundTime: 1678206268,
       sender: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
       senderRewards: 0n,
       signature: {
         sig: base64ToBytes('G9NwYqLXA8L92cauKXyHeY/Jp5cBUTWwL+Ri2w5ex18mIsWQBq7gNg1EU07mzfKU6i93EqkcVZLyVmA2HJkmDg=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA']: () => {
     return new TransactionResultBuilder({
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
+        accounts: [Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
         applicationArgs: [
           base64ToBytes('VSe9RA=='),
           base64ToBytes('AAAAAAAAjKA='),
@@ -1518,12 +1539,12 @@ export const transactionResultMother = {
         foreignApps: [1284326447n, 1002541853n],
         foreignAssets: [1284444444n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -1545,12 +1566,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -1574,7 +1595,7 @@ export const transactionResultMother = {
                 uint: 328787298n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 39789078n,
           localStateDelta: [
@@ -1590,12 +1611,12 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           receiverRewards: 0n,
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/2',
@@ -1606,12 +1627,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -1650,7 +1671,7 @@ export const transactionResultMother = {
                 uint: 328787299n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 39789078n,
           localStateDelta: [
@@ -1666,12 +1687,12 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           receiverRewards: 0n,
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/3',
@@ -1691,7 +1712,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/4',
@@ -1713,23 +1734,23 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/5',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
+            accounts: [Address.fromString('TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM')],
             applicationArgs: [base64ToBytes('c3dhcA=='), base64ToBytes('Zml4ZWQtaW5wdXQ='), base64ToBytes('AAAAAAAKnVg=')],
             applicationId: 1002541853n,
             foreignApps: [],
             foreignAssets: [1284444444n],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -1758,7 +1779,7 @@ export const transactionResultMother = {
               roundTime: 1718456957,
               sender: 'TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 2,
@@ -1813,7 +1834,7 @@ export const transactionResultMother = {
                 },
               ],
             },
-          ],
+          ].map(toAccountStateDelta),
           logs: [
             base64ToBytes('aW5wdXRfYXNzZXRfaWQgJWkAAAAATI8RHA=='),
             base64ToBytes('aW5wdXRfYW1vdW50ICVpAAAAAAZAAAA='),
@@ -1829,7 +1850,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 2,
@@ -1841,7 +1862,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Mo6EtJqvsA9MXLmYZsTLfCYGSzLxA2t8TvcnFpvC/ttNO4xJ5+UqUgfibdBI1hxnUQytwrW41yZ2alloF61hDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
@@ -1853,12 +1874,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -1906,7 +1927,7 @@ export const transactionResultMother = {
             uint: 3635491114n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('vaLtvORtad8atEru3rCZaJeRetDS6S1GLLayjlruG8o='),
       id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ',
       innerTxns: [
@@ -1919,12 +1940,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -1944,7 +1965,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/2',
@@ -1955,12 +1976,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -1976,7 +1997,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/3',
@@ -1997,7 +2018,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/4',
@@ -2010,19 +2031,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619881n,
+          createdAppId: 679619881n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2031,7 +2052,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/5',
@@ -2044,19 +2065,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619882n,
+          createdAppId: 679619882n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2065,7 +2086,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/6',
@@ -2078,19 +2099,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619883n,
+          createdAppId: 679619883n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2099,7 +2120,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/7',
@@ -2112,19 +2133,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619884n,
+          createdAppId: 679619884n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2133,7 +2154,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/8',
@@ -2146,19 +2167,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619885n,
+          createdAppId: 679619885n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2167,7 +2188,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/9',
@@ -2180,19 +2201,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619886n,
+          createdAppId: 679619886n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2201,7 +2222,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/10',
@@ -2214,19 +2235,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619887n,
+          createdAppId: 679619887n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2235,7 +2256,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/11',
@@ -2248,19 +2269,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619888n,
+          createdAppId: 679619888n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2269,7 +2290,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/12',
@@ -2282,19 +2303,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619889n,
+          createdAppId: 679619889n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2303,7 +2324,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/13',
@@ -2316,19 +2337,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619890n,
+          createdAppId: 679619890n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2337,7 +2358,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/4',
@@ -2350,19 +2371,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619891n,
+          createdAppId: 679619891n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2371,7 +2392,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/5',
@@ -2384,19 +2405,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619892n,
+          createdAppId: 679619892n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2405,7 +2426,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/16',
@@ -2418,19 +2439,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619893n,
+          createdAppId: 679619893n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2439,7 +2460,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/17',
@@ -2452,19 +2473,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 40821410n,
-          createdApplicationIndex: 679619894n,
+          createdAppId: 679619894n,
           fee: 0n,
           firstValid: 40821408n,
           intraRoundOffset: 2,
@@ -2473,7 +2494,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/18',
@@ -2491,12 +2512,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -2513,14 +2534,14 @@ export const transactionResultMother = {
                 uint: 54824658163n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 2,
           lastValid: 40822408n,
           receiverRewards: 0n,
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 2,
@@ -2532,31 +2553,31 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1vIkO9cOBlLzNN4f7TokcFNz2m4KYPx4fDukGeutxzNJa/7y0LkTGoLEQNtUCcNmZKl3HCc/jNaCFIaRvvcjCQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A']: () => {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY'),
-          algosdk.Address.fromString('Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ'),
+          Address.fromString('PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY'),
+          Address.fromString('Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ'),
         ],
         applicationArgs: [base64ToBytes('Y2xhaW0=')],
         applicationId: 1800533232n,
         foreignApps: [],
         foreignAssets: [847594689n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
-      authAddr: algosdk.Address.fromString('U2K3RL6UYTHHKNP2GUR7PZPVQ723IV3RMPEVVV42J2KEUIS5SC4OCWF65A'),
+      authAddr: Address.fromString('U2K3RL6UYTHHKNP2GUR7PZPVQ723IV3RMPEVVV42J2KEUIS5SC4OCWF65A'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 39373576n,
@@ -2572,7 +2593,7 @@ export const transactionResultMother = {
             uint: 53n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('e8hHS1DTHzmS5ERI5G5szL2P9+EbDsfT399wjcjc7zU='),
       id: 'GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A',
       innerTxns: [
@@ -2634,7 +2655,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1717259254,
       sender: 'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
@@ -2642,28 +2663,28 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1ZZeWqz/63u9+Ls9z8wvSbVtd6fnZgtptw1FZkCwTl0UiLo9kzxeBpDF8Q0ZDLFcHssjdgYSHtHshp0zf98WBQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-XVVC7UDLCPI622KCJZLWK3SEAWWVUEPEXUM5CO3DFLWOBH7NOPDQ']: () => {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
-          algosdk.Address.fromString('H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4'),
-          algosdk.Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
+          Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
+          Address.fromString('H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4'),
+          Address.fromString('MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M'),
         ],
         applicationArgs: [],
         applicationId: 1898586902n,
         foreignApps: [],
         foreignAssets: [850924184n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'delete',
       },
@@ -2729,15 +2750,15 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ACgqTTdpnhp+0bZVMvh63e1QNVdpGTmki+7ffmQeaFOXUhfG7WUJ66vJV+fJiWqVn8WjwIdadjThmd4xs0/rAw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-CF6HEO6Z5UZIPCUXTIAGUHHDV7W4FCZG5WPKUGU3BIJYF6X6SPYA']: () => {
     return new TransactionResultBuilder({
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('SVES5Z76ZYNFVKN4IMF3HYGDQAYF7DWMPPSSDZQEKAR2566WSA44FNPGIA'),
-          algosdk.Address.fromString('4CLIOL4MHNBVOBNCD6JOBRFDQZV4XZSWMDCTIXI74VQP6BLEP3VAX6ROSM'),
+          Address.fromString('SVES5Z76ZYNFVKN4IMF3HYGDQAYF7DWMPPSSDZQEKAR2566WSA44FNPGIA'),
+          Address.fromString('4CLIOL4MHNBVOBNCD6JOBRFDQZV4XZSWMDCTIXI74VQP6BLEP3VAX6ROSM'),
         ],
         applicationArgs: [
           base64ToBytes('PaC6xg=='),
@@ -2751,16 +2772,16 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [880903652n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
-      authAddr: algosdk.Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
+      authAddr: Address.fromString('NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 40212728n,
@@ -2824,7 +2845,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('rMf0tV/n2Yq5l3dWxy99rf1ocTxBN0YZKF67arJauFI5SQ4iOTzGjs2WEIlxD70Foggh5Szfz5I8WYBR+r/7CA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA']: () => {
@@ -2853,7 +2874,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hHxb/1D5G3EdCwTZ6vWjXTeMFLIa7zAdc0ZxYkcAggWBwepWLO0pgyR9jCG7e4kVTanfoadImmys/M56DYUdBg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA']: () => {
@@ -2889,7 +2910,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ucMpP7/WS+hcHvAqNoWw9V+Kcv/JqUG5UFpvxIXIQ4P3Ac5QrxXE1WQiXcVHsrMlCV5irdqje6HVW4G2GN3gCg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['testnet-YXQOFAL4ZROWRYEUFXSSVUT25JFB4CH3XCQH7UYW7NJQY625PIJA']: () => {
@@ -2918,7 +2939,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('IkyXjQRgx+rdghx0bzM7FON7MlD4CytsE8nOno2fmZQ4JqfqCbTZLy91dLj4ba3wEhwnJT8bcUOAry9jk/YQDg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-GPUOT5Y5MTR6HXT5GYUDFOGKQOU6E536BRFXY5JMNLVHM2OT4K4Q']: () => {
@@ -2947,7 +2968,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3izus+BlRloA5uzDgVQKDmDjmQNVrFAJmn7RRtHldaAtlDz9w8Y997fURHIqFx+0T7iWzxvWxqOFlqF8DIiMBA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-WVXEZHZCUA23S2H4WATQKA7DFXA4NWWUCDAQTNMARR7MUUVSKSBQ']: () => {
@@ -2976,7 +2997,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Xa3vKgLm9MANeUJ7nd4JncFrO+nz0S91p0Ckmz3XRHkA74SiT9BeHklqYw0JhK//vFoVDgUbcwHA6KFCli0OCQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-ORSVPJSAFWFOQRNBCECVDLRGWZBI76U2Q6IL7EI6RP6NEPGYAWMQ']: () => {
@@ -3006,7 +3027,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ylMvyATFC+feDIxRHCT8yyHlMAKXUQE4tLsmdmLtAKmYrTDdLHdbAn7j9GF0E83AMzTkBvBq+FlGcBR0e/lwBQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-K7TNWCBB5PYBX5OVSYPSD3VCKD4BYLRHWG43KWJ7JOJ7Z6UFUFWQ']: () => {
@@ -3035,7 +3056,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('srtI2Yq9pIfBhMxc5rMLTlvQ9dCUKdrjDShHe73+ewiGUo23zByM4SoO8EWQJ0ft2KINFmRL4qlWKe/OPrNUBQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-44PALBEBH652BYUIT7SZF5PFWJ7KYSBFJYOPSLYX6KM3G47P53VA']: () => {
@@ -3064,7 +3085,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('SUsEGQaj+XVyq10Ou27hprgl+j30pi7uAQtsFBJ9h75yk5S2ok4V/Ofc2cgKyAHyTVBwIe+Y7pGKVH1pIXUnCA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-23RVHEI5OQZWQ5D6NNLOVOKA7LFKSUZEWEWEBDNCBI5GY4HPZS5A']: () => {
@@ -3093,7 +3114,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('au4cWjjuegOxdYYUeb0F21Vsb0XtLQYaqultIaRY98H8KMSguKS24SCeZDqy4DrCsV+skxkzUnvXd9Bia4+DAw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-7XSI3OKXOEHSGVUZDTIYWGBKU3G65XZPRLNCFGNYH3SJWGXVR3AQ']: () => {
@@ -3123,7 +3144,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('y+naO+YggLqNg8NcMmO1ChDy4FfEaxp1mvwBiMWiu7f4/uunvPH00RheGtRILm8QGmrfPC6zxF8rH3PKDCXGDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-QIMCXEMIV2LNX5RJMYWM4UQTJAUSJE5GGJAOE5NCTQ3BOSQ5MJMA']: () => {
@@ -3152,7 +3173,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('GT3a/u9Jzdbp4aDvCbuRbFZtt4PMknBJoZfc/xaTaVfie6noOc2j0WoYAk10FJQdghwpJ1bLvHq7H/ODUr1VAQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-DDXYDL7EYTQRHH4G3SSZHT4HUZNBND24PDDNTF2VR73QBK4SL7AQ']: () => {
@@ -3181,7 +3202,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('SL9uO75xMAZ/rGC+tUyw0fgh1rjJYiToumnFuW+TKWh+Uwja2cR69TpmqAJIkJ2HDvlvQ1c0xpJnR0chUc/7AA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-26TWK7B27JHHI6OAKTIXNBTC2IAUUPCUUHCYHD7P5B57X7BUJJKQ']: () => {
@@ -3211,7 +3232,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('NBsN7i/yFt1aeuXgrns/zPxGZtGa8BP5rSu/BPVu/T0c66JvlJFxJccDmTosCnUdVsIL/5aUoaKbXh7M9p3JDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']: () => {
@@ -3223,12 +3244,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [705457144n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3247,7 +3268,7 @@ export const transactionResultMother = {
             uint: 705457144n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc='),
       id: 'QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A',
       innerTxns: [
@@ -3270,7 +3291,7 @@ export const transactionResultMother = {
           roundTime: 1721892883,
           sender: '5VLJQQVCC2FARS5OKXWDPPYKJLJNEP7SKFHXD76DRN4WCV7SGI6W2IB5ME',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       intraRoundOffset: 2,
@@ -3282,7 +3303,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('aJjwZDVvDhYTp/IEjFz/y1cNSlC065MVv5dpTNXkIjr/ApI1J9VlTYyT+1Ib+KkpR1VMqdmruQdndrRWhkKTDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-MEF2BZU4JXIU2I7ORQRFZQ3QVT7ZWJ5VQQ4HZ4BWVZK4CEDERQ3A': () => {
@@ -3294,12 +3315,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3332,7 +3353,7 @@ export const transactionResultMother = {
             uint: 10000n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       group: base64ToBytes('kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc='),
       id: 'MEF2BZU4JXIU2I7ORQRFZQ3QVT7ZWJ5VQQ4HZ4BWVZK4CEDERQ3A',
       intraRoundOffset: 5,
@@ -3344,7 +3365,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('zUlazFAWR7MYhoYAX+GZDMq8Y6c6KFdHMUcVHfAihie9KWqbJmH9A1NbrwScU7wPtebCu+WxIIGkMjx69s9ABQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-5JZDTA4H7SMWADF4TNE447CNBEOJEBZ5ECKEPHH5LEWQ7DMBRGXQ': () => {
@@ -3373,7 +3394,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('qpXbPIEwJkkjavMLcm7XwMWsRwXWLemIuJcSUhYehGJ7c4Q4HdVum27BLsgvXBvMFd7vrrX5zHHTSbMQpAWRDA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   'testnet-QYKMVTOB4JF5PKLGJVYUD3ATSOTMVOHPE36UYDETNUG7LWPEFLKQ': () => {
@@ -3402,12 +3423,12 @@ export const transactionResultMother = {
         foreignApps: [705410358n],
         foreignAssets: [705457144n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3435,7 +3456,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('al6Qbe6APLFFUyh5nd1eCzyz4L903r86qP7ZMqHhM/tu4QMhkxTfAHp/GljeqDFmZPA+oEugUNwWSXIBYvX2Bg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-O3PWUKD7HK23GI2MWSSGQ2F7MKG4VBSS3NNIJFOIF5ABE7YF3BSA': () => {
@@ -3463,7 +3484,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ODJlCJzGZ3HL0kzKhfoSBgC5rL9Jfwr9Lr448Bsx85HU0xsC4PxCZbiFsc6J+J4comFOVjzpIJERp6m1MUJGBQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   'testnet-QLQS5F2U2OZJQJVQWZE5F6DKPDMY4LXEKHWE6NFHGTWJJGKKFA7A': () => {
@@ -3483,12 +3504,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3514,7 +3535,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('YRLhsEPTpkIbC/tgwZz1+HcMlN/x0aiZZR/QbYTnXddw6QdoABn1+/LhRgAdGWJ01aYeGkMGDzHXK6o+u1MFAA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q': () => {
@@ -3526,12 +3547,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3553,7 +3574,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3E2NLPLicGHTiMmpIYUzByCsrW5qpGngK93u5SK2lsg4r+/GWpoVmfY60FCAeDv6TJWcPQ39Ulj2SjZZtQ7VAg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q': () => {
@@ -3568,18 +3589,18 @@ export const transactionResultMother = {
         clearStateProgram: base64ToBytes('CoEBQw=='),
         onCompletion: 'noop',
         globalStateSchema: {
-          numByteSlice: 1,
-          numUint: 4,
+          numByteSlices: 1,
+          numUints: 4,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 1,
+          numByteSlices: 0,
+          numUints: 1,
         },
         applicationArgs: [base64ToBytes('K5iklw==')],
       },
       firstValid: 1n,
       lastValid: 1001n,
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
       fee: 1000n,
       sender: 'YKPOB2GX4UVLSNNHJQQUPQ7G3VB6XN4HC7N5HMGAN2N4XZ45AXRTJ5HRUA',
       confirmedRound: 2n,
@@ -3591,7 +3612,7 @@ export const transactionResultMother = {
         'QUxHT0tJVF9ERVBMT1lFUjpqeyJuYW1lIjogIkF1Y3Rpb24iLCAidmVyc2lvbiI6ICJ2MS4wIiwgImRlbGV0YWJsZSI6IG51bGwsICJ1cGRhdGFibGUiOiBudWxsfQ=='
       ),
       lease: new Uint8Array(),
-      createdApplicationIndex: 1002n,
+      createdAppId: 1002n,
       signature: {
         sig: base64ToBytes('SWcc0w0p5fzxcx/Dd5PLEQuTQ4tsS97Li5TlusVaQlJIGzRH0qjojFpCEsVMAw98EejGokiH3ZPTdNjQSO5tDw=='),
       },
@@ -3627,7 +3648,7 @@ export const transactionResultMother = {
             bytes: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
     })
   },
   // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleOne app spec
@@ -3640,12 +3661,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3672,7 +3693,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'AIIGV5XLUCNTLDOBBSFXDGCLBOM6WIE42OMTADUAFBD3PHK6JL4Q',
       intraRoundOffset: 0,
       lastValid: 3707n,
@@ -3684,7 +3705,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('l9mhSOySNKefxFx/cSQDNmUBJlh6+fXO4k5DFbfNrVEh7IfhMsiO2Gy/w6Q0Of114/m/oAf3yKhz0BCQR3IvBA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleOne app spec
@@ -3697,12 +3718,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'optin',
       },
@@ -3737,7 +3758,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1731017805,
       sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
@@ -3745,7 +3766,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('h20ruo3JVtSZ5z/KJOHi7qySEmlfM3yWL2xtTBfWl23vnfI8/M1CTeGvAWmQqyxZdZ5NpmuiSoCdqZHRERngAw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleThree app spec
@@ -3758,12 +3779,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3783,7 +3804,7 @@ export const transactionResultMother = {
             uint: 0n,
           },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       id: 'B65NVNGK6E6K2E2F4K2M5HRKB4VPPZMJLS55UKWLN6O2XPT2NSTA',
       intraRoundOffset: 0,
       lastValid: 4998n,
@@ -3795,7 +3816,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3xZ3KcpEUDVtAlcwoAmwadmRw8FRigjKAjvq8Jhuq/xYVn3+T8oYDuVGJJL/wfZmjrHj76dxxsyxB5Qv/3TXAQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleThree app spec
@@ -3808,12 +3829,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'optin',
       },
@@ -3841,7 +3862,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       receiverRewards: 0n,
       roundTime: 1731050080,
       sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
@@ -3849,7 +3870,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('S0PatEjdnWBvi2T5i5CLuId4sBpEGkWP5gW9Gm4Cj/wb6c9FxLa22kUV+K0gFWIPRzvMPKNqgJvdLyyz/h8pDg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'localnet-64YO3SCTIJQFVTHYFPD74GYCEH5ETU7RVZCGQ5WCXPIEZEWHRE5A': () => {
@@ -3865,12 +3886,12 @@ export const transactionResultMother = {
         foreignApps: [10019n],
         foreignAssets: [],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: 'noop',
       },
@@ -3888,7 +3909,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('0pQyotXLRytLEMYHzd51bViOowOxWQg7Xggo3I2TY1uWhVlBNcVdDOkHGHhxYaLseDcYwqEfPXyO0oP3CR8NAQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
       innerTxns: [
         {
           fee: 0n,
@@ -3909,7 +3930,7 @@ export const transactionResultMother = {
           receiverRewards: 0n,
           roundTime: 1736481124,
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           fee: 0n,
@@ -3923,12 +3944,12 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'noop',
           },
@@ -3942,7 +3963,7 @@ export const transactionResultMother = {
           receiverRewards: 0n,
           roundTime: 1736481124,
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
     })
@@ -3964,14 +3985,14 @@ export const transactionResultMother = {
       applicationTransaction: {
         applicationId: 3049909772n,
         accounts: [
-          algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
-          algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
         ],
         applicationArgs: [base64ToBytes('3NM24w=='), base64ToBytes('AAAAAAL4B0I='), base64ToBytes('AAAAAAAAAAg=')],
         foreignAssets: [31566704n, 465865291n],
         foreignApps: [],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
       globalStateDelta: [
@@ -3979,7 +4000,7 @@ export const transactionResultMother = {
           key: 'ZXhwZWN0ZWRfYW1vdW50X291dA==',
           value: { action: 2, uint: 49809218n },
         },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/1',
@@ -4000,7 +4021,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/2',
@@ -4021,7 +4042,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/3',
@@ -4038,11 +4059,11 @@ export const transactionResultMother = {
             receiver: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           },
           receiverRewards: 0n,
-          rekeyTo: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+          rekeyTo: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       receiverRewards: 0n,
@@ -4052,7 +4073,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('DzoA6ej2q5O59cKdUIJSMEZN/xrYUwCoPIjBGrSbwJaH7bTQdOP/MuXmksqLoineiU0v3YmAPpqdtvB2kIswDw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-66BWHDAIBMYJXXGRUAQMSSQOQZ3XNTEJZILTOOBH2F732ZVD2PVQ']: () => {
@@ -4082,7 +4103,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('lC2vYB9iHLYs4uiktqc3s6vS7gNmROW3fPtxW+GyKm4Np4CCKO+fybgCQEvDbiSlcCtS5vdyGYhDX9BkqJ2aAw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-LYAXMJ3YBIKLTMWETYI3SDC3HPIJJWVU6K5KFTQDR7FKESHIEEKQ']: () => {
@@ -4111,13 +4132,13 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1lpERtWMMDmA1Pfd17Kq7b/PoMfPlU9qVjw9ZXgk/dRbw7MYW3fmH7MV4+F3D+ILok4UeMSPccqMDwV9gE4lDQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA']: () => {
     return new TransactionResultBuilder({
       id: 'CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4142,13 +4163,13 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('jAQauXkckzxEtMk93dyPRtXwQTNNd2Zii94A+2K19Q9L56dGvkCIfiKjWUjdLS+E8Lub/RugPgisrGu278ZhDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A']: () => {
     return new TransactionResultBuilder({
       id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4166,8 +4187,8 @@ export const transactionResultMother = {
         applicationId: 658337046n,
         foreignApps: [658336870n],
         foreignAssets: [465865291n],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
       globalStateDelta: [
@@ -4182,7 +4203,7 @@ export const transactionResultMother = {
         { key: 'Y3Yy', value: { action: 2, uint: 73267881083655n } },
         { key: 'Y3YyMQ==', value: { action: 2, uint: 3391058581298893000n } },
         { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/1',
@@ -4192,8 +4213,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4207,7 +4228,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/2',
@@ -4217,8 +4238,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4232,7 +4253,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/3',
@@ -4242,8 +4263,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4257,7 +4278,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/4',
@@ -4267,8 +4288,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4282,7 +4303,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/5',
@@ -4292,8 +4313,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4307,7 +4328,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/6',
@@ -4317,8 +4338,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4332,7 +4353,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/7',
@@ -4342,8 +4363,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4357,7 +4378,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/8',
@@ -4367,8 +4388,8 @@ export const transactionResultMother = {
             applicationId: 658336870n,
             foreignApps: [],
             foreignAssets: [],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4382,7 +4403,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/9',
@@ -4403,7 +4424,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       receiverRewards: 0n,
@@ -4413,13 +4434,13 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('MgD6mFlGIZYlWinUi3lqpKhrH4dSAzZRIdjlszAe+C+C8VolKk9LYQQz/9teGqeopr+AvP6Si3lZOT1uTPRABA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ']: () => {
     return new TransactionResultBuilder({
       id: 'S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ',
-      authAddr: algosdk.Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
+      authAddr: Address.fromString('Q2OAGW2ZBLV5V36W4PZHSLQZEHU7MR5VY2EESNOTNUHE2OBUG6HKJPTZEE'),
       closeRewards: 0n,
       closingAmount: 0n,
       confirmedRound: 50843679n,
@@ -4436,14 +4457,14 @@ export const transactionResultMother = {
         receiver: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
       },
       receiverRewards: 0n,
-      rekeyTo: algosdk.Address.fromString('SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q'),
+      rekeyTo: Address.fromString('SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q'),
       roundTime: 1749837470,
       sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
       senderRewards: 0n,
       signature: {
         sig: base64ToBytes('6/8tPlKi9KG99zYJt8J48H/UCEbLQM+wgAJ0ZYjVRnhRju47kcHjM5IRD2Ni6fYOH+iTH6bB2y9X5imD4U5fCw=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A']: () => {
@@ -4461,7 +4482,7 @@ export const transactionResultMother = {
       lastValid: 50844674n,
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjMwMjA2OTAzNjM2MjU4MzUz'),
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
+        accounts: [Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
         applicationArgs: [
           base64ToBytes('EzRH8w=='),
           base64ToBytes('AAAAAAAAAAE='),
@@ -4479,11 +4500,11 @@ export const transactionResultMother = {
         applicationId: 3049909772n,
         foreignApps: [605929989n, 605753404n],
         foreignAssets: [0n, 31566704n],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
-      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 1n } }],
+      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 1n } }].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A/inner/1',
@@ -4506,7 +4527,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A/inner/2',
@@ -4516,8 +4537,8 @@ export const transactionResultMother = {
             applicationId: 605929989n,
             foreignApps: [605753404n],
             foreignAssets: [0n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4536,7 +4557,7 @@ export const transactionResultMother = {
             { key: 'Y3Yy', value: { action: 2, uint: 93115144717055n } },
             { key: 'Y3YyMQ==', value: { action: 2, uint: 222747704383284860n } },
             { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('8D3J4xkE/UAFPk8dT1FWhb/w0FZu+RCHVPEZdxluWvM='),
           innerTxns: [
             {
@@ -4557,7 +4578,7 @@ export const transactionResultMother = {
               roundTime: 1749837470,
               sender: 'NGIHJMECRSFHIEQDHBVTLR54K7DOZWM5M6UM3A5CIOYSP6H3QTGSHHGJCQ',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 43,
@@ -4567,7 +4588,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       receiverRewards: 0n,
@@ -4577,7 +4598,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('l49w4+jF94iF3idSIyo96V2YYrpPK09zLOJmfuGslFb8Is8A3VxmrMLkZoUyO5kh3PywmAxcZmM4W+rAiyioDA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ']: () => {
@@ -4595,7 +4616,7 @@ export const transactionResultMother = {
       lastValid: 50844674n,
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjA3MTQ0NTUxMTc3NjUzODAy'),
       applicationTransaction: {
-        accounts: [algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
+        accounts: [Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE')],
         applicationArgs: [
           base64ToBytes('EzRH8w=='),
           base64ToBytes('AAAAAAAAAAE='),
@@ -4613,11 +4634,11 @@ export const transactionResultMother = {
         applicationId: 3049909772n,
         foreignApps: [607645439n, 605753404n],
         foreignAssets: [0n, 465865291n],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
-      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 2n } }],
+      globalStateDelta: [{ key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 2n } }].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ/inner/1',
@@ -4640,7 +4661,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ/inner/2',
@@ -4650,8 +4671,8 @@ export const transactionResultMother = {
             applicationId: 607645439n,
             foreignApps: [605753404n],
             foreignAssets: [0n],
-            globalStateSchema: { numByteSlice: 0, numUint: 0 },
-            localStateSchema: { numByteSlice: 0, numUint: 0 },
+            globalStateSchema: { numByteSlices: 0, numUints: 0 },
+            localStateSchema: { numByteSlices: 0, numUints: 0 },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
@@ -4670,7 +4691,7 @@ export const transactionResultMother = {
             { key: 'Y3Yy', value: { action: 2, uint: 67644539079644n } },
             { key: 'Y3YyMQ==', value: { action: 2, uint: 8573927948060841000n } },
             { key: 'bHQ=', value: { action: 2, uint: 1749837466n } },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('qPY2KSa9AzA4edTXJfJI7Kbh0M1LaXVDmNChG1rRmQo='),
           innerTxns: [
             {
@@ -4691,7 +4712,7 @@ export const transactionResultMother = {
               roundTime: 1749837470,
               sender: 'LUKPHRCKPCX4SC32ZI2BXH2OQ3HDCQGKFTFCZEVXOWICY4AG7AQ4S5NKEQ',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 47,
@@ -4701,7 +4722,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       receiverRewards: 0n,
@@ -4711,7 +4732,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('dmLw5x3/YYcLoje7Y9dpVKrsKnjHIOHeWWRrxc7q6NdqRtWSTG7kjSVCmECr2HupgHQzIVZ4LbFB4Y92KZiABg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ']: () => {
@@ -4730,8 +4751,8 @@ export const transactionResultMother = {
       note: base64ToBytes('ZGVmbGV4LW5mZC0wLjk0MzA3ODg1NzEzODE1OQ=='),
       applicationTransaction: {
         accounts: [
-          algosdk.Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE'),
-          algosdk.Address.fromString('FJ2DSKGDEH66SDEHABYM35JMMDDVLMJFFYD5K6S2U7IIWKICMCGNIAWJ5Y'),
+          Address.fromString('V2Q4LOPORVL3BVQBIPGLDEYW6F7NRVTJGV3R7HG5VVF4W6R3N3ZXI4SKEE'),
+          Address.fromString('FJ2DSKGDEH66SDEHABYM35JMMDDVLMJFFYD5K6S2U7IIWKICMCGNIAWJ5Y'),
         ],
         applicationArgs: [
           base64ToBytes('yJDcIA=='),
@@ -4748,14 +4769,14 @@ export const transactionResultMother = {
         applicationId: 3049909772n,
         foreignApps: [],
         foreignAssets: [31566704n, 0n],
-        globalStateSchema: { numByteSlice: 0, numUint: 0 },
-        localStateSchema: { numByteSlice: 0, numUint: 0 },
+        globalStateSchema: { numByteSlices: 0, numUints: 0 },
+        localStateSchema: { numByteSlices: 0, numUints: 0 },
         onCompletion: ApplicationOnComplete.noop,
       },
       globalStateDelta: [
         { key: 'ZXhwZWN0ZWRfYW1vdW50X291dA==', value: { action: 2, uint: 0n } },
         { key: 'dG90YWxfc3dhcHM=', value: { action: 2, uint: 0n } },
-      ],
+      ].map(toEvalDeltaKeyValue),
       innerTxns: [
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/1',
@@ -4776,7 +4797,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/2',
@@ -4797,7 +4818,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/3',
@@ -4819,7 +4840,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/4',
@@ -4841,7 +4862,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/5',
@@ -4861,7 +4882,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       receiverRewards: 0n,
@@ -4871,7 +4892,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ToICE3uqkkj3hYb5chzYO9uYp+jqsXb7WKOqKcOPkyyaKeNSTabTVRsyTVFfUk5gPTwXfrd2hJT+yGVpCAkLDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q']: () => {
@@ -4899,12 +4920,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [31566704n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: ApplicationOnComplete.noop,
       },
@@ -4922,19 +4943,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: 'delete',
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 43465969n,
-          createdApplicationIndex: 2365972864n,
+          createdAppId: 2365972864n,
           fee: 0n,
           firstValid: 43465965n,
           innerTxns: [
@@ -4956,7 +4977,7 @@ export const transactionResultMother = {
               roundTime: 1728990693,
               sender: 'BPNOT3ZSQYVEKXD6ZGE76TLFTZRPMLUCODNH4RXJOPNMRCDWIYPW76IJ3M',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 14,
@@ -4966,7 +4987,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APLTAKWSCQAJIEM',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q/inner/2',
@@ -4986,7 +5007,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APLTAKWSCQAJIEM',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q/inner/3',
@@ -5007,7 +5028,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'BPNOT3ZSQYVEKXD6ZGE76TLFTZRPMLUCODNH4RXJOPNMRCDWIYPW76IJ3M',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       localStateDelta: [
@@ -5024,7 +5045,7 @@ export const transactionResultMother = {
             },
           ],
         },
-      ],
+      ].map(toAccountStateDelta),
       logs: [
         base64ToBytes('JIoFHgva6e8yhipFXH7Jif9NZZ5i9i6CcNp+Rulz2siIdkYfAAAAAAHhq3A='),
         base64ToBytes('FR98dQva6e8yhipFXH7Jif9NZZ5i9i6CcNp+Rulz2siIdkYf'),
@@ -5036,7 +5057,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('TCAiL6/is/QyrBS+3bsCFr321FGyV/TvUvchXOZvhgGMdlgpzQ2BsJENNrhmE1EilfgEQMkAQ2QtwqCCtXP5CA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-AFCLNZPUMZVOKWUPY2NQUD5SUL2SOAJAUF6CP2GIU2UMAODMWEVQ']: () => {
@@ -5064,7 +5085,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Dz+9g1Hf8TYyKR8aIn0u8n/E8GcaLbvQoMQxVleEpCihhL1pcsGXEP6JJEHiv40WB8pvfT1FjFoX3SV/USVPBA=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA']: () => {
@@ -5083,12 +5104,12 @@ export const transactionResultMother = {
         foreignApps: [],
         foreignAssets: [31566704n, 2982339967n, 2982339968n],
         globalStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         localStateSchema: {
-          numByteSlice: 0,
-          numUint: 0,
+          numByteSlices: 0,
+          numUints: 0,
         },
         onCompletion: ApplicationOnComplete.noop,
       },
@@ -5116,19 +5137,19 @@ export const transactionResultMother = {
             foreignApps: [],
             foreignAssets: [],
             globalStateSchema: {
-              numByteSlice: 1,
-              numUint: 9,
+              numByteSlices: 1,
+              numUints: 9,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: ApplicationOnComplete.noop,
           },
           closeRewards: 0n,
           closingAmount: 0n,
           confirmedRound: 52121244n,
-          createdApplicationIndex: 3137524476n,
+          createdAppId: 3137524476n,
           fee: 1000n,
           firstValid: 52121242n,
           globalStateDelta: [
@@ -5202,14 +5223,14 @@ export const transactionResultMother = {
                 uint: 0n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           intraRoundOffset: 13,
           lastValid: 52121252n,
           receiverRewards: 0n,
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/2',
@@ -5230,12 +5251,12 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3',
           applicationTransaction: {
-            accounts: [algosdk.Address.fromString('2QNWN7TIRBW6VCT2OEBUEPI4UJWVTTC2GHCQOKB3G5B6DFGMEHLLDQQULM')],
+            accounts: [Address.fromString('2QNWN7TIRBW6VCT2OEBUEPI4UJWVTTC2GHCQOKB3G5B6DFGMEHLLDQQULM')],
             applicationArgs: [
               base64ToBytes('lU59cg=='),
               base64ToBytes('AAAAAAAAAAA='),
@@ -5248,12 +5269,12 @@ export const transactionResultMother = {
             foreignApps: [2982339824n],
             foreignAssets: [31566704n, 31566704n, 2982339967n, 2982339968n],
             globalStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             localStateSchema: {
-              numByteSlice: 0,
-              numUint: 0,
+              numByteSlices: 0,
+              numUints: 0,
             },
             onCompletion: ApplicationOnComplete.noop,
           },
@@ -5313,7 +5334,7 @@ export const transactionResultMother = {
                 uint: 1n,
               },
             },
-          ],
+          ].map(toEvalDeltaKeyValue),
           group: base64ToBytes('+6zYx5gx0Iv3sLRso9Z1Xwr4niLcNyorFpQ+uBVkcBA='),
           innerTxns: [
             {
@@ -5335,7 +5356,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
             {
               id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3/inner/2',
@@ -5356,7 +5377,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
             {
               id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3/inner/3',
@@ -5377,7 +5398,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 13,
@@ -5387,7 +5408,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/4',
@@ -5409,7 +5430,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       intraRoundOffset: 13,
@@ -5422,7 +5443,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('fCh5O1U0NWqEno0sYLwVeQ6jddVDzjtFkl3pUEi5O3i8Tzzu2vBjtA2jB6qBuaaSZFJ/tN6Xb4LF9IGjuLVCDA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
 }

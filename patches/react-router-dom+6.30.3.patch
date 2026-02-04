@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-router-dom/dist/index.d.ts b/node_modules/react-router-dom/dist/index.d.ts
-index 07aac84..9b8497b 100644
+index 32bdccd..a1b92d7 100644
 --- a/node_modules/react-router-dom/dist/index.d.ts
 +++ b/node_modules/react-router-dom/dist/index.d.ts
 @@ -202,6 +202,7 @@ export declare const Form: React.ForwardRefExoticComponent<FormProps & React.Ref
@@ -19,10 +19,10 @@ index 07aac84..9b8497b 100644
  export { useScrollRestoration as UNSAFE_useScrollRestoration };
  /**
 diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
-index 9bef12f..85224e3 100644
+index c134e16..c9711c7 100644
 --- a/node_modules/react-router-dom/dist/index.js
 +++ b/node_modules/react-router-dom/dist/index.js
-@@ -934,11 +934,13 @@ if (process.env.NODE_ENV !== "production") {
+@@ -941,11 +941,13 @@ if (process.env.NODE_ENV !== "production") {
  function ScrollRestoration(_ref10) {
    let {
      getKey,
@@ -38,7 +38,7 @@ index 9bef12f..85224e3 100644
    });
    return null;
  }
-@@ -1231,13 +1233,31 @@ function useFetchers() {
+@@ -1242,13 +1244,31 @@ function useFetchers() {
  }
  const SCROLL_RESTORATION_STORAGE_KEY = "react-router-scroll-positions";
  let savedScrollPositions = {};
@@ -71,7 +71,7 @@ index 9bef12f..85224e3 100644
    } = _temp4 === void 0 ? {} : _temp4;
    let {
      router
-@@ -1263,7 +1283,7 @@ function useScrollRestoration(_temp4) {
+@@ -1274,7 +1294,7 @@ function useScrollRestoration(_temp4) {
    usePageHide(React.useCallback(() => {
      if (navigation.state === "idle") {
        let key = (getKey ? getKey(location, matches) : null) || location.key;
@@ -80,7 +80,7 @@ index 9bef12f..85224e3 100644
      }
      try {
        sessionStorage.setItem(storageKey || SCROLL_RESTORATION_STORAGE_KEY, JSON.stringify(savedScrollPositions));
-@@ -1271,7 +1291,7 @@ function useScrollRestoration(_temp4) {
+@@ -1282,7 +1302,7 @@ function useScrollRestoration(_temp4) {
        process.env.NODE_ENV !== "production" ? UNSAFE_warning(false, "Failed to save scroll positions in sessionStorage, <ScrollRestoration /> will not work properly (" + error + ").") : void 0;
      }
      window.history.scrollRestoration = "auto";
@@ -89,7 +89,7 @@ index 9bef12f..85224e3 100644
    // Read in any saved scroll locations
    if (typeof document !== "undefined") {
      // eslint-disable-next-line react-hooks/rules-of-hooks
-@@ -1292,9 +1312,9 @@ function useScrollRestoration(_temp4) {
+@@ -1303,9 +1323,9 @@ function useScrollRestoration(_temp4) {
        _extends({}, location, {
          pathname: stripBasename(location.pathname, basename) || location.pathname
        }), matches) : getKey;
@@ -101,7 +101,7 @@ index 9bef12f..85224e3 100644
      // Restore scrolling when state.restoreScrollPosition changes
      // eslint-disable-next-line react-hooks/rules-of-hooks
      React.useLayoutEffect(() => {
-@@ -1304,7 +1324,7 @@ function useScrollRestoration(_temp4) {
+@@ -1315,7 +1335,7 @@ function useScrollRestoration(_temp4) {
        }
        // been here before, scroll to it
        if (typeof restoreScrollPosition === "number") {
@@ -110,7 +110,7 @@ index 9bef12f..85224e3 100644
          return;
        }
        // try to scroll to the hash
-@@ -1320,8 +1340,8 @@ function useScrollRestoration(_temp4) {
+@@ -1331,8 +1351,8 @@ function useScrollRestoration(_temp4) {
          return;
        }
        // otherwise go to the top on new locations

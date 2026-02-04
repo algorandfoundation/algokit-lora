@@ -2,12 +2,12 @@ import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { isAddress } from '@/utils/is-address'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import algosdk from 'algosdk'
 import { asOnCompleteLabel } from '../mappers/as-description-list-items'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
-import { asAlgosdkTransactions } from '../mappers'
+import { asAlgokitTransactions } from '../mappers'
 import { isNfd } from '@/features/nfd/data'
+import { OnApplicationComplete, Transaction, makeEmptyTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 
 export const requiredMessage = 'Required'
 
@@ -36,6 +36,7 @@ export const optionalAddressFieldSchema = z
       message: invalidAddressOrNfdMessage,
     }),
     resolvedAddress: z.string().optional(),
+    autoPopulated: z.boolean().optional(),
   })
   .superRefine((field, ctx) => {
     if (field.value && (!field.resolvedAddress || !isAddress(field.resolvedAddress))) {
@@ -106,44 +107,44 @@ export const validRoundsFieldSchema = {
 
 export const onCompleteFieldSchema = {
   onComplete: z.union([
-    z.literal(algosdk.OnApplicationComplete.NoOpOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.OptInOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.ClearStateOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.CloseOutOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.NoOp.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.OptIn.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.ClearState.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.CloseOut.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.DeleteApplication.toString(), { required_error: requiredMessage }),
   ]),
 }
 
 export const onCompleteOptions = [
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.ClearStateOC), value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.CloseOutOC), value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.NoOp), value: OnApplicationComplete.NoOp.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.OptIn), value: OnApplicationComplete.OptIn.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.ClearState), value: OnApplicationComplete.ClearState.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.CloseOut), value: OnApplicationComplete.CloseOut.toString() },
   {
-    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
-    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
+    label: asOnCompleteLabel(OnApplicationComplete.DeleteApplication),
+    value: OnApplicationComplete.DeleteApplication.toString(),
   },
 ]
 
 export const onCompleteForAppCreateFieldSchema = {
   onComplete: z.union([
-    z.literal(algosdk.OnApplicationComplete.NoOpOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.OptInOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.UpdateApplicationOC.toString(), { required_error: requiredMessage }),
-    z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.NoOp.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.OptIn.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.UpdateApplication.toString(), { required_error: requiredMessage }),
+    z.literal(OnApplicationComplete.DeleteApplication.toString(), { required_error: requiredMessage }),
   ]),
 }
 
 export const onCompleteOptionsForAppCreate = [
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.NoOp), value: OnApplicationComplete.NoOp.toString() },
+  { label: asOnCompleteLabel(OnApplicationComplete.OptIn), value: OnApplicationComplete.OptIn.toString() },
   {
-    label: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
-    value: algosdk.OnApplicationComplete.UpdateApplicationOC.toString(),
+    label: asOnCompleteLabel(OnApplicationComplete.UpdateApplication),
+    value: OnApplicationComplete.UpdateApplication.toString(),
   },
   {
-    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
-    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
+    label: asOnCompleteLabel(OnApplicationComplete.DeleteApplication),
+    value: OnApplicationComplete.DeleteApplication.toString(),
   },
 ]
 
@@ -156,21 +157,29 @@ export const commonSchema = {
 export const commonFormData = zfd.formData(commonSchema)
 
 export const buildComposer = async (transactions: BuildTransactionResult[]) => {
-  const composer = algorandClient.newGroup()
+  const algokitTxns: Transaction[] = []
+
   for (const transaction of transactions) {
-    const txns = await asAlgosdkTransactions(transaction)
-    txns.forEach((txn) => composer.addTransaction(txn))
+    const txns = await asAlgokitTransactions(transaction)
+    algokitTxns.push(...txns)
   }
+
+  const composer = algorandClient.newGroup()
+  algokitTxns.forEach((txn) => composer.addTransaction(txn))
   return composer
 }
 
-const nullSigner = algosdk.makeEmptyTransactionSigner()
+const nullSigner = makeEmptyTransactionSigner()
 
 export const buildComposerWithEmptySignatures = async (transactions: BuildTransactionResult[]) => {
-  const composer = algorandClient.newGroup()
+  const algokitTxns: Transaction[] = []
+
   for (const transaction of transactions) {
-    const txns = await asAlgosdkTransactions(transaction)
-    txns.forEach((txn) => composer.addTransaction(txn, nullSigner))
+    const txns = await asAlgokitTransactions(transaction)
+    algokitTxns.push(...txns)
   }
+
+  const composer = algorandClient.newGroup()
+  algokitTxns.forEach((txn) => composer.addTransaction(txn, nullSigner))
   return composer
 }

@@ -1,10 +1,9 @@
 import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils'
 import { networkConfigAtom } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
-import algosdk from 'algosdk'
 import { WalletId } from '@txnlab/use-wallet-react'
 import { localnetId, NetworkConfig, NetworkConfigWithId } from '@/features/network/data/types'
-import { ClientManager } from '@algorandfoundation/algokit-utils/types/client-manager'
+import { ClientManager } from '@algorandfoundation/algokit-utils/client-manager'
 
 Config.configure({
   logger: Config.getLogger(true),
@@ -19,7 +18,7 @@ const networkConfig = settingsStore.get(networkConfigAtom)
 
 export let indexer = ClientManager.getIndexerClient(networkConfig.indexer)
 export let algod = ClientManager.getAlgodClient(networkConfig.algod)
-export let kmd: algosdk.Kmd | undefined = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
+export let kmd = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
 
 export let algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
 

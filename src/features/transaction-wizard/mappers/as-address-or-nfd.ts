@@ -26,5 +26,6 @@ export const asOptionalAddressOrNfdSchema = (address?: Address) => {
   return {
     value: address,
     resolvedAddress: address,
+    autoPopulated: false,
   }
 }

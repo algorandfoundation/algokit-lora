@@ -6,19 +6,18 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
 import { AssetTransactionHistory } from '@/features/assets/components/asset-transaction-history'
-import { indexer } from '@/features/common/data/algo-client'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { getAllByRole } from '@testing-library/dom'
-import { ANY_NUMBER, ANY_STRING, searchTransactionsMock } from '@/tests/setup/mocks'
 import { RenderResult } from '@testing-library/react'
-import algosdk from 'algosdk'
+import { TransactionsResponse } from '@algorandfoundation/algokit-utils/indexer-client'
+import { indexer } from '@/features/common/data/algo-client'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
   return {
     ...original,
     indexer: {
-      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+      searchForTransactions: vi.fn(),
     },
   }
 })
@@ -28,29 +27,22 @@ describe('asset-transaction-history', () => {
 
   it('should be able to handle pagination', () => {
     const myStore = createStore()
-    myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+    myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
     // Given 18 transactions and the page size is 10
-    vi.mocked(indexer.searchForTransactions().assetID(ANY_NUMBER).nextToken(ANY_STRING).limit(ANY_NUMBER).do).mockImplementation(() => {
-      const args = searchTransactionsMock.args
-      if (args.nextToken === '') {
-        return Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: Array.from({ length: 18 }).map(
-              () => transactionResultMother.transfer(asset).build() as algosdk.indexerModels.Transaction
-            ),
-            nextToken: '4652AgAAAAAFAAAA',
-            currentRound: 1,
-          })
-        )
+    vi.mocked(indexer.searchForTransactions).mockImplementation((params?: { next?: string }) => {
+      if (!params?.next) {
+        return Promise.resolve({
+          transactions: Array.from({ length: 18 }).map(() => transactionResultMother.transfer(asset).build()),
+          nextToken: '4652AgAAAAAFAAAA',
+          currentRound: 1n,
+        } as TransactionsResponse)
       }
-      return Promise.resolve(
-        new algosdk.indexerModels.TransactionsResponse({
-          transactions: [],
-          nextToken: undefined,
-          currentRound: 1,
-        })
-      )
+      return Promise.resolve({
+        transactions: [],
+        nextToken: undefined,
+        currentRound: 1n,
+      } as TransactionsResponse)
     })
 
     // First page should have 10 items
@@ -74,7 +66,7 @@ describe('asset-transaction-history', () => {
 
     return executeComponentTest(
       () => {
-        return render(<AssetTransactionHistory assetId={asset.index} />, undefined, myStore)
+        return render(<AssetTransactionHistory assetId={asset.id} />, undefined, myStore)
       },
       async (component, user) => {
         await waitFor(() => {

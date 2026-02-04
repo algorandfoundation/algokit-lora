@@ -13,7 +13,7 @@ import { invariant } from '@/utils/invariant'
 import { AppSpecFormInner, appSpecSchema, supportedStandards } from './app-spec-form-inner'
 import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 
 type Props = {
   applicationId: ApplicationId

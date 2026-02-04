@@ -1,4 +1,4 @@
-import { Arc2TransactionNote } from '@algorandfoundation/algokit-utils/types/transaction'
+import { Arc2TransactionNote } from '@algorandfoundation/algokit-utils/transaction'
 
 // Based on the ARC-2 spec https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md#specification
 const arc2Regex = /^([a-zA-Z0-9][a-zA-Z0-9_/@.-]{4,31}):([mjbu]{1})(.*)$/

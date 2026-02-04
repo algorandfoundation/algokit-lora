@@ -19,37 +19,28 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
-import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
   return {
     ...original,
     indexer: {
-      lookupBlock: vi.fn().mockReturnValue({
-        do: vi.fn(),
-      }),
-      lookupTransactionByID: vi.fn().mockReturnValue({
-        do: () => {
-          return Promise.resolve(
-            new algosdk.indexerModels.TransactionResponse({
-              currentRound: 1,
-              transaction: new algosdk.indexerModels.Transaction({
-                sender: 'sender',
-                fee: 1000,
-                firstValid: 1,
-                lastValid: 1,
-                note: 'note',
-                txType: 'pay',
-                confirmedRound: 1,
-                roundTime: 1,
-                paymentTransaction: new algosdk.indexerModels.TransactionPayment({
-                  amount: 1000,
-                  receiver: 'receiver',
-                }),
-              }),
-            })
-          )
+      lookupBlock: vi.fn(),
+      lookupTransactionById: vi.fn().mockResolvedValue({
+        currentRound: 1,
+        transaction: {
+          sender: 'sender',
+          fee: 1000,
+          firstValid: 1,
+          lastValid: 1,
+          note: 'note',
+          txType: 'pay',
+          confirmedRound: 1,
+          roundTime: 1,
+          paymentTransaction: {
+            amount: 1000,
+            receiver: 'receiver',
+          },
         },
       }),
     },
@@ -73,7 +64,7 @@ describe('group-page', () => {
   describe('when rendering a group with a round number that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
-      vi.mocked(indexer.lookupBlock(123456).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupBlock).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<GroupPage />),
@@ -87,7 +78,7 @@ describe('group-page', () => {
   describe('when rendering a group within a block that was failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
-      vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupBlock).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<GroupPage />),
@@ -123,8 +114,8 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -192,8 +183,8 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -270,8 +261,8 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')

@@ -1,7 +1,12 @@
 {
-  "1109842": {
+  "1112496": {
     "active": true,
-    "notes": "Ignored because it hasn't been fixed in the latest version of npm",
-    "expiry": "2025-12-15"
+    "expiry": "2026-02-15",
+    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump to v6.23.0+."
+  },
+  "1112659": {
+    "active": true,
+    "expiry": "2026-02-15",
+    "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and can't be override. We need to wait for a fix from npm"
   }
 }

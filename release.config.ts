@@ -95,15 +95,9 @@ const baseConfig: Options = {
     // NOTE: @semantic-release/changelog is conditionally added below
     '@semantic-release/npm',
     [
-      '@semantic-release/exec',
-      {
-        prepareCmd: 'npm run sync-version',
-      },
-    ],
-    [
       '@semantic-release/git',
       {
-        assets: ['CHANGELOG.md', 'package.json', 'package-lock.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'],
+        assets: ['CHANGELOG.md', 'package.json', 'package-lock.json'],
         message: 'chore(release): ref:${nextRelease.channel} ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],

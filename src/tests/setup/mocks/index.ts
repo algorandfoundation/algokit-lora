@@ -1,9 +1,6 @@
 import { vi } from 'vitest'
 import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
-import { SearchTransactionsMock } from '@/tests/setup/mocks/search-transactions'
-import algosdk from 'algosdk'
-
-export const searchTransactionsMock = new SearchTransactionsMock()
+import { AlgodClient } from '@algorandfoundation/algokit-utils/algod-client'
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
@@ -36,7 +33,7 @@ vi.mock('@txnlab/use-wallet-react', async () => {
             },
           },
         ] as unknown as Wallet[],
-        algodClient: {} as unknown as algosdk.Algodv2,
+        algodClient: {} as unknown as AlgodClient,
         activeNetwork: NetworkId.LOCALNET,
         setActiveNetwork: vi.fn(),
         setAlgodClient: vi.fn(),
@@ -63,14 +60,6 @@ global.HTMLCanvasElement.prototype.getContext = () => {
   } as unknown as null // Hack so we don't need to implement the whole CanvasRenderingContext2D
 }
 
-vi.mock('@tauri-apps/api/event', async () => {
-  const original = await vi.importActual('@tauri-apps/api/event')
-  return {
-    ...original,
-    listen: vi.fn(),
-  }
-})
-
 export const ANY_NUMBER = -1
 export const ANY_STRING = 'ANY_STRING'
 
@@ -90,9 +79,3 @@ vi.mock('@auth0/auth0-react', async () => {
 })
 
 window.HTMLElement.prototype.hasPointerCapture = vi.fn()
-
-vi.mock('@/features/deep-link/hooks/tauri-deep-link', async () => ({
-  ...(await vi.importActual('@/features/deep-link/hooks/tauri-deep-link')),
-  getCurrent: vi.fn(),
-  onOpenUrl: vi.fn(),
-}))

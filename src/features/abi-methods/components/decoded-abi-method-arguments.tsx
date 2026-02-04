@@ -19,13 +19,7 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
           {argument.value}
         </TransactionLink>
       )
-    } else if (argument.type === DecodedAbiType.Address) {
-      return (
-        <AddressOrNfdLink className="text-primary underline" address={argument.value}>
-          {argument.value}
-        </AddressOrNfdLink>
-      )
-    } else if (argument.type === DecodedAbiType.Account) {
+    } else if (argument.type === DecodedAbiType.Address || argument.type === DecodedAbiType.Account) {
       return (
         <AddressOrNfdLink className="text-primary underline" address={argument.value}>
           {argument.value}

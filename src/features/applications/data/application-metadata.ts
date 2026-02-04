@@ -1,7 +1,7 @@
 import { readOnlyAtomCache } from '@/features/common/data'
 import { ApplicationMetadataResult, ApplicationResult } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionType } from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { parseArc2 } from '@/features/transactions/mappers'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
@@ -15,16 +15,15 @@ const getApplicationMetadataResult = async (
   applicationResult: ApplicationResult
 ): Promise<ApplicationMetadataResult> => {
   // We only need to fetch the first page to find the application creation transaction
-  const transactionResults = await indexer
-    .searchForTransactions()
-    .applicationID(applicationResult.id)
-    .limit(3)
-    .do()
-    .then((res) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)))
+  const response = await indexer.searchForTransactions({
+    applicationId: applicationResult.id,
+    limit: 3,
+  })
+  const transactionResults = response.transactions.map((txn) => indexerTransactionToTransactionResult(txn))
 
   const creationTransaction = transactionResults
     .flatMap((txn) => flattenTransactionResult(txn))
-    .find((txn) => txn.txType === TransactionType.appl && txn.createdApplicationIndex === applicationResult.id)
+    .find((txn) => txn.txType === TransactionType.AppCall && txn.createdAppId === applicationResult.id)
   if (!creationTransaction) return null
 
   const text = uint8ArrayToUtf8(creationTransaction.note ?? new Uint8Array())
