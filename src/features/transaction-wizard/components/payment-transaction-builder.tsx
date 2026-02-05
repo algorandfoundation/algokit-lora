@@ -111,6 +111,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
               </span>
             ),
             decimalScale: 6,
+            thousandSeparator: true,
             helpText: `Amount to pay the '${receiverLabel}' account`,
           })}
           <TransactionBuilderFeeField />

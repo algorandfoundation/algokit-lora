@@ -6,12 +6,13 @@ import { AsyncMaybeAtom } from '../data/types'
 import { RenderInlineAsyncAtom } from './render-inline-async-atom'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { compactAmount } from '@/utils/compact-amount'
+import { formatDecimalAmount } from '@/utils/number-format'
 
 export const asAssetDisplayAmount = (amount: number | bigint, decimals: number, short: boolean = false) => {
   // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
   // the amount is uint64, should be safe to be .toString()
   const displayAmount = new Decimal(amount.toString()).div(new Decimal(10).pow(decimals))
-  return short ? compactAmount(displayAmount) : displayAmount.toString()
+  return short ? compactAmount(displayAmount) : formatDecimalAmount(displayAmount)
 }
 
 type AmountProps = {
