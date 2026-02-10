@@ -9,6 +9,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Loader2 as Loader } from 'lucide-react'
 import { useLoadableActiveWalletAccountSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useAddressFromQueryParam } from '../hooks/use-address-from-query-param'
 
 type Props = {
   networkConfig: NetworkConfigWithId
@@ -18,6 +19,7 @@ export function DispenserApiLoggedIn({ networkConfig }: Props) {
   invariant(networkConfig.dispenserApi?.url, 'Dispenser API URL is not configured')
   const { fundLimit, fundAccount, refundStatus, refundDispenserAccount } = useDispenserApi(networkConfig.dispenserApi)
   const loadableActiveWalletAccountSnapshot = useLoadableActiveWalletAccountSnapshotAtom()
+  const addressFromQueryParam = useAddressFromQueryParam()
 
   return (
     <RenderLoadable loadable={loadableActiveWalletAccountSnapshot} fallback={<PageLoader />}>
@@ -28,7 +30,7 @@ export function DispenserApiLoggedIn({ networkConfig }: Props) {
             <AccordionItem value="fund">
               <AccordionTrigger>Fund an existing {networkConfig.name} account with ALGO</AccordionTrigger>
               <AccordionContent>
-                <FundAccountForm onSubmit={fundAccount} limit={fundLimit} defaultReceiver={activeWalletAccountSnapshot?.address} />
+                <FundAccountForm onSubmit={fundAccount} limit={fundLimit} defaultReceiver={addressFromQueryParam ?? activeWalletAccountSnapshot?.address} />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="refund">

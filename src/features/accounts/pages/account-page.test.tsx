@@ -283,8 +283,8 @@ describe('account-page', () => {
               container: informationCard,
               items: [
                 { term: accountAddressLabel, description: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE' },
-                { term: accountBalanceLabel, description: '273116.395038' },
-                { term: accountMinBalanceLabel, description: '98439.4' },
+                { term: accountBalanceLabel, description: '273,116.395038' },
+                { term: accountMinBalanceLabel, description: '98,439.4' },
                 { term: accountAssetsHeldLabel, description: '?' },
                 { term: accountAssetsCreatedLabel, description: '984393' },
                 { term: accountAssetsOptedInLabel, description: '984393' },
@@ -342,7 +342,7 @@ describe('account-page', () => {
               items: [
                 { term: accountAddressLabel, description: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU' },
                 { term: accountNfdLabel, description: 'datamuseum.algo' },
-                { term: accountBalanceLabel, description: '1915.70635' },
+                { term: accountBalanceLabel, description: '1,915.70635' },
                 { term: accountMinBalanceLabel, description: '0.1' },
                 { term: accountAssetsHeldLabel, description: '0' },
                 { term: accountAssetsCreatedLabel, description: '0' },

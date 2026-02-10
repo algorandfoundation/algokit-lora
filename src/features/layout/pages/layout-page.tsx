@@ -17,9 +17,6 @@ type Props = {
 
 const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
-// Set to -1 to force Auth0 to not store the session in cookies
-// It means every time the user visits, they will have to login again
-const sessionCheckExpiryDays = -1
 
 export function LayoutPage({ children }: Props) {
   const shouldPromptForTokens = useShouldPromptForTokens()
@@ -58,7 +55,6 @@ export function LayoutPage({ children }: Props) {
       clientId={config.dispenserAuth0ClientId}
       authorizationParams={{ audience: config.dispenserAuth0Audience, scope, redirect_uri: callbackUrl }}
       onRedirectCallback={navigateToCorrectRoute}
-      sessionCheckExpiryDays={sessionCheckExpiryDays}
     >
       {inner}
     </Auth0Provider>
