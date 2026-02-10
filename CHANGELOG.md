@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.0...v2.3.1) (2026-02-10)
+
+### 🐛 Bug Fixes
+
+* updated nsprc id ([#563](https://github.com/algorandfoundation/algokit-lora/issues/563)) ([c7a0046](https://github.com/algorandfoundation/algokit-lora/commit/c7a00465acd303a451b4cac2e4be973c1024fab2))
+
 ## [2.3.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.2.1...v2.3.0) (2026-02-04)
 
 ### ♻️ Code Refactoring
