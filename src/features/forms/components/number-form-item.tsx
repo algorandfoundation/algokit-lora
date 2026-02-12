@@ -24,6 +24,18 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
     const localeDecimalSeparator = useMemo(() => getDecimalSeparator(locale), [locale])
     const localeThousandsGroupStyle = useMemo(() => getThousandsGroupStyle(locale), [locale])
 
+    // Defensive validation to prevent react-number-format error
+    // This should never trigger but provides safety
+    const safeThousandSeparator = useMemo(() => {
+      if (thousandSeparator && localeThousandSeparator === localeDecimalSeparator) {
+        console.warn(
+          `Thousand separator (${localeThousandSeparator}) conflicts with decimal separator (${localeDecimalSeparator}) for locale ${locale}. Disabling thousand separator.`
+        )
+        return false
+      }
+      return thousandSeparator ? localeThousandSeparator : false
+    }, [thousandSeparator, localeThousandSeparator, localeDecimalSeparator, locale])
+
     return (
       <NumericFormat
         id={field}
@@ -35,7 +47,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
         defaultValue=""
         getInputRef={ref}
         value={value === undefined ? '' : value.toString()}
-        thousandSeparator={thousandSeparator ? localeThousandSeparator : false}
+        thousandSeparator={safeThousandSeparator}
         thousandsGroupStyle={localeThousandsGroupStyle}
         decimalSeparator={localeDecimalSeparator}
         decimalScale={decimalScale ?? 0}

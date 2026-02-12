@@ -257,4 +257,83 @@ describe('fund-page', () => {
       })
     })
   })
+
+  describe('Spanish locale number formatting', () => {
+    it('should render fund form without separator collision error in Spanish locale', async () => {
+      // Save and mock Spanish locale
+      const originalLanguage = Object.getOwnPropertyDescriptor(navigator, 'language')
+      Object.defineProperty(navigator, 'language', {
+        get: () => 'es-ES',
+        configurable: true,
+      })
+
+      // Mock dispenser API
+      vi.spyOn(dispenserApi, 'useDispenserApi').mockImplementation(() => ({
+        fundLimit: {
+          state: 'hasData',
+          data: algos(10),
+        },
+        fundAccount: vi.fn(),
+        refundStatus: {
+          state: 'hasData',
+          data: {
+            canRefund: true,
+            limit: algos(10),
+          },
+        },
+        refundDispenserAccount: vi.fn(),
+      }))
+
+      vi.spyOn(activeWallet, 'useLoadableActiveWalletAccountSnapshotAtom').mockImplementation(() => ({
+        state: 'hasData',
+        data: undefined,
+      }))
+
+      // Render dispenser with Spanish locale
+      const router = createMemoryRouter(
+        [
+          {
+            path: '/testnet/fund',
+            element: (
+              <DataProvider
+                networkConfig={{
+                  id: testnetId,
+                  ...defaultNetworkConfigs[testnetId],
+                }}
+              >
+                <TooltipProvider>
+                  <DispenserApiLoggedIn
+                    networkConfig={{
+                      id: testnetId,
+                      ...defaultNetworkConfigs[testnetId],
+                    }}
+                  />
+                </TooltipProvider>
+              </DataProvider>
+            ),
+          },
+        ],
+        { initialEntries: ['/testnet/fund'] }
+      )
+
+      rtlRender(<RouterProvider router={router} />)
+
+      // Verify form renders without errors
+      await waitFor(() => {
+        expect(screen.getByText('Fund an existing TestNet account with ALGO')).toBeTruthy()
+      })
+
+      // Verify amount input is accessible (would fail if separator collision occurred)
+      await waitFor(() => {
+        const amountInput = screen.getByRole('textbox', { name: /amount/i }) as HTMLInputElement
+        expect(amountInput).toBeInTheDocument()
+        expect(amountInput).not.toBeDisabled()
+      })
+
+      // Restore original language
+      if (originalLanguage) {
+        Object.defineProperty(navigator, 'language', originalLanguage)
+      }
+    })
+  })
 })
