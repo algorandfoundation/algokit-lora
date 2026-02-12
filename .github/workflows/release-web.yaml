@@ -42,6 +42,7 @@ jobs:
           name: app-build
           path: artifacts/website
 
+      # Dry run to test cloudflare deployment
       - name: Validate Cloudflare Deployment (Dry Run)
         run: |
           npx wrangler@latest pages deploy artifacts/website --project-name=algokit-lora --dry-run
