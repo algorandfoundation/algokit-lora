@@ -28,6 +28,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
     // This should never trigger but provides safety
     const safeThousandSeparator = useMemo(() => {
       if (thousandSeparator && localeThousandSeparator === localeDecimalSeparator) {
+        // eslint-disable-next-line no-console
         console.warn(
           `Thousand separator (${localeThousandSeparator}) conflicts with decimal separator (${localeDecimalSeparator}) for locale ${locale}. Disabling thousand separator.`
         )
