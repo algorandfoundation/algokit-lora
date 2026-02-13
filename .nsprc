@@ -12,11 +12,6 @@
   "1112954": {
     "active": true,
     "expiry": "2026-02-15",
-    "notes": "@isaacs/brace-expansion version 5.0.0 is bundled inside npm (semantic-release/npm) and can't be override. We need to wait for a fix from npm"
-  },
-  "1112810": {
-    "active": true,
-    "expiry": "2026-02-15",
-    "notes": "There is no fix for npm yet"
+    "notes": "@isaacs/brace-expansion version 5.0.0 is bundled inside npm and can't be override. We need to wait for a fix from npm"
   }
 }
