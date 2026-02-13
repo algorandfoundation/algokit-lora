@@ -42,14 +42,6 @@ jobs:
           name: app-build
           path: artifacts/website
 
-      - name: Deploy test page to Cloudflare Pages
-        # if: github.ref_name == 'release'
-        run: |
-          npx wrangler@latest pages deploy artifacts/website --project-name=algokit-lora --commit-dirty=true --branch=${{ github.ref_name }}
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_2 }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-
       - name: Deploy to Cloudflare Pages
         if: github.ref_name == 'release'
         run: |
