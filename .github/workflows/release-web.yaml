@@ -43,7 +43,7 @@ jobs:
           path: artifacts/website
 
       - name: Deploy to Cloudflare Pages
-        if: github.ref_name == 'release'
+        if: github.ref_name == 'release' || github.ref_name == 'main'
         run: |
           npx wrangler@latest pages deploy artifacts/website --project-name=algokit-lora --commit-dirty=true --branch=main
         env:
