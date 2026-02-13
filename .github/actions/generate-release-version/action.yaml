@@ -14,7 +14,7 @@ outputs:
     value: ${{ steps.get-next-version.outputs.new-release-published }}
   release-version:
     description: 'The new release version'
-    value: ${{ steps.get-next-version.outputs.new-release-version }}
+    value: ${{ steps.derive-release-version.outputs.release-version }}
   release-tag:
     description: 'The new release tag'
     value: ${{ steps.get-release-tag.outputs.release-tag }}
@@ -61,6 +61,7 @@ runs:
         echo "=== Done debugging ==="
 
     - name: Create release
+      id: create-release
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: npx semantic-release
@@ -72,6 +73,14 @@ runs:
       run: |
         echo "release-tag=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
+    - name: Derive release version from tag
+      id: derive-release-version
+      shell: bash
+      run: |
+        TAG="${{ steps.get-release-tag.outputs.release-tag }}"
+        VERSION="${TAG#v}"
+        echo "release-version=$VERSION" >> $GITHUB_OUTPUT
+
     - name: Get release ID
       id: get-release-id
       uses: actions/github-script@v7
@@ -81,6 +90,6 @@ runs:
           const { data } = await github.rest.repos.getReleaseByTag({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
+            tag: "${{ steps.get-release-tag.outputs.release-tag }}"
           })
           return data.id

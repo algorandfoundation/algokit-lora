@@ -45,7 +45,7 @@ jobs:
 
   build-and-release:
     name: Build and Create Release
-    needs: [ci]
+    # needs: [ci]
     runs-on: ubuntu-latest
     outputs:
       release-version: ${{ steps.generate-release-version.outputs.release-version }}
@@ -199,7 +199,7 @@ jobs:
   release-web:
     name: Release Web
     needs: [build-and-release]
-    if: github.ref_name == 'release'
+    if: github.ref_name == 'release' || github.ref_name == 'main'
     uses: ./.github/workflows/release-web.yaml
     with:
       version: ${{ needs.build-and-release.outputs.release-version }}
