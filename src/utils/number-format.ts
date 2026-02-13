@@ -14,10 +14,14 @@ export const getLocale = (): string => {
 
 /**
  * Get the thousand separator for the given locale.
+ *
+ * Note: Uses 10000 instead of 1000 because some locales (like Spanish)
+ * only apply grouping to numbers >= 10,000. This ensures the 'group'
+ * part is present in formatToParts result.
  */
 export const getThousandSeparator = (locale?: string): string => {
   const resolvedLocale = locale || getLocale()
-  const parts = new Intl.NumberFormat(resolvedLocale).formatToParts(1000)
+  const parts = new Intl.NumberFormat(resolvedLocale).formatToParts(10000)
   const groupPart = parts.find((part) => part.type === 'group')
   return groupPart?.value || ','
 }
