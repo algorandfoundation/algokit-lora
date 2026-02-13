@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.2](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.1...v2.3.2) (2026-02-13)
+
+### 🐛 Bug Fixes
+
+* correct thousand separator detection for certain locales ([#565](https://github.com/algorandfoundation/algokit-lora/issues/565)) ([242337e](https://github.com/algorandfoundation/algokit-lora/commit/242337e7287d72065d8ebe3e7e11fd949a1b63ff))
+
 ## [2.3.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.0...v2.3.1) (2026-02-10)
 
 ### 🐛 Bug Fixes
