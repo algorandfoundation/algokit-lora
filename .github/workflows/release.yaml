@@ -86,7 +86,7 @@ jobs:
         with:
           # Use bot token for semantic-release operations
           github-token: ${{ steps.app_token.outputs.token }}
-          node-version: 20
+          node-version: 22
 
       - name: Create .env file with production values
         if: env.IS_PRODUCTION_RELEASE == 'true'

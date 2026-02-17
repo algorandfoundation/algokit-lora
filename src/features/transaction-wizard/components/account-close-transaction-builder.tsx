@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,6 +17,7 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -25,7 +26,7 @@ const closeRemainderToLabel = 'Close remainder to'
 const formSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    sender: optionalAddressFieldSchema,
     closeRemainderTo: addressFieldSchema,
     receiver: optionalAddressFieldSchema,
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).optional()),
@@ -63,7 +64,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AccountClose,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,
@@ -77,7 +78,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         closeRemainderTo: transaction.closeRemainderTo,
         receiver: transaction.receiver,
         amount: transaction.amount,
@@ -114,7 +115,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
           {helper.addressField({
             field: 'sender',
             label: senderLabel,
-            helpText: 'Account to be closed. Sends the transaction and pays the fee',
+            helpText: 'Account to be closed. Sends the transaction and pays the fee - optional for simulating ',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.addressField({
@@ -139,6 +140,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
             ),
             decimalScale: 6,
             helpText: `Amount to pay the '${receiverLabel}' account. Leave blank if '${closeRemainderToLabel}' account should get the full balance`,
+            thousandSeparator: true,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />

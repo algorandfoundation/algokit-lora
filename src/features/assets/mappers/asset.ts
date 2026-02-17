@@ -66,14 +66,14 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
   if (metadataResult?.arc3) {
     const metadata = metadataResult?.arc3.metadata
     // If the asset follows ARC-3 or ARC-19, we use the media from the metadata
-    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.image, metadataResult.arc3.metadata_url)
+    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.id, metadata.image, metadataResult.arc3.metadata_url)
     if (imageUrl) {
       return {
         url: imageUrl,
         type: AssetMediaType.Image,
       }
     }
-    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.animation_url, metadataResult.arc3.metadata_url)
+    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.id, metadata.animation_url, metadataResult.arc3.metadata_url)
     if (videoUrl) {
       return {
         url: videoUrl,

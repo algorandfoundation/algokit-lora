@@ -1,5 +1,16 @@
 import { Atom, atom } from 'jotai'
-import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
+import {
+  ABIMethod,
+  ABIMethodArgType,
+  ABIReferenceType,
+  ABITupleType,
+  ABIType,
+  ABIUintType,
+  ABIValue,
+  argTypeIsReference,
+  argTypeIsTransaction,
+} from '@algorandfoundation/algokit-utils/abi'
+import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { Round } from '@/features/blocks/data/types'
 import { AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { TransactionId, TransactionResult } from '@/features/transactions/data/types'
@@ -86,7 +97,7 @@ const createMethodArgumentsAtom = (
     const abiArguments: DecodedAbiMethodArgument[] = methodDefinition.arguments.map((argumentDefinition, index) => {
       const argName = argumentDefinition.name ?? `arg${index}`
 
-      if (algosdk.abiTypeIsTransaction(argumentDefinition.type)) {
+      if (argTypeIsTransaction(argumentDefinition.type)) {
         const transactionId = referencedTransactionIds.shift()!
         return {
           name: argName,
@@ -99,7 +110,7 @@ const createMethodArgumentsAtom = (
 
       const abiValue = abiValues.shift()!
 
-      if (argumentDefinition.type === ABIReferenceType.asset) {
+      if (argumentDefinition.type === ABIReferenceType.Asset) {
         invariant(transaction.applicationTransaction?.foreignAssets, 'application-transaction foreign-assets is not set')
         const assetId = transaction.applicationTransaction.foreignAssets[Number(abiValue)]
         return {
@@ -110,7 +121,7 @@ const createMethodArgumentsAtom = (
           length: assetId.toString().length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.account) {
+      if (argumentDefinition.type === ABIReferenceType.Account) {
         invariant(transaction.applicationTransaction?.accounts, 'application-transaction accounts is not set')
 
         // Index 0 of application accounts is the sender
@@ -125,15 +136,15 @@ const createMethodArgumentsAtom = (
           length: accountAddress.length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.application) {
+      if (argumentDefinition.type === ABIReferenceType.Application) {
         invariant(transaction.applicationTransaction?.foreignApps, 'application-transaction foreign-apps is not set')
 
         // Index 0 of foreign apps is the called app
         const applicationIndex = Number(abiValue)
         const applicationId =
           applicationIndex === 0
-            ? transaction.createdApplicationIndex
-              ? transaction.createdApplicationIndex
+            ? transaction.createdAppId
+              ? transaction.createdAppId
               : transaction.applicationTransaction.applicationId
             : transaction.applicationTransaction.foreignApps[applicationIndex - 1]
         return {
@@ -166,7 +177,7 @@ const getMethodReturn = (transaction: TransactionResult, methodDefinition: Metho
   if (methodDefinition.returns.type === 'void') return 'void'
   invariant(transaction.logs && transaction.logs.length > 0, 'transaction logs is not set')
 
-  const abiType = algosdk.ABIType.from(methodDefinition.returns.type.toString())
+  const abiType = ABIType.from(methodDefinition.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
   const bytes = Uint8Array.from(transaction.logs.slice(-1)[0].subarray(4))
   const abiValue = abiType.decode(bytes)
@@ -180,7 +191,7 @@ const getMethodReturn = (transaction: TransactionResult, methodDefinition: Metho
 
 const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
   return (
-    transaction.txType === TransactionType.appl &&
+    transaction.txType === TransactionType.AppCall &&
     transaction.applicationTransaction !== undefined &&
     transaction.confirmedRound !== undefined &&
     Boolean(transaction.applicationTransaction.applicationId) &&
@@ -192,11 +203,11 @@ const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolea
 
 const getReferencedTransactionIdsAtom = (
   transaction: TransactionResult,
-  abiMethod: algosdk.ABIMethod,
+  abiMethod: ABIMethod,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): Atom<Promise<TransactionId[]>> => {
   return atom(async (get) => {
-    const hasReferencedTransactions = abiMethod.args.some((arg) => algosdk.abiTypeIsTransaction(arg.type))
+    const hasReferencedTransactions = abiMethod.args.some((arg) => argTypeIsTransaction(arg.type))
     if (!hasReferencedTransactions) {
       return []
     }
@@ -204,30 +215,28 @@ const getReferencedTransactionIdsAtom = (
     invariant(transaction.confirmedRound !== undefined && transaction.group, 'Cannot get referenced transactions without a group')
     const group = await get(groupResolver(uint8ArrayToBase64(transaction.group), transaction.confirmedRound))
     const transactionIndexInGroup = group.transactionIds.findIndex((id) => id === transaction.id)
-    const transactionTypeArgsCount = abiMethod.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)).length
+    const transactionTypeArgsCount = abiMethod.args.filter((arg) => argTypeIsTransaction(arg.type)).length
     return group.transactionIds.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
   })
 }
 
-const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): algosdk.ABIValue[] => {
+const getAbiValueArgs = (transaction: TransactionResult, abiMethod: ABIMethod): ABIValue[] => {
   invariant(transaction.applicationTransaction, 'application-transaction is not set')
   invariant(transaction.applicationTransaction.applicationArgs, 'application-transaction application-args is not set')
 
   // The first arg is the method selector
   const transactionArgs = transaction.applicationTransaction.applicationArgs.slice(1)
-  const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
+  const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !argTypeIsTransaction(arg.type))
 
   // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
   if (nonTransactionTypeArgs.length > 15) {
     const [head, tail] = [nonTransactionTypeArgs.slice(0, 14), nonTransactionTypeArgs.slice(14)]
-    const results: algosdk.ABIValue[] = head.map((argumentSpec, index) =>
-      mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index])
-    )
+    const results: ABIValue[] = head.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index]))
 
-    const tupleType = new algosdk.ABITupleType(
+    const tupleType = new ABITupleType(
       tail.map((arg) =>
         // if the arg is a reference type, then it is an uint8
-        !algosdk.abiTypeIsReference(arg.type) ? (arg.type as algosdk.ABIType) : new algosdk.ABIUintType(8)
+        !argTypeIsReference(arg.type) ? (arg.type as ABIType) : new ABIUintType(8)
       )
     )
 
@@ -240,11 +249,11 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIM
   }
 }
 
-const mapAbiArgumentToAbiValue = (type: algosdk.ABIArgumentType, value: Uint8Array) => {
-  if (type === ABIReferenceType.asset || type === ABIReferenceType.application || type === ABIReferenceType.account) {
-    return new algosdk.ABIUintType(8).decode(value)
+const mapAbiArgumentToAbiValue = (type: ABIMethodArgType, value: Uint8Array) => {
+  if (type === ABIReferenceType.Asset || type === ABIReferenceType.Application || type === ABIReferenceType.Account) {
+    return new ABIUintType(8).decode(value)
   }
-  const abiType = algosdk.ABIType.from(type.toString())
+  const abiType = ABIType.from(type.toString())
   return abiType.decode(value)
 }
 

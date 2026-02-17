@@ -1,10 +1,11 @@
-import algosdk from 'algosdk'
+import { ABIAddressType, ABIReferenceType, ABIValue, argTypeIsTransaction } from '@algorandfoundation/algokit-utils/abi'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
-  senderFieldSchema,
+  optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -39,10 +40,11 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
@@ -156,7 +158,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: values.sender,
+        sender: await resolveTransactionSender(values.sender),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,
@@ -175,9 +177,9 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.methodDefinition.arguments[index]
-          const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
-          if (!algosdk.abiTypeIsTransaction(type)) {
-            acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
+          const field = `${methodArgPrefix}-${index}${type instanceof ABIAddressType || type === ABIReferenceType.Account ? '.value' : ''}`
+          if (!argTypeIsTransaction(type)) {
+            acc[field] = asFieldInput(type, arg as ABIValue)
           } else {
             acc[field] = arg
           }
@@ -187,7 +189,7 @@ export function MethodCallTransactionBuilder({
       )
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,
@@ -319,7 +321,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
             dt: 'Type',
             dd: arg.struct ? (
               <StructDefinition struct={arg.struct} />
-            ) : algosdk.abiTypeIsTransaction(arg.type) ? (
+            ) : argTypeIsTransaction(arg.type) ? (
               <div className="flex items-center gap-1.5">
                 <span>{arg.type.toString()}</span>
                 <Tooltip>
@@ -353,9 +355,9 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         return false
       } else if (!selectedMethodForm?.callConfig) {
         return true
-      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as OnApplicationComplete)) {
         return true
-      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as OnApplicationComplete)) {
         return true
       }
       return false
@@ -388,7 +390,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to call from. Sends the transaction and pays the fee',
+        helpText: 'Account to call from. Sends the transaction and pays the fee - optional for simulating',
       })}
       {appId === 0n &&
         helper.numberField({

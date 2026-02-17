@@ -1,5 +1,5 @@
 import { FundAccountForm } from './fund-account-form'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { createLoraKmdDevAccount, loraKmdDevWalletName } from '../utils/kmd'

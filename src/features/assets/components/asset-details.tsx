@@ -1,11 +1,12 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import { Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { formatDecimalAmount } from '@/utils/number-format'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import {
   assetAddressesLabel,
@@ -51,6 +52,14 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
+  const formatAssetAmount = useCallback(
+    (amount: bigint | number) => {
+      const value = new Decimal(amount.toString()).div(new Decimal(10).pow(asset.decimals))
+      return `${formatDecimalAmount(value)} ${asset.unitName ?? ''}`
+    },
+    [asset.decimals, asset.unitName]
+  )
+
   const assetItems = useMemo(
     () => [
       {
@@ -84,12 +93,12 @@ export function AssetDetails({ asset }: Props) {
         : undefined,
       {
         dt: assetTotalSupplyLabel,
-        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+        dd: formatAssetAmount(asset.total),
       },
       asset.circulatingSupply !== undefined
         ? {
             dt: circulatingSupplyLabel,
-            dd: `${new Decimal(asset.circulatingSupply.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+            dd: formatAssetAmount(asset.circulatingSupply),
           }
         : undefined,
       {
@@ -127,6 +136,7 @@ export function AssetDetails({ asset }: Props) {
       asset.defaultFrozen,
       asset.url,
       asset.circulatingSupply,
+      formatAssetAmount,
     ]
   ).filter(isDefined)
 

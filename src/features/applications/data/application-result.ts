@@ -2,29 +2,20 @@ import { ApplicationId, ApplicationResult } from './types'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { asError, is404 } from '@/utils/error'
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 import { Getter, Setter } from 'jotai/index'
 
-const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId) => {
+const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId): Promise<ApplicationResult> => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    return await algod
-      .getApplicationByID(applicationId)
-      .do()
-      .then((result) => removeEncodableMethods(result) as ApplicationResult)
+    return await algod.applicationById(applicationId)
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle deleted applications or applications that may not be available in algod potentially due to the node type
-      return await indexer
-        .lookupApplications(applicationId)
-        .includeAll(true)
-        .do()
-        .then((result) => {
-          if (!result.application) {
-            throw new Error(`Application ${applicationId} not found`)
-          }
-          return removeEncodableMethods(result.application) as ApplicationResult
-        })
+      const result = await indexer.lookupApplicationById(applicationId, { includeAll: true })
+      if (!result.application) {
+        throw new Error(`Application ${applicationId} not found`)
+      }
+      return result.application
     }
     throw e
   }

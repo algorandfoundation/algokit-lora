@@ -3,7 +3,7 @@ import { describe, beforeEach, it, vitest, afterEach, vi, expect } from 'vitest'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { ApplicationId } from '../data/types'
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { AppSpec } from '@algorandfoundation/algokit-utils/app-spec'
 import { executeComponentTest } from '@/tests/test-component'
 import { ApplicationPage } from './application-page'
 import { useParams } from 'react-router-dom'
@@ -12,9 +12,9 @@ import { applicationGlobalStateLabel, applicationLocalStateLabel, applicationSta
 import { dump, findByRole, getByRole, render } from '@/tests/testing-library'
 import { getTestStore } from '@/tests/utils/get-test-store'
 import { JotaiStore } from '@/features/common/data/types'
-import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { OnApplicationComplete } from 'algosdk'
+import { AppClient } from '@algorandfoundation/algokit-utils/app-client'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 describe('application-page on localnet', () => {
   describe('when the application that has a global state that is a big int', () => {
@@ -70,7 +70,7 @@ describe('application-page on localnet', () => {
       await appClient.send.call({
         method: 'set_local',
         sender: myAccount,
-        onComplete: OnApplicationComplete.OptInOC,
+        onComplete: OnApplicationComplete.OptIn,
       })
 
       return executeComponentTest(

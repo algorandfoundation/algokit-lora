@@ -38,9 +38,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      accountInformation: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
+      accountInformation: vi.fn(),
     },
   }
 })
@@ -62,9 +60,7 @@ describe('account-page', () => {
   describe('when rendering an account that failed to load', () => {
     it('should render an error message', () => {
       vi.mocked(useParams).mockReturnValue({ address: '7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ' })
-      vi.mocked(algod.accountInformation('7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ').do).mockImplementation(() =>
-        Promise.reject({})
-      )
+      vi.mocked(algod.accountInformation).mockRejectedValue({})
 
       return executeComponentTest(
         () => render(<AccountPage />),
@@ -287,8 +283,8 @@ describe('account-page', () => {
               container: informationCard,
               items: [
                 { term: accountAddressLabel, description: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE' },
-                { term: accountBalanceLabel, description: '273116.395038' },
-                { term: accountMinBalanceLabel, description: '98439.4' },
+                { term: accountBalanceLabel, description: '273,116.395038' },
+                { term: accountMinBalanceLabel, description: '98,439.4' },
                 { term: accountAssetsHeldLabel, description: '?' },
                 { term: accountAssetsCreatedLabel, description: '984393' },
                 { term: accountAssetsOptedInLabel, description: '984393' },
@@ -346,7 +342,7 @@ describe('account-page', () => {
               items: [
                 { term: accountAddressLabel, description: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU' },
                 { term: accountNfdLabel, description: 'datamuseum.algo' },
-                { term: accountBalanceLabel, description: '1915.70635' },
+                { term: accountBalanceLabel, description: '1,915.70635' },
                 { term: accountMinBalanceLabel, description: '0.1' },
                 { term: accountAssetsHeldLabel, description: '0' },
                 { term: accountAssetsCreatedLabel, description: '0' },

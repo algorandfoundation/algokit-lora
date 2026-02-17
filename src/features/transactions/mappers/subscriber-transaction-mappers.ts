@@ -1,16 +1,13 @@
-import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 import { SubscribedTransaction } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { TransactionResult } from '../data/types'
 
 export const subscribedTransactionToTransactionResult = (subscribedTransaction: SubscribedTransaction): TransactionResult => {
-  const transactionWithoutEncodeMethods = removeEncodableMethods(subscribedTransaction)
-
   const {
     filtersMatched: _filtersMatched,
     balanceChanges: _balanceChanges,
     arc28Events: _arc28Events,
     ...transaction
-  } = transactionWithoutEncodeMethods
+  } = subscribedTransaction
   const innerTransactions = transaction.innerTxns?.map((innerTransaction, index) =>
     subscribedTransactionToInnerTransactionResult(innerTransaction, transaction.id, index + 1)
   )
@@ -18,7 +15,7 @@ export const subscribedTransactionToTransactionResult = (subscribedTransaction: 
   return {
     ...transaction,
     innerTxns: innerTransactions,
-  } satisfies TransactionResult
+  }
 }
 
 const subscribedTransactionToInnerTransactionResult = (
@@ -26,8 +23,6 @@ const subscribedTransactionToInnerTransactionResult = (
   parentTransactionId: string,
   offset: number
 ): TransactionResult => {
-  const transactionWithoutEncodeMethods = removeEncodableMethods(subscribedTransaction)
-
   const {
     filtersMatched: _filtersMatched,
     balanceChanges: _balanceChanges,
@@ -35,7 +30,7 @@ const subscribedTransactionToInnerTransactionResult = (
     id: _id,
     parentTransactionId: _parentTransactionId,
     ...transaction
-  } = transactionWithoutEncodeMethods
+  } = subscribedTransaction
 
   const transactionId = parentTransactionId.includes('inner')
     ? `${parentTransactionId}/${offset}`
