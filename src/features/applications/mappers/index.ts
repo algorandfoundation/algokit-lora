@@ -77,6 +77,7 @@ export const asApplication = (
     isDeleted: application.deleted ?? false,
     json: asJson(normaliseAlgoSdkData(application)),
     appSpec,
+    version: application.params.version,
   }
 }
 

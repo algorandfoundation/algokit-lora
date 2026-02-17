@@ -28,12 +28,14 @@ import {
   applicationLocalStateUintLabel,
   applicationNameLabel,
   applicationStateLabel,
+  applicationVersionLabel,
   enterAddressToViewLocalStateMessage,
   failedToLoadLocalStateMessage,
   invalidAddressForLocalStateMessage,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
+import { queryByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import {
   TransactionsResponse,
   Transaction as IndexerTransaction,
@@ -211,6 +213,44 @@ describe('application-page', () => {
               { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
             ],
           })
+        }
+      )
+    })
+
+    it('should render app version when present', () => {
+      const applicationWithVersion = {
+        ...applicationResult,
+        params: { ...applicationResult.params, version: 7 },
+      }
+      const storeWithVersion = createStore()
+      storeWithVersion.set(genesisHashAtom, 'some-hash')
+      storeWithVersion.set(
+        applicationResultsAtom,
+        new Map([[applicationWithVersion.id, createReadOnlyAtomAndTimestamp(applicationWithVersion)]])
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, storeWithVersion)
+        },
+        async (component) => {
+          const detailsCard = await component.findByLabelText(applicationDetailsLabel)
+          descriptionListAssertion({
+            container: detailsCard,
+            items: [{ term: applicationVersionLabel, description: '7' }],
+          })
+        }
+      )
+    })
+
+    it('should not render app version when absent', () => {
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component) => {
+          const detailsCard = await component.findByLabelText(applicationDetailsLabel)
+          expect(queryByDescriptionTerm(detailsCard, applicationVersionLabel)).toBeNull()
         }
       )
     })

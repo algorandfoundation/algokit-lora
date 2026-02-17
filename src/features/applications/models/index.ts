@@ -20,6 +20,7 @@ export type Application = {
   json: string
   isDeleted: boolean
   appSpec?: Arc56Contract
+  version?: number
 }
 
 export type ApplicationStateSchema = {
