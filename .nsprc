@@ -2,6 +2,56 @@
   "1109842": {
     "active": true,
     "notes": "Ignored because it hasn't been fixed in the latest version of npm",
-    "expiry": "2025-12-15"
+    "expiry": "2026-12-15"
+  },
+  "1112052": {
+    "active": true,
+    "notes": "@remix-run/router open redirect advisory. Temporary exception while upstream dependencies are being upgraded.",
+    "expiry": "2026-12-15"
+  },
+  "1112057": {
+    "active": true,
+    "notes": "react-router untrusted external redirect advisory. Temporary exception while upstream dependencies are being upgraded.",
+    "expiry": "2026-12-15"
+  },
+  "1112255": {
+    "active": true,
+    "notes": "tar advisory in npm transitive chain (npm>cacache>tar, npm>node-gyp>tar, npm>tar). Temporary exception until npm publishes a fixed chain.",
+    "expiry": "2026-12-15"
+  },
+  "1112329": {
+    "active": true,
+    "notes": "tar advisory in npm transitive chain (npm>cacache>tar, npm>node-gyp>tar, npm>tar). Temporary exception until npm publishes a fixed chain.",
+    "expiry": "2026-12-15"
+  },
+  "1112453": {
+    "active": true,
+    "notes": "lodash-es prototype pollution advisory. Temporary exception while dependency updates are scheduled.",
+    "expiry": "2026-12-15"
+  },
+  "1112455": {
+    "active": true,
+    "notes": "lodash prototype pollution advisory. Temporary exception while dependency updates are scheduled.",
+    "expiry": "2026-12-15"
+  },
+  "1113132": {
+    "active": true,
+    "notes": "qs arrayLimit bypass DoS advisory. Temporary exception while dependency updates are scheduled.",
+    "expiry": "2026-12-15"
+  },
+  "1113214": {
+    "active": true,
+    "notes": "ajv ReDoS advisory. Temporary exception while dependency updates are scheduled.",
+    "expiry": "2026-12-15"
+  },
+  "1112496": {
+    "active": true,
+    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line; fix requires major version bump to v6.23.0+.",
+    "expiry": "2026-12-15"
+  },
+  "1112659": {
+    "active": true,
+    "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and cannot be overridden. Waiting for a fix from npm.",
+    "expiry": "2026-12-15"
   }
 }
