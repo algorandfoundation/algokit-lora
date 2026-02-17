@@ -1,3 +1,5 @@
 export const transactionSenderLabel = 'Sender'
 export const transactionReceiverLabel = 'Receiver'
 export const abiMethodNameLabel = 'ABI Method Name'
+export const rejectVersionLabel = 'Reject Version'
+export const accessListTabLabel = 'Access List'

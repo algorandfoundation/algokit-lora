@@ -4,7 +4,7 @@ import { settingsStore } from '@/features/settings/data'
 import { useCallback, useMemo } from 'react'
 import { PaginationState } from '@tanstack/react-table'
 
-export type TableDataContext = 'transaction' | 'application' | 'asset' | 'applicationState' | 'networkConfig' | 'appSpec'
+export type TableDataContext = 'transaction' | 'application' | 'asset' | 'applicationState' | 'networkConfig' | 'appSpec' | 'accessList'
 type TablePageSizes = Partial<Record<TableDataContext, PageSizeOption>>
 type PageSizeOption = (typeof pageSizeOptions)[number]
 

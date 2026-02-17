@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { patchTransactions } from './transactions-builder'
+import { patchTransactions, setTransactionResources } from './transactions-builder'
 import {
+  BuildAppCallTransactionResult,
   BuildableTransactionType,
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
@@ -10,6 +11,7 @@ import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { MethodDefinition } from '@/features/applications/models'
+import { Address } from '@algorandfoundation/algokit-utils'
 
 describe('patchTransactions', () => {
   const exampleMethodCallProperties = {
@@ -676,6 +678,109 @@ describe('patchTransactions', () => {
         ]"
       `)
     })
+  })
+})
+
+describe('setTransactionResources', () => {
+  const baseAppCall = (): BuildAppCallTransactionResult => ({
+    id: 'app-call-id',
+    type: BuildableTransactionType.AppCall,
+    applicationId: 123n,
+    sender: asAddressOrNfd('IN6X7QLOJB76VTDHWAW43OTBUGAQ22DVYBPNHLLTJ5RVOTFVTCPK3JY6RA'),
+    onComplete: 0,
+    args: [],
+    fee: { setAutomatically: true },
+    validRounds: { setAutomatically: true },
+  })
+  const baseMethodCall = (): BuildMethodCallTransactionResult => ({
+    id: 'method-call-id',
+    type: BuildableTransactionType.MethodCall,
+    applicationId: 123n,
+    sender: asAddressOrNfd('IN6X7QLOJB76VTDHWAW43OTBUGAQ22DVYBPNHLLTJ5RVOTFVTCPK3JY6RA'),
+    methodDefinition: {} as MethodDefinition,
+    appSpec: {} as Arc56Contract,
+    methodArgs: [],
+    onComplete: 0,
+    fee: { setAutomatically: true },
+    validRounds: { setAutomatically: true },
+  })
+
+  it('keeps unified mode and clears legacy references when populated in unified mode', () => {
+    const accessReferences = [{ address: Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA') }]
+    const result = setTransactionResources(
+      [{ ...baseAppCall(), accessReferences, accounts: ['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'] }],
+      'app-call-id',
+      { mode: 'unified', accessReferences }
+    )
+
+    const updated = result[0] as BuildAppCallTransactionResult
+    expect(updated.accessReferences).toEqual(accessReferences)
+    expect(updated.accounts).toBeUndefined()
+    expect(updated.foreignApps).toBeUndefined()
+    expect(updated.foreignAssets).toBeUndefined()
+    expect(updated.boxes).toBeUndefined()
+  })
+
+  it('switches to legacy mode and clears unified references when populated in legacy mode', () => {
+    const result = setTransactionResources(
+      [{ ...baseAppCall(), accessReferences: [{ appId: 123n }] }],
+      'app-call-id',
+      {
+        mode: 'legacy',
+        resources: {
+          accounts: ['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'],
+          assets: [1n],
+          applications: [2n],
+          boxes: [[3n, 'AQI=']],
+        },
+      }
+    )
+
+    const updated = result[0] as BuildAppCallTransactionResult
+    expect(updated.accessReferences).toBeUndefined()
+    expect(updated.accounts).toEqual(['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'])
+    expect(updated.foreignAssets).toEqual([1n])
+    expect(updated.foreignApps).toEqual([2n])
+    expect(updated.boxes).toEqual([[3n, 'AQI=']])
+  })
+
+  it('keeps unified mode and clears legacy references for method call transactions', () => {
+    const accessReferences = [{ appId: 123n }]
+    const result = setTransactionResources(
+      [{ ...baseMethodCall(), accessReferences, accounts: ['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'] }],
+      'method-call-id',
+      { mode: 'unified', accessReferences }
+    )
+
+    const updated = result[0] as BuildMethodCallTransactionResult
+    expect(updated.accessReferences).toEqual(accessReferences)
+    expect(updated.accounts).toBeUndefined()
+    expect(updated.foreignApps).toBeUndefined()
+    expect(updated.foreignAssets).toBeUndefined()
+    expect(updated.boxes).toBeUndefined()
+  })
+
+  it('switches to legacy mode and clears unified references for method call transactions', () => {
+    const result = setTransactionResources(
+      [{ ...baseMethodCall(), accessReferences: [{ appId: 123n }] }],
+      'method-call-id',
+      {
+        mode: 'legacy',
+        resources: {
+          accounts: ['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'],
+          assets: [1n],
+          applications: [2n],
+          boxes: [[3n, 'AQI=']],
+        },
+      }
+    )
+
+    const updated = result[0] as BuildMethodCallTransactionResult
+    expect(updated.accessReferences).toBeUndefined()
+    expect(updated.accounts).toEqual(['ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA'])
+    expect(updated.foreignAssets).toEqual([1n])
+    expect(updated.foreignApps).toEqual([2n])
+    expect(updated.boxes).toEqual([[3n, 'AQI=']])
   })
 })
 

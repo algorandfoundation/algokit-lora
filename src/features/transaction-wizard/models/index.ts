@@ -11,7 +11,7 @@ import { Nfd } from '@/features/nfd/data/types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import Decimal from 'decimal.js'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { OnApplicationComplete, ResourceReference } from '@algorandfoundation/algokit-utils/transact'
 
 export enum BuildableTransactionType {
   // pay
@@ -88,8 +88,10 @@ type CommonBuildTransactionResult = {
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
+  rejectVersion?: number
   extraProgramPages?: number
   args: string[]
+  accessReferences?: ResourceReference[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
@@ -109,6 +111,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   methodDefinition: MethodDefinition
   extraProgramPages?: number
   methodArgs: MethodCallArg[]
+  accessReferences?: ResourceReference[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]

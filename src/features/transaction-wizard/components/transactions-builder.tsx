@@ -1,6 +1,6 @@
 import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import type { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { ResourceReference, TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
@@ -44,6 +44,7 @@ export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
 const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
+const unifiedResourcesLockedMessage = 'Unified access references are enabled. Edit resources in the transaction form.'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -63,6 +64,16 @@ type Props = {
     icon: React.JSX.Element
   }
 }
+
+type PopulatedAppCallResources =
+  | {
+      mode: 'legacy'
+      resources: TransactionResources
+    }
+  | {
+      mode: 'unified'
+      accessReferences: ResourceReference[]
+    }
 
 const defaultTitle = <h4 className="text-primary pb-0">{transactionGroupLabel}</h4>
 const defaultSendButtonConfig = {
@@ -221,7 +232,21 @@ export function TransactionsBuilder({
                   (box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const
                 ) ?? [],
             } satisfies TransactionResources
-            newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
+            if (
+              (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) &&
+              (transaction.accessReferences?.length ?? 0) > 0
+            ) {
+              const appCall = transactionWithResources.txn.appCall
+              newTransactions = setTransactionResources(newTransactions, transaction.id, {
+                mode: 'unified',
+                accessReferences: appCall?.accessReferences ?? transaction.accessReferences ?? [],
+              })
+            } else {
+              newTransactions = setTransactionResources(newTransactions, transaction.id, {
+                mode: 'legacy',
+                resources,
+              })
+            }
           }
         }
 
@@ -270,10 +295,21 @@ export function TransactionsBuilder({
   const editResources = useCallback(
     async (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
       setErrorMessage(undefined)
+      if (
+        (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) &&
+        (transaction.accessReferences?.length ?? 0) > 0
+      ) {
+        setErrorMessage(unifiedResourcesLockedMessage)
+        return
+      }
+
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
-          return setTransactionResources(prev, transaction.id, resources)
+          return setTransactionResources(prev, transaction.id, {
+            mode: 'legacy',
+            resources,
+          })
         })
       }
     },
@@ -450,15 +486,51 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
   }, [] as BuildTransactionResult[])
 }
 
-const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
+export const setTransactionResources = (
+  transactions: BuildTransactionResult[],
+  transactionId: string,
+  populatedResources: PopulatedAppCallResources
+) => {
   return setTransaction(transactions, transactionId, (transaction) => {
-    if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
+    if (transaction.type === BuildableTransactionType.MethodCall) {
+      if (populatedResources.mode === 'unified') {
+        return {
+          ...transaction,
+          accessReferences: populatedResources.accessReferences,
+          accounts: undefined,
+          foreignAssets: undefined,
+          foreignApps: undefined,
+          boxes: undefined,
+        }
+      }
       return {
         ...transaction,
-        accounts: resources.accounts,
-        foreignAssets: resources.assets,
-        foreignApps: resources.applications,
-        boxes: resources.boxes,
+        accessReferences: undefined,
+        accounts: populatedResources.resources.accounts,
+        foreignAssets: populatedResources.resources.assets,
+        foreignApps: populatedResources.resources.applications,
+        boxes: populatedResources.resources.boxes,
+      }
+    }
+    if (transaction.type === BuildableTransactionType.AppCall) {
+      if (populatedResources.mode === 'unified') {
+        return {
+          ...transaction,
+          accessReferences: populatedResources.accessReferences,
+          accounts: undefined,
+          foreignAssets: undefined,
+          foreignApps: undefined,
+          boxes: undefined,
+        }
+      }
+
+      return {
+        ...transaction,
+        accessReferences: undefined,
+        accounts: populatedResources.resources.accounts,
+        foreignAssets: populatedResources.resources.assets,
+        foreignApps: populatedResources.resources.applications,
+        boxes: populatedResources.resources.boxes,
       }
     }
     throw new Error(`Cannot set resources for transaction type ${transaction.type}`)

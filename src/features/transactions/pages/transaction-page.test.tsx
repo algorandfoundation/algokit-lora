@@ -9,7 +9,7 @@ import {
 import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
+import { getByDescriptionTerm, queryByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { HttpError } from '@/tests/errors'
@@ -58,6 +58,7 @@ import {
 import { base64LogsTabLabel, logsLabel, textLogsTabLabel } from '../components/app-call-transaction-logs'
 import { InnerTransactionPage } from './inner-transaction-page'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 import {
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
@@ -78,7 +79,7 @@ import {
 import { assetResultsAtom } from '@/features/assets/data'
 import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applications/components/application-program'
 import { transactionAmountLabel } from '../components/transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
+import { accessListTabLabel, rejectVersionLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
@@ -91,6 +92,7 @@ import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { Address } from '@algorandfoundation/algokit-utils'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -755,6 +757,106 @@ describe('transaction-page', () => {
               { cells: ['', 'inner/1', '', '2ZPN…DJJ4', 'W2IZ…NCEY', 'Payment', '236.706032'] },
               { cells: ['', 'inner/2', '', '2ZPN…DJJ4', '971350278', 'Application Call', ''] },
             ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction with unified access list', () => {
+    const referenceAddress = Address.fromString('ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA')
+    const transaction = transactionResultMother
+      .appCall()
+      .withId('KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCR')
+      .withAccessList([
+        { address: referenceAddress },
+        { applicationId: 123n },
+        { assetId: 456n },
+        { box: { app: 123n, name: base64ToBytes('AQI=') } },
+        { holding: { address: referenceAddress, asset: 456n } },
+        { local: { address: referenceAddress, app: 123n } },
+      ])
+      .build()
+
+    it('should render access list tab and hide legacy foreign tabs', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [{ term: transactionTypeLabel, description: 'Application Call' }],
+            })
+          })
+
+          const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(getByRole(detailsTabList, 'tab', { name: accessListTabLabel })).toBeTruthy()
+          expect(() => getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel })).toThrow()
+          expect(() => getByRole(detailsTabList, 'tab', { name: foreignApplicationsTabLabel })).toThrow()
+          expect(() => getByRole(detailsTabList, 'tab', { name: foreignAssetsTabLabel })).toThrow()
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: accessListTabLabel }))
+          const accessListTab = component.getByRole('tabpanel', { name: accessListTabLabel })
+          expect(accessListTab.textContent).toContain('1Account')
+          expect(accessListTab.textContent).toContain(referenceAddress.toString())
+          expect(accessListTab.textContent).toContain('2App123')
+          expect(accessListTab.textContent).toContain('3Asset456')
+          expect(accessListTab.textContent).toContain('4BoxApp:123| Box: AQI=')
+          expect(accessListTab.textContent).toContain('5Holding')
+          expect(accessListTab.textContent).toContain('6Local State')
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction with reject version zero', () => {
+    const transaction = transactionResultMother.appCall().withId('KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ').withRejectVersion(0).build()
+
+    it('should not render reject version', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            expect(queryByDescriptionTerm(component.container, rejectVersionLabel)).toBeNull()
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction with reject version greater than zero', () => {
+    const transaction = transactionResultMother.appCall().withId('KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCS').withRejectVersion(7).build()
+
+    it('should render reject version', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [{ term: rejectVersionLabel, description: '7' }],
+            })
           })
         }
       )

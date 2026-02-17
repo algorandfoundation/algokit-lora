@@ -1,5 +1,7 @@
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import {
+  AccessListItem,
+  AccessListItemType,
   AppCallTransaction,
   GlobalStateDelta,
   InnerAppCallTransaction,
@@ -15,7 +17,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { applicationIdLabel } from '@/features/applications/components/labels'
-import { abiMethodNameLabel, transactionSenderLabel } from './labels'
+import { accessListTabLabel, abiMethodNameLabel, rejectVersionLabel, transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { useAtomValue } from 'jotai'
 import { loadable } from 'jotai/utils'
@@ -34,6 +36,7 @@ const applicationArgsTabId = 'application-args'
 const foreignAccountsTabId = 'foreign-accounts'
 const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
+const accessListTabId = 'access-list'
 const globalStateDeltaTabId = 'global-state'
 const localStateDeltaTabId = 'local-state'
 const decodedAbiMethodTabId = 'decoded-app-call'
@@ -90,8 +93,11 @@ function AppCallDescriptionList({
         dt: onCompletionLabel,
         dd: transaction.onCompletion,
       },
+      ...(transaction.rejectVersion !== undefined && transaction.rejectVersion > 0
+        ? [{ dt: rejectVersionLabel, dd: transaction.rejectVersion }]
+        : []),
     ],
-    [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.sender]
+    [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.rejectVersion, transaction.sender]
   )
   return <DescriptionList items={items} />
 }
@@ -103,6 +109,8 @@ function AppCallTransactionTabs({
   transaction: AppCallTransaction | InnerAppCallTransaction
   abiMethod: DecodedAbiMethodModel | undefined
 }) {
+  const hasAccessList = transaction.accessList.length > 0
+
   const tabs = useMemo(
     () => [
       ...(abiMethod
@@ -119,21 +127,31 @@ function AppCallTransactionTabs({
         label: applicationArgsTabLabel,
         children: <ApplicationArgs transaction={transaction} />,
       },
-      {
-        id: foreignAccountsTabId,
-        label: foreignAccountsTabLabel,
-        children: <ForeignAccounts transaction={transaction} />,
-      },
-      {
-        id: foreignApplicationsTabId,
-        label: foreignApplicationsTabLabel,
-        children: <ForeignApplications transaction={transaction} />,
-      },
-      {
-        id: foreignAssetsTabId,
-        label: foreignAssetsTabLabel,
-        children: <ForeignAssets transaction={transaction} />,
-      },
+      ...(!hasAccessList
+        ? [
+            {
+              id: foreignAccountsTabId,
+              label: foreignAccountsTabLabel,
+              children: <ForeignAccounts transaction={transaction} />,
+            },
+            {
+              id: foreignApplicationsTabId,
+              label: foreignApplicationsTabLabel,
+              children: <ForeignApplications transaction={transaction} />,
+            },
+            {
+              id: foreignAssetsTabId,
+              label: foreignAssetsTabLabel,
+              children: <ForeignAssets transaction={transaction} />,
+            },
+          ]
+        : [
+            {
+              id: accessListTabId,
+              label: accessListTabLabel,
+              children: <AccessList transaction={transaction} />,
+            },
+          ]),
       {
         id: globalStateDeltaTabId,
         label: globalStateDeltaTabLabel,
@@ -145,7 +163,7 @@ function AppCallTransactionTabs({
         children: <LocalStateDeltas transaction={transaction} />,
       },
     ],
-    [abiMethod, transaction]
+    [abiMethod, hasAccessList, transaction]
   )
 
   return (
@@ -382,4 +400,76 @@ function LocalStateTable({ data }: { data: LocalStateDelta[] }) {
   }, [data])
 
   return component
+}
+
+const accessListTypeLabel: Record<AccessListItemType, string> = {
+  [AccessListItemType.Empty]: 'Quota',
+  [AccessListItemType.Account]: 'Account',
+  [AccessListItemType.App]: 'App',
+  [AccessListItemType.Asset]: 'Asset',
+  [AccessListItemType.Box]: 'Box',
+  [AccessListItemType.Holding]: 'Holding',
+  [AccessListItemType.Locals]: 'Local State',
+}
+
+const accessListTableColumns: ColumnDef<AccessListItem>[] = [
+  {
+    id: 'index',
+    header: '#',
+    cell: (c) => c.row.index + 1,
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: (c) => accessListTypeLabel[c.getValue<AccessListItemType>()],
+  },
+  {
+    header: 'Details',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const item = c.getValue<AccessListItem>()
+      return <AccessListItemDetails item={item} />
+    },
+  },
+]
+
+function AccessListItemDetails({ item }: { item: AccessListItem }) {
+  switch (item.type) {
+    case AccessListItemType.Empty:
+      return <span>Additional box read budget</span>
+    case AccessListItemType.Account:
+      return <AccountLink address={item.address} showCopyButton={true} />
+    case AccessListItemType.App:
+      return <ApplicationLink applicationId={item.applicationId} showCopyButton={true} />
+    case AccessListItemType.Asset:
+      return <AssetIdLink assetId={item.assetId} showCopyButton={true} />
+    case AccessListItemType.Box:
+      return (
+        <span className="inline-flex items-center gap-1">
+          <span>App:</span>
+          <ApplicationLink applicationId={item.applicationId} showCopyButton={true} />
+          <span>| Box: {item.name}</span>
+        </span>
+      )
+    case AccessListItemType.Holding:
+      return (
+        <span className="inline-flex items-center gap-1">
+          <AccountLink address={item.address} showCopyButton={true} />
+          <span>| Asset:</span>
+          <AssetIdLink assetId={item.assetId} showCopyButton={true} />
+        </span>
+      )
+    case AccessListItemType.Locals:
+      return (
+        <span className="inline-flex items-center gap-1">
+          <AccountLink address={item.address} showCopyButton={true} />
+          <span>| App:</span>
+          <ApplicationLink applicationId={item.applicationId} showCopyButton={true} />
+        </span>
+      )
+  }
+}
+
+function AccessList({ transaction }: Props) {
+  return <DataTable columns={accessListTableColumns} data={transaction.accessList} dataContext="accessList" />
 }

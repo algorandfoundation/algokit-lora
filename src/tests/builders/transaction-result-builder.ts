@@ -7,6 +7,7 @@ import type {
   TransactionApplication,
   TransactionHeartbeat,
   HbProofFields,
+  ResourceRef,
 } from '@algorandfoundation/algokit-utils/indexer-client'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { TransactionResult } from '@/features/transactions/data/types'
@@ -72,6 +73,22 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
       applicationId: randomBigInt(),
       onCompletion: 'noop',
     } satisfies TransactionApplication
+    return this
+  }
+
+  public withRejectVersion(rejectVersion: number) {
+    if (!this.thing.applicationTransaction) {
+      throw new Error('Call appCallTransaction() first before setting rejectVersion')
+    }
+    this.thing.applicationTransaction.rejectVersion = rejectVersion
+    return this
+  }
+
+  public withAccessList(accessList: ResourceRef[]) {
+    if (!this.thing.applicationTransaction) {
+      throw new Error('Call appCallTransaction() first before setting accessList')
+    }
+    this.thing.applicationTransaction.access = accessList
     return this
   }
 

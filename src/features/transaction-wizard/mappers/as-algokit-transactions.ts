@@ -107,6 +107,7 @@ const asPaymentTransaction = async (
 export const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
   invariant(transaction.methodDefinition, 'Method is required')
   invariant(transaction.methodArgs, 'Method args are required')
+  const hasUnifiedAccessReferences = (transaction.accessReferences?.length ?? 0) > 0
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
@@ -129,13 +130,15 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     appId: BigInt(transaction.applicationId),
     method: transaction.methodDefinition.abiMethod,
     args: args,
-    accountReferences: transaction.accounts ?? [],
-    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
-    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences:
-      transaction.boxes?.map(([appId, boxName]) => {
-        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
-      }) ?? [],
+    accessReferences: transaction.accessReferences,
+    accountReferences: hasUnifiedAccessReferences ? [] : (transaction.accounts ?? []),
+    appReferences: hasUnifiedAccessReferences ? [] : (transaction.foreignApps?.map((app) => BigInt(app)) ?? []),
+    assetReferences: hasUnifiedAccessReferences ? [] : (transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? []),
+    boxReferences: hasUnifiedAccessReferences
+      ? []
+      : (transaction.boxes?.map(([appId, boxName]) => {
+          return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+        }) ?? []),
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
@@ -159,18 +162,23 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
 }
 
 export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionResult): AppCallParams => {
+  const hasUnifiedAccessReferences = (transaction.accessReferences?.length ?? 0) > 0
+
   return {
     sender: transaction.sender.resolvedAddress,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     onComplete: transaction.onComplete,
-    accountReferences: transaction.accounts ?? [],
-    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
-    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences:
-      transaction.boxes?.map(([appId, boxName]) => {
-        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
-      }) ?? [],
+    accessReferences: transaction.accessReferences,
+    accountReferences: hasUnifiedAccessReferences ? [] : (transaction.accounts ?? []),
+    appReferences: hasUnifiedAccessReferences ? [] : (transaction.foreignApps?.map((app) => BigInt(app)) ?? []),
+    assetReferences: hasUnifiedAccessReferences ? [] : (transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? []),
+    boxReferences: hasUnifiedAccessReferences
+      ? []
+      : (transaction.boxes?.map(([appId, boxName]) => {
+          return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+        }) ?? []),
+    rejectVersion: transaction.rejectVersion,
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),

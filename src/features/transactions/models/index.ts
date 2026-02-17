@@ -163,6 +163,62 @@ export enum AppCallTransactionSubType {
   Update = 'Update',
 }
 
+export enum AccessListItemType {
+  Empty = 'Empty',
+  Account = 'Account',
+  App = 'App',
+  Asset = 'Asset',
+  Box = 'Box',
+  Holding = 'Holding',
+  Locals = 'Locals',
+}
+
+export type EmptyAccessListItem = {
+  type: AccessListItemType.Empty
+}
+
+export type AccountAccessListItem = {
+  type: AccessListItemType.Account
+  address: Address
+}
+
+export type AppAccessListItem = {
+  type: AccessListItemType.App
+  applicationId: ApplicationId
+}
+
+export type AssetAccessListItem = {
+  type: AccessListItemType.Asset
+  assetId: AssetId
+}
+
+export type BoxAccessListItem = {
+  type: AccessListItemType.Box
+  applicationId: ApplicationId
+  name: string
+}
+
+export type HoldingAccessListItem = {
+  type: AccessListItemType.Holding
+  address: Address
+  assetId: AssetId
+}
+
+export type LocalsAccessListItem = {
+  type: AccessListItemType.Locals
+  address: Address
+  applicationId: ApplicationId
+}
+
+export type AccessListItem =
+  | EmptyAccessListItem
+  | AccountAccessListItem
+  | AppAccessListItem
+  | AssetAccessListItem
+  | BoxAccessListItem
+  | HoldingAccessListItem
+  | LocalsAccessListItem
+
 export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
   subType: AppCallTransactionSubType | undefined
@@ -172,12 +228,14 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   foreignApps: ApplicationId[]
   foreignAssets: AssetId[]
   applicationAccounts: Address[]
+  accessList: AccessListItem[]
   globalStateDeltas: Atom<Promise<GlobalStateDelta[]>>
   localStateDeltas: Atom<Promise<LocalStateDelta[]>>
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
   logs: string[]
   abiMethod: Atom<Promise<DecodedAbiMethod | undefined>>
+  rejectVersion?: number
 }
 
 export type AppCallTransaction = BaseAppCallTransaction & {
