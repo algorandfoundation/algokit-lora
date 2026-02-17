@@ -45,7 +45,7 @@ jobs:
 
   build-and-release:
     name: Build and Create Release
-    # needs: [ci]
+    needs: [ci]
     runs-on: ubuntu-latest
     outputs:
       release-version: ${{ steps.generate-release-version.outputs.release-version }}
