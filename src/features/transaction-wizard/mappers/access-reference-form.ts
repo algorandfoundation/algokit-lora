@@ -69,6 +69,7 @@ export const toAccessReferences = (rows: AccessReferenceFormRow[]): ResourceRefe
           address: toAddress(row.address, 'Address', index),
         } satisfies ResourceReference
       case AccessReferenceFormType.App:
+        // SDK transaction params use `appId`; indexer responses use `applicationId`.
         return {
           appId: requiredBigInt(row.appId, 'Application ID', index),
         } satisfies ResourceReference
@@ -101,10 +102,7 @@ export const toAccessReferences = (rows: AccessReferenceFormRow[]): ResourceRefe
   })
 }
 
-export const toAccessReferenceRows = (
-  references: ResourceReference[] | undefined,
-  idFactory: () => string
-): AccessReferenceFormRow[] => {
+export const toAccessReferenceRows = (references: ResourceReference[] | undefined, idFactory: () => string): AccessReferenceFormRow[] => {
   if (!references || references.length === 0) {
     return []
   }

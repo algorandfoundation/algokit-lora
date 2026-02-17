@@ -107,6 +107,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
+  rejectVersion?: number
   appSpec: Arc56Contract
   methodDefinition: MethodDefinition
   extraProgramPages?: number

@@ -122,6 +122,7 @@ const mapCommonAppCallTransactionProperties = (
 
   const isCreate = !transactionResult.applicationTransaction.applicationId
   const onCompletion = asAppCallOnComplete(transactionResult.applicationTransaction.onCompletion)
+  const applicationId = transactionResult.applicationTransaction.applicationId ?? transactionResult.createdAppId ?? 0n
   const isOpUp =
     isCreate &&
     onCompletion === AppCallOnComplete.Delete &&
@@ -140,19 +141,12 @@ const mapCommonAppCallTransactionProperties = (
         ? AppCallTransactionSubType.Update
         : undefined,
     isOpUp,
-    applicationId: transactionResult.applicationTransaction.applicationId
-      ? transactionResult.applicationTransaction.applicationId
-      : transactionResult.createdAppId!,
+    applicationId,
     applicationArgs: transactionResult.applicationTransaction.applicationArgs?.map((a) => uint8ArrayToBase64(a)) ?? [],
     applicationAccounts: transactionResult.applicationTransaction.accounts?.map((a) => a.toString()) ?? [],
     foreignApps: transactionResult.applicationTransaction.foreignApps ?? [],
     foreignAssets: transactionResult.applicationTransaction.foreignAssets ?? [],
-    accessList: mapAccessList(
-      transactionResult.applicationTransaction.access,
-      transactionResult.applicationTransaction.applicationId
-        ? transactionResult.applicationTransaction.applicationId
-        : transactionResult.createdAppId!
-    ),
+    accessList: mapAccessList(transactionResult.applicationTransaction.access, applicationId),
     globalStateDeltas: globalStateDeltaResolver(transactionResult),
     localStateDeltas: localStateDeltaResolver(transactionResult),
     innerTransactions:

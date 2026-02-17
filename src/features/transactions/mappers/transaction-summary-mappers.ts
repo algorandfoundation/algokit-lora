@@ -33,9 +33,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       return {
         ...common,
         type: TransactionType.AppCall,
-        to: transactionResult.applicationTransaction.applicationId
-          ? transactionResult.applicationTransaction.applicationId
-          : transactionResult.createdAppId!,
+        to: transactionResult.applicationTransaction.applicationId ?? transactionResult.createdAppId ?? 0n,
       }
     }
     case UtilsTransactionType.AssetConfig: {

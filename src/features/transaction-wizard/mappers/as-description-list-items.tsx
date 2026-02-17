@@ -58,6 +58,7 @@ import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
 import TransactionSenderLink from '@/features/accounts/components/transaction-sender-link'
+import { hasUnifiedAccessReferences } from '../utils/has-unified-access-references'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -379,7 +380,7 @@ const asMethodArg = (
 
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
   const params = asAppCallTransactionParams(transaction)
-  const hasUnifiedAccessReferences = (params.accessReferences?.length ?? 0) > 0
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(params.accessReferences)
 
   return [
     ...(params.appId !== 0n
@@ -408,7 +409,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'Resource mode',
-      dd: hasUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
+      dd: useUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -429,8 +430,10 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
-    ...(hasUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
-    ...(!hasUnifiedAccessReferences ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences) : []),
+    ...(useUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
+    ...(!useUnifiedAccessReferences
+      ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences)
+      : []),
   ]
 }
 
@@ -467,7 +470,7 @@ const asMethodCallTransaction = (
     type: BuildableTransactionType.AppCall,
     args: [],
   })
-  const hasUnifiedAccessReferences = (params.accessReferences?.length ?? 0) > 0
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(params.accessReferences)
 
   return [
     ...(params.appId !== 0n
@@ -483,13 +486,21 @@ const asMethodCallTransaction = (
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
+    ...(params.rejectVersion !== undefined
+      ? [
+          {
+            dt: 'Reject Version',
+            dd: params.rejectVersion,
+          },
+        ]
+      : []),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     {
       dt: 'Resource mode',
-      dd: hasUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
+      dd: useUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -519,8 +530,10 @@ const asMethodCallTransaction = (
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
-    ...(hasUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
-    ...(!hasUnifiedAccessReferences ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences) : []),
+    ...(useUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
+    ...(!useUnifiedAccessReferences
+      ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences)
+      : []),
   ]
 }
 
