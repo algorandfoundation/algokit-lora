@@ -22,13 +22,17 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
+import { toAccessReferences, toAccessReferenceRows } from '@/features/transaction-wizard/mappers/access-reference-form'
+import { AccessReferencesEditor, accessReferencesFieldSchema } from './access-references-editor'
 
 const formData = zfd.formData({
   ...commonSchema,
   sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  rejectVersion: numberSchema(z.number().int().min(0).optional()),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
+  accessReferences: accessReferencesFieldSchema,
   args: zfd.repeatableOfType(
     z.object({
       id: z.string(),
@@ -36,6 +40,8 @@ const formData = zfd.formData({
     })
   ),
 })
+
+type AppCallFormData = z.infer<typeof formData>
 
 type Props = {
   mode: TransactionBuilderMode
@@ -48,14 +54,18 @@ type Props = {
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
-    async (values: z.infer<typeof formData>) => {
+    async (values: AppCallFormData) => {
+      const accessReferences = toAccessReferences(values.accessReferences ?? [])
+
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
         sender: await resolveTransactionSender(values.sender),
         onComplete: Number(values.onComplete),
+        rejectVersion: values.rejectVersion,
         extraProgramPages: values.extraProgramPages,
+        accessReferences: accessReferences.length > 0 ? accessReferences : undefined,
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),
@@ -65,13 +75,15 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     [onSubmit, transaction?.id]
   )
 
-  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+  const defaultValues = useMemo<Partial<AppCallFormData>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        rejectVersion: transaction.rejectVersion,
         extraProgramPages: transaction.extraProgramPages,
+        accessReferences: toAccessReferenceRows(transaction.accessReferences, randomGuid),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -91,8 +103,10 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         setAutomatically: true,
       },
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
+      rejectVersion: _defaultValues?.rejectVersion,
+      accessReferences: toAccessReferenceRows(_defaultValues?.accessReferences, randomGuid),
     }
-  }, [mode, activeAccount, _defaultValues?.applicationId, transaction])
+  }, [mode, activeAccount, _defaultValues?.accessReferences, _defaultValues?.applicationId, _defaultValues?.rejectVersion, transaction])
 
   return (
     <Form
@@ -120,6 +134,11 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
+          {helper.numberField({
+            field: 'rejectVersion',
+            label: 'Reject Version',
+            helpText: 'Optional app version guard. Rejects when the app version is greater than or equal to this value.',
+          })}
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
@@ -131,6 +150,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
               label: 'Extra program pages',
               helpText: 'Number of additional pages allocated to the programs. If empty this will be calculated automatically',
             })}
+          <AccessReferencesEditor helper={helper} />
           {helper.arrayField({
             field: 'args',
             label: 'Arguments',

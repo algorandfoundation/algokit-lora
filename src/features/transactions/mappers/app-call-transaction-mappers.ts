@@ -1,4 +1,6 @@
 import {
+  AccessListItem,
+  AccessListItemType,
   AppCallOnComplete,
   AppCallTransaction,
   AppCallTransactionSubType,
@@ -6,6 +8,7 @@ import {
   InnerAppCallTransaction,
   TransactionType,
 } from '../models'
+import { ResourceRef } from '@algorandfoundation/algokit-utils/indexer-client'
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
@@ -42,6 +45,68 @@ const opUpPrograms = [
   'D4EB', // #pragma version 15\npushint 1\n
 ]
 
+export const mapAccessList = (access: ResourceRef[] | undefined, applicationId: bigint): AccessListItem[] => {
+  if (!access || access.length === 0) {
+    return []
+  }
+
+  const isEmptyRef = (ref: ResourceRef) =>
+    ref.address === undefined &&
+    ref.applicationId === undefined &&
+    ref.assetId === undefined &&
+    ref.box === undefined &&
+    ref.holding === undefined &&
+    ref.local === undefined
+
+  return access.map((ref): AccessListItem => {
+    if (isEmptyRef(ref)) {
+      return {
+        type: AccessListItemType.Empty,
+      }
+    }
+    if (ref.address !== undefined) {
+      return {
+        type: AccessListItemType.Account,
+        address: ref.address.toString(),
+      }
+    }
+    if (ref.applicationId !== undefined) {
+      return {
+        type: AccessListItemType.App,
+        applicationId: ref.applicationId,
+      }
+    }
+    if (ref.assetId !== undefined) {
+      return {
+        type: AccessListItemType.Asset,
+        assetId: ref.assetId,
+      }
+    }
+    if (ref.box !== undefined) {
+      return {
+        type: AccessListItemType.Box,
+        applicationId: ref.box.app === 0n ? applicationId : ref.box.app,
+        name: uint8ArrayToBase64(ref.box.name),
+      }
+    }
+    if (ref.holding !== undefined) {
+      return {
+        type: AccessListItemType.Holding,
+        address: ref.holding.address.toString(),
+        assetId: ref.holding.asset,
+      }
+    }
+    if (ref.local !== undefined) {
+      return {
+        type: AccessListItemType.Locals,
+        address: ref.local.address.toString(),
+        applicationId: ref.local.app === 0n ? applicationId : ref.local.app,
+      }
+    }
+    throw new Error('Unsupported ResourceRef type')
+  })
+}
+
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
@@ -57,6 +122,7 @@ const mapCommonAppCallTransactionProperties = (
 
   const isCreate = !transactionResult.applicationTransaction.applicationId
   const onCompletion = asAppCallOnComplete(transactionResult.applicationTransaction.onCompletion)
+  const applicationId = transactionResult.applicationTransaction.applicationId ?? transactionResult.createdAppId ?? 0n
   const isOpUp =
     isCreate &&
     onCompletion === AppCallOnComplete.Delete &&
@@ -75,13 +141,12 @@ const mapCommonAppCallTransactionProperties = (
         ? AppCallTransactionSubType.Update
         : undefined,
     isOpUp,
-    applicationId: transactionResult.applicationTransaction.applicationId
-      ? transactionResult.applicationTransaction.applicationId
-      : transactionResult.createdAppId!,
+    applicationId,
     applicationArgs: transactionResult.applicationTransaction.applicationArgs?.map((a) => uint8ArrayToBase64(a)) ?? [],
     applicationAccounts: transactionResult.applicationTransaction.accounts?.map((a) => a.toString()) ?? [],
     foreignApps: transactionResult.applicationTransaction.foreignApps ?? [],
     foreignAssets: transactionResult.applicationTransaction.foreignAssets ?? [],
+    accessList: mapAccessList(transactionResult.applicationTransaction.access, applicationId),
     globalStateDeltas: globalStateDeltaResolver(transactionResult),
     localStateDeltas: localStateDeltaResolver(transactionResult),
     innerTransactions:
@@ -93,6 +158,7 @@ const mapCommonAppCallTransactionProperties = (
     onCompletion,
     logs: transactionResult.logs?.map((l) => uint8ArrayToBase64(l)) ?? [],
     abiMethod,
+    rejectVersion: transactionResult.applicationTransaction.rejectVersion,
   } satisfies BaseAppCallTransaction
 }
 

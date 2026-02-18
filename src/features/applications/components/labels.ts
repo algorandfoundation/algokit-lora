@@ -36,3 +36,5 @@ export const applicationAbiMethodDefinitionsLabel = 'ABI Methods'
 export const enterAddressToViewLocalStateMessage = 'Enter an address to view local state.'
 export const failedToLoadLocalStateMessage = 'Failed to load local state.'
 export const invalidAddressForLocalStateMessage = 'Invalid address or NFD.'
+
+export const applicationVersionLabel = 'Version'

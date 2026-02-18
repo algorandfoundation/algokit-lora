@@ -5,7 +5,7 @@ import {
   argTypeIsReference,
   argTypeIsTransaction,
 } from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { OnApplicationComplete, ResourceReference } from '@algorandfoundation/algokit-utils/transact'
 import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
@@ -58,6 +58,7 @@ import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
 import TransactionSenderLink from '@/features/accounts/components/transaction-sender-link'
+import { hasUnifiedAccessReferences } from '../utils/has-unified-access-references'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -379,6 +380,7 @@ const asMethodArg = (
 
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
   const params = asAppCallTransactionParams(transaction)
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(params.accessReferences)
 
   return [
     ...(params.appId !== 0n
@@ -393,9 +395,21 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
+    ...(params.rejectVersion !== undefined
+      ? [
+          {
+            dt: 'Reject Version',
+            dd: params.rejectVersion,
+          },
+        ]
+      : []),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
+    },
+    {
+      dt: 'Resource mode',
+      dd: useUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -416,8 +430,33 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
-    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
+    ...(useUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
+    ...(!useUnifiedAccessReferences
+      ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences)
+      : []),
   ]
+}
+
+const asUnifiedAccessReferencesItem = (accessReferences: ResourceReference[]) => {
+  const counts = accessReferences.reduce(
+    (acc, ref) => {
+      if (ref.address) acc.accounts += 1
+      if (ref.appId !== undefined) acc.apps += 1
+      if (ref.assetId !== undefined) acc.assets += 1
+      if (ref.box) acc.boxes += 1
+      if (ref.holding) acc.holdings += 1
+      if (ref.locals) acc.locals += 1
+      return acc
+    },
+    { accounts: 0, apps: 0, assets: 0, boxes: 0, holdings: 0, locals: 0 }
+  )
+
+  return [
+    {
+      dt: 'Access references',
+      dd: `total=${accessReferences.length}, account=${counts.accounts}, app=${counts.apps}, asset=${counts.assets}, box=${counts.boxes}, holding=${counts.holdings}, locals=${counts.locals}`,
+    },
+  ] satisfies DescriptionListItems
 }
 
 const asMethodCallTransaction = (
@@ -431,6 +470,7 @@ const asMethodCallTransaction = (
     type: BuildableTransactionType.AppCall,
     args: [],
   })
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(params.accessReferences)
 
   return [
     ...(params.appId !== 0n
@@ -446,9 +486,21 @@ const asMethodCallTransaction = (
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
+    ...(params.rejectVersion !== undefined
+      ? [
+          {
+            dt: 'Reject Version',
+            dd: params.rejectVersion,
+          },
+        ]
+      : []),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
+    },
+    {
+      dt: 'Resource mode',
+      dd: useUnifiedAccessReferences ? 'Unified access list' : 'Legacy references',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -478,7 +530,10 @@ const asMethodCallTransaction = (
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
-    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
+    ...(useUnifiedAccessReferences ? asUnifiedAccessReferencesItem(params.accessReferences ?? []) : []),
+    ...(!useUnifiedAccessReferences
+      ? asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences)
+      : []),
   ]
 }
 

@@ -41,6 +41,8 @@ import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
+import { toAccessReferenceRows, toAccessReferences } from '@/features/transaction-wizard/mappers/access-reference-form'
+import { AccessReferencesEditor, accessReferencesFieldSchema } from './access-references-editor'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -48,7 +50,9 @@ const appCallFormSchema = {
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
+  rejectVersion: numberSchema(z.number().int().min(0).optional()),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
+  accessReferences: accessReferencesFieldSchema,
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const baseFormData = zfd.formData(appCallFormSchema)
@@ -132,6 +136,7 @@ export function MethodCallTransactionBuilder({
     async (values: z.infer<typeof formData>) => {
       invariant(methodDefinition, 'Method is required')
       invariant(methodForm, 'Method form is required')
+      const accessReferences = toAccessReferences(values.accessReferences ?? [])
 
       const methodCallTransactionId = transaction?.id ?? randomGuid()
 
@@ -158,8 +163,10 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
+        rejectVersion: values.rejectVersion,
         sender: await resolveTransactionSender(values.sender),
         extraProgramPages: values.extraProgramPages,
+        accessReferences: accessReferences.length > 0 ? accessReferences : undefined,
         appSpec: appSpec!,
         methodArgs: methodArgs,
         fee: values.fee,
@@ -191,8 +198,10 @@ export function MethodCallTransactionBuilder({
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        rejectVersion: transaction.rejectVersion,
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,
+        accessReferences: toAccessReferenceRows(transaction.accessReferences, randomGuid),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -210,6 +219,8 @@ export function MethodCallTransactionBuilder({
       methodName: _defaultValues?.methodDefinition?.name,
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
+      rejectVersion: _defaultValues?.rejectVersion,
+      accessReferences: toAccessReferenceRows(_defaultValues?.accessReferences, randomGuid),
     }
   }, [mode, transaction, activeAccount, _defaultValues])
 
@@ -387,6 +398,12 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         options: onCompleteOptions,
         helpText: 'Action to perform after executing the program',
       })}
+      {appId !== 0n &&
+        helper.numberField({
+          field: 'rejectVersion',
+          label: 'Reject Version',
+          helpText: 'Optional app version guard. Rejects when the app version is greater than or equal to this value.',
+        })}
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
@@ -398,6 +415,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
           label: 'Extra program pages',
           helpText: 'Number of additional pages allocated to the programs. If empty this will be calculated automatically',
         })}
+      <AccessReferencesEditor helper={helper} />
       {abiMethodArgs.map((arg, index) => (
         <div key={`${methodName}-arg-${index}`} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>

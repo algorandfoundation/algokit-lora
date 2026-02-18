@@ -1,6 +1,6 @@
 import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
 import type { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import { ResourceReference, TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
@@ -39,11 +39,13 @@ import { asAbiTransactionType } from '../mappers'
 import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
+import { hasUnifiedAccessReferences } from '../utils/has-unified-access-references'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
 const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
+const unifiedResourcesLockedMessage = 'Unified access references are enabled. Edit resources in the transaction form.'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -63,6 +65,16 @@ type Props = {
     icon: React.JSX.Element
   }
 }
+
+type PopulatedAppCallResources =
+  | {
+      mode: 'legacy'
+      resources: TransactionResources
+    }
+  | {
+      mode: 'unified'
+      accessReferences: ResourceReference[]
+    }
 
 const defaultTitle = <h4 className="text-primary pb-0">{transactionGroupLabel}</h4>
 const defaultSendButtonConfig = {
@@ -84,8 +96,14 @@ export function TransactionsBuilder({
   const { activeAddress } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [infoMessage, setInfoMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
+
+  const clearMessages = useCallback(() => {
+    setErrorMessage(undefined)
+    setInfoMessage(undefined)
+  }, [])
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -136,17 +154,17 @@ export function TransactionsBuilder({
     },
   })
   const createTransaction = useCallback(async () => {
-    setErrorMessage(undefined)
+    clearMessages()
     const transaction = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
     if (transaction) {
       setTransactions((prev) => [...prev, transaction])
     }
-  }, [openTransactionBuilderDialog])
+  }, [clearMessages, openTransactionBuilderDialog])
 
   const sendTransactions = useCallback(async () => {
     try {
       setIsBusy(true)
-      setErrorMessage(undefined)
+      clearMessages()
       invariant(activeAddress, 'Please connect your wallet')
       ensureThereIsNoPlaceholderTransaction(transactions)
 
@@ -156,15 +174,16 @@ export function TransactionsBuilder({
       console.error(err)
       const error = asError(err)
       setErrorMessage(error.message)
+      setInfoMessage(undefined)
     } finally {
       setIsBusy(false)
     }
-  }, [activeAddress, onSendTransactions, transactions])
+  }, [activeAddress, clearMessages, onSendTransactions, transactions])
 
   const simulateTransactions = useCallback(async () => {
     try {
       setIsBusy(true)
-      setErrorMessage(undefined)
+      clearMessages()
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
@@ -190,15 +209,16 @@ export function TransactionsBuilder({
       console.error(err)
       const error = asError(err)
       setErrorMessage(error.message)
+      setInfoMessage(undefined)
     } finally {
       setIsBusy(false)
     }
-  }, [onSimulated, requireSignaturesOnSimulate, transactions])
+  }, [clearMessages, onSimulated, requireSignaturesOnSimulate, transactions])
 
   const populateResources = useCallback(async () => {
     try {
       setIsBusy(true)
-      setErrorMessage(undefined)
+      clearMessages()
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
@@ -221,7 +241,18 @@ export function TransactionsBuilder({
                   (box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const
                 ) ?? [],
             } satisfies TransactionResources
-            newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
+            if (hasUnifiedAccessReferences(transaction.accessReferences)) {
+              const appCall = transactionWithResources.txn.appCall
+              newTransactions = setTransactionResources(newTransactions, transaction.id, {
+                mode: 'unified',
+                accessReferences: appCall?.accessReferences ?? transaction.accessReferences ?? [],
+              })
+            } else {
+              newTransactions = setTransactionResources(newTransactions, transaction.id, {
+                mode: 'legacy',
+                resources,
+              })
+            }
           }
         }
 
@@ -231,14 +262,15 @@ export function TransactionsBuilder({
       // eslint-disable-next-line no-console
       console.error(error)
       setErrorMessage(asError(error).message)
+      setInfoMessage(undefined)
     } finally {
       setIsBusy(false)
     }
-  }, [transactions])
+  }, [clearMessages, transactions])
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => {
-      setErrorMessage(undefined)
+      clearMessages()
       try {
         const txn = await (transaction.type === BuildableTransactionType.Placeholder ||
         transaction.type === BuildableTransactionType.Fulfilled
@@ -257,34 +289,46 @@ export function TransactionsBuilder({
         // eslint-disable-next-line no-console
         console.error(error)
         setErrorMessage(asError(error).message)
+        setInfoMessage(undefined)
       }
     },
-    [openTransactionBuilderDialog, transactions]
+    [clearMessages, openTransactionBuilderDialog, transactions]
   )
 
-  const deleteTransaction = useCallback((transaction: BuildTransactionResult) => {
-    setErrorMessage(undefined)
-    setTransactions((prev) => prev.filter((t) => t.id !== transaction.id))
-  }, [])
+  const deleteTransaction = useCallback(
+    (transaction: BuildTransactionResult) => {
+      clearMessages()
+      setTransactions((prev) => prev.filter((t) => t.id !== transaction.id))
+    },
+    [clearMessages]
+  )
 
   const editResources = useCallback(
     async (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
-      setErrorMessage(undefined)
+      clearMessages()
+      if (hasUnifiedAccessReferences(transaction.accessReferences)) {
+        setInfoMessage(unifiedResourcesLockedMessage)
+        return
+      }
+
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
-          return setTransactionResources(prev, transaction.id, resources)
+          return setTransactionResources(prev, transaction.id, {
+            mode: 'legacy',
+            resources,
+          })
         })
       }
     },
-    [openEditResourcesDialog]
+    [clearMessages, openEditResourcesDialog]
   )
 
   const reset = useCallback(() => {
     setTransactions([])
-    setErrorMessage(undefined)
+    clearMessages()
     onReset?.()
-  }, [onReset])
+  }, [clearMessages, onReset])
 
   const populateResourcesButtonDisabledProps = useMemo(() => {
     if (!transactions.find((t) => t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)) {
@@ -381,6 +425,11 @@ export function TransactionsBuilder({
             <HintText errorText={errorMessage} />
           </div>
         )}
+        {!errorMessage && infoMessage && (
+          <div>
+            <HintText helpText={infoMessage} />
+          </div>
+        )}
         {onSimulated && (
           <div className="grid">
             <div className="ml-auto flex items-center space-x-2">
@@ -450,17 +499,34 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
   }, [] as BuildTransactionResult[])
 }
 
-const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
+export const setTransactionResources = (
+  transactions: BuildTransactionResult[],
+  transactionId: string,
+  populatedResources: PopulatedAppCallResources
+) => {
   return setTransaction(transactions, transactionId, (transaction) => {
     if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
+      if (populatedResources.mode === 'unified') {
+        return {
+          ...transaction,
+          accessReferences: populatedResources.accessReferences,
+          accounts: undefined,
+          foreignAssets: undefined,
+          foreignApps: undefined,
+          boxes: undefined,
+        }
+      }
+
       return {
         ...transaction,
-        accounts: resources.accounts,
-        foreignAssets: resources.assets,
-        foreignApps: resources.applications,
-        boxes: resources.boxes,
+        accessReferences: undefined,
+        accounts: populatedResources.resources.accounts,
+        foreignAssets: populatedResources.resources.assets,
+        foreignApps: populatedResources.resources.applications,
+        boxes: populatedResources.resources.boxes,
       }
     }
+
     throw new Error(`Cannot set resources for transaction type ${transaction.type}`)
   })
 }

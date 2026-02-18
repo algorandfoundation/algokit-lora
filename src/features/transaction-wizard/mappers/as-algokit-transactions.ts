@@ -40,6 +40,7 @@ import { Transaction } from '@algorandfoundation/algokit-utils/transact'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
+import { hasUnifiedAccessReferences } from '../utils/has-unified-access-references'
 
 export const asAlgokitTransactions = async (transaction: BuildTransactionResult): Promise<Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -107,6 +108,7 @@ const asPaymentTransaction = async (
 export const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
   invariant(transaction.methodDefinition, 'Method is required')
   invariant(transaction.methodArgs, 'Method args are required')
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(transaction.accessReferences)
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
@@ -129,13 +131,16 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     appId: BigInt(transaction.applicationId),
     method: transaction.methodDefinition.abiMethod,
     args: args,
-    accountReferences: transaction.accounts ?? [],
-    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
-    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences:
-      transaction.boxes?.map(([appId, boxName]) => {
-        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
-      }) ?? [],
+    accessReferences: transaction.accessReferences,
+    accountReferences: useUnifiedAccessReferences ? [] : (transaction.accounts ?? []),
+    appReferences: useUnifiedAccessReferences ? [] : (transaction.foreignApps?.map((app) => BigInt(app)) ?? []),
+    assetReferences: useUnifiedAccessReferences ? [] : (transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? []),
+    boxReferences: useUnifiedAccessReferences
+      ? []
+      : (transaction.boxes?.map(([appId, boxName]) => {
+          return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+        }) ?? []),
+    rejectVersion: transaction.rejectVersion,
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
@@ -159,18 +164,23 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
 }
 
 export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionResult): AppCallParams => {
+  const useUnifiedAccessReferences = hasUnifiedAccessReferences(transaction.accessReferences)
+
   return {
     sender: transaction.sender.resolvedAddress,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     onComplete: transaction.onComplete,
-    accountReferences: transaction.accounts ?? [],
-    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
-    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences:
-      transaction.boxes?.map(([appId, boxName]) => {
-        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
-      }) ?? [],
+    accessReferences: transaction.accessReferences,
+    accountReferences: useUnifiedAccessReferences ? [] : (transaction.accounts ?? []),
+    appReferences: useUnifiedAccessReferences ? [] : (transaction.foreignApps?.map((app) => BigInt(app)) ?? []),
+    assetReferences: useUnifiedAccessReferences ? [] : (transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? []),
+    boxReferences: useUnifiedAccessReferences
+      ? []
+      : (transaction.boxes?.map(([appId, boxName]) => {
+          return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+        }) ?? []),
+    rejectVersion: transaction.rejectVersion,
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
