@@ -21,7 +21,7 @@ on:
     secrets:
       CLOUDFLARE_API_TOKEN:
         required: true
-      CF_ACCOUNT_ID:
+      CLOUDFLARE_ACCOUNT_ID:
         required: true
 
 concurrency: deploy-to-production
@@ -48,4 +48,4 @@ jobs:
           npx wrangler@latest pages deploy artifacts/website --project-name=algokit-lora --commit-dirty=true --branch=release
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
