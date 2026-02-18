@@ -199,7 +199,7 @@ jobs:
   release-web:
     name: Release Web
     needs: [build-and-release]
-    if: github.ref_name == 'release' || github.ref_name == 'main'
+    if: github.ref_name == 'release'
     uses: ./.github/workflows/release-web.yaml
     with:
       version: ${{ needs.build-and-release.outputs.release-version }}
