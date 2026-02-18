@@ -5,8 +5,9 @@ import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { FieldArrayPath, FieldPath, FieldValues, useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { Button } from '@/features/common/components/button'
-import { Plus, TrashIcon } from 'lucide-react'
+import { ChevronDown, Plus, TrashIcon } from 'lucide-react'
 import { AccessReferenceFormRow, AccessReferenceFormType } from '@/features/transaction-wizard/mappers/access-reference-form'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 
 const accessReferenceTypes = [
   { value: AccessReferenceFormType.Account, label: 'Account' },
@@ -154,31 +155,40 @@ export function AccessReferencesEditor<TFormData extends AccessReferencesFormDat
   const isAtMax = fields.length >= 16
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
+    <div className="space-y-4">
+      <div className="mb-2 flex items-center gap-2">
         <h4 className="text-primary">Access References</h4>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="outline-secondary"
+              size="sm"
+              className="ml-auto"
+              disabled={isAtMax}
+              disabledReason="Resources are at capacity"
+            >
+              <span className="flex items-center gap-2">
+                <Plus size={16} />
+                Add Reference
+                <ChevronDown size={16} />
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {accessReferenceTypes.map((type) => (
+              <DropdownMenuItem key={type.value} onClick={() => append(createReferenceRow(type.value) as never)}>
+                {type.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <p className="text-muted-foreground text-sm">
         Add unified references directly by type. When populated, legacy account/app/asset/box lists are ignored.
       </p>
-      <div className="flex flex-wrap gap-2">
-        {accessReferenceTypes.map((type) => (
-          <Button
-            key={type.value}
-            type="button"
-            variant="outline-secondary"
-            size="sm"
-            disabled={isAtMax}
-            disabledReason="Resources are at capacity"
-            icon={<Plus size={14} />}
-            onClick={() => append(createReferenceRow(type.value) as never)}
-          >
-            {type.label}
-          </Button>
-        ))}
-      </div>
 
-      {fields.length === 0 && <p className="text-sm">No access references.</p>}
+      {fields.length === 0 && <p className="relative ml-auto items-center pb-2 text-sm">No access references.</p>}
 
       <div className="space-y-3">
         {fields.map((field, index) => (
