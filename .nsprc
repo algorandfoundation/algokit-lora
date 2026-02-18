@@ -1,1 +1,7 @@
-{}
+{
+  "1113214": {
+    "active": true,
+    "expiry": "2026-05-31",
+    "notes": "ajv ReDoS requires $data option; eslint/@eslint/eslintrc uses ajv6 internally without $data and currently breaks with ajv8 override. Temporary until upstream eslint migrates."
+  }
+}
