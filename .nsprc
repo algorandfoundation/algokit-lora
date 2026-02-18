@@ -1,8 +1,8 @@
 {
   "1112496": {
     "active": true,
-    "notes": "Ignored because it hasn't been fixed in the latest version of npm",
-    "expiry": "2026-12-15"
+    "expiry": "2026-12-15",
+    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump to v6.23.0+."
   },
   "1112052": {
     "active": true,
@@ -44,14 +44,9 @@
     "notes": "ajv ReDoS advisory. Temporary exception while dependency updates are scheduled.",
     "expiry": "2026-12-15"
   },
-  "1112496": {
-    "active": true,
-    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line; fix requires major version bump to v6.23.0+.",
-    "expiry": "2026-12-15"
-  },
   "1112659": {
     "active": true,
-    "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and cannot be overridden. Waiting for a fix from npm.",
-    "expiry": "2026-12-15"
+    "expiry": "2026-12-15",
+    "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and can't be override. We need to wait for a fix from npm"
   }
 }
