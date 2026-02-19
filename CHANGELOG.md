@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.3](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.2...v2.3.3) (2026-02-19)
+
+### ♻️ Code Refactoring
+
+* add step to deploy page to beta environment using the main branch ([df49a5f](https://github.com/algorandfoundation/algokit-lora/commit/df49a5fb9cc437e88103eb827423bb9f12eb3f36))
+* change secret name from CF_ACCOUNT_ID to CLOUDFLARE_ACCOUNT_ID for consistency ([083037a](https://github.com/algorandfoundation/algokit-lora/commit/083037a6124c0b9afcdea2ef2846e7600275f125))
+* update deploy to cloudflare job to use cloudflare-wrangler [@v3](https://github.com/v3) composable action instead of deploying through shell script ([114aaa7](https://github.com/algorandfoundation/algokit-lora/commit/114aaa72b796f7acd29224eae22060e31866687e))
+
+### 🐛 Bug Fixes
+
+* add comment to commit using fix tag in order to generate a new release and test dry run deployment to cloudflare ([fb0f3e7](https://github.com/algorandfoundation/algokit-lora/commit/fb0f3e7dc2840843b95efd949a93d681eedeb634))
+* fix redirects to use index.html ([8dd0d1b](https://github.com/algorandfoundation/algokit-lora/commit/8dd0d1bcdfb63c686ad36666677058bde4c044cb))
+* make release version derive from github version that is deployed in order to test ([b3b4063](https://github.com/algorandfoundation/algokit-lora/commit/b3b406349106b8e90119c350e7ace55851813ba6))
+* remove Netlify references from release yml + remove cloudflare dry run since its not supported anymore ([77c572f](https://github.com/algorandfoundation/algokit-lora/commit/77c572fa195a6269efd918627cbf212afa495166))
+* update SPA redirect rule to avoid infinite loop ([af5881b](https://github.com/algorandfoundation/algokit-lora/commit/af5881b5dd5fc9b3dbd74f95da5ca73363cc7e09))
+
 ## [2.3.2](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.1...v2.3.2) (2026-02-13)
 
 ### 🐛 Bug Fixes
