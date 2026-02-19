@@ -1,17 +1,32 @@
 {
   "1112496": {
     "active": true,
-    "expiry": "2026-02-15",
+    "expiry": "2026-04-15",
     "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump to v6.23.0+."
   },
   "1112659": {
     "active": true,
-    "expiry": "2026-02-15",
+    "expiry": "2026-04-15",
     "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and can't be override. We need to wait for a fix from npm"
   },
   "1112954": {
     "active": true,
-    "expiry": "2026-02-15",
+    "expiry": "2026-04-15",
     "notes": "@isaacs/brace-expansion version 5.0.0 is bundled inside npm and can't be override. We need to wait for a fix from npm"
+  },
+  "1113214": {
+    "active": true,
+    "expiry": "2026-04-15",
+    "notes": "ajv ReDoS advisory. Temporary exception while dependency updates are scheduled."
+  },
+  "1113249": {
+    "active": true,
+    "expiry": "2026-04-15",
+    "notes": "tar is a transitive dependency of @semantic-release/npm: npm bundled in @semantic-release/npm - need semantic release to update their dependency on npm to a version that includes the fix for tar 7.5.4"
+  },
+  "1113296": {
+    "active": true,
+    "expiry": "2026-04-15",
+    "notes": "npm version 10.8.0 is bundled inside @semantic-release/npm and can't be override. We need to wait for a fix from npm"
   }
 }
