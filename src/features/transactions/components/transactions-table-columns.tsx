@@ -4,6 +4,7 @@ import {
   PaymentTransactionSubType,
   Transaction,
   TransactionType,
+  SignatureType,
 } from '@/features/transactions/models'
 import { cn } from '@/features/common/utils'
 import { ColumnDef } from '@tanstack/react-table'
@@ -18,6 +19,7 @@ import { BlockLink } from '@/features/blocks/components/block-link'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { TransactionTypeBadge } from './transaction-type-badge'
+import { Badge } from '@/features/common/components/badge'
 
 const indentationWidth = 12
 
@@ -116,9 +118,26 @@ const toColumn: ColumnDef<Transaction | InnerTransaction> = {
 }
 const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Type',
-  accessorFn: (transaction) => transaction.type,
-  cell: (c) => <TransactionTypeBadge transactionType={c.getValue<TransactionType>()} />,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    const lsigBase64Program = transaction.signature?.type === SignatureType.Logic ? transaction.signature?.logic : null
+    const isFalconPQSig =
+      lsigBase64Program !== null &&
+      (() => {
+        const bytes = atob(lsigBase64Program)
+        return bytes.length == 1805 && bytes.charCodeAt(bytes.length - 1) === 0x85
+      })()
+
+    return (
+      <div className="focus:ring-ring focus:outline-hidden' bg-secondary text-secondary-foreground inline-flex h-5 items-center truncate rounded-md border-transparent py-0.5 text-xs tracking-tighter transition-colors focus:ring-2 focus:ring-offset-2">
+        <TransactionTypeBadge transactionType={transaction.type} />
+        {isFalconPQSig && <span className="px-2">🦅PQ</span>}
+      </div>
+    )
+  },
 }
+
 const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionAmountLabel,
   accessorFn: (transaction) => transaction,
