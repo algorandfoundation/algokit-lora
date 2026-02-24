@@ -7,6 +7,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { AccountLink } from './account-link'
 import {
   accountAddressLabel,
+  accountApplicationEscrowLabel,
   accountApplicationsCreatedLabel,
   accountApplicationsOptedInLabel,
   accountAssetsCreatedLabel,
@@ -22,6 +23,8 @@ import { OpenJsonViewDialogButton } from '@/features/common/components/json-view
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
+import { useLoadableEscrowAppId } from '@/features/accounts/data/escrow'
+import { ApplicationLink } from '@/features/applications/components/application-link'
 
 type Props = {
   account: Account
@@ -29,6 +32,7 @@ type Props = {
 
 export function AccountInfo({ account }: Props) {
   const loadableNfd = useLoadableReverseLookupNfdResult(account.address, true)
+  const loadableEscrow = useLoadableEscrowAppId(account.address)
 
   const accountInfoItems = useMemo(() => {
     const items = [
@@ -49,6 +53,21 @@ export function AccountInfo({ account }: Props) {
               dd: (
                 <div className="flex items-center">
                   <span className="truncate">{loadableNfd.data.name}</span>
+                </div>
+              ),
+            },
+          ]
+        : []),
+      ...(loadableEscrow.state === 'hasData' && loadableEscrow.data !== undefined
+        ? [
+            {
+              dt: accountApplicationEscrowLabel,
+              dd: (
+                <div className="flex items-center">
+                  <ApplicationLink applicationId={loadableEscrow.data} className="text-primary truncate underline">
+                    {`App ${loadableEscrow.data}`}
+                  </ApplicationLink>
+                  <CopyButton value={loadableEscrow.data.toString()} />
                 </div>
               ),
             },
@@ -103,6 +122,7 @@ export function AccountInfo({ account }: Props) {
     account.totalApplicationsOptedIn,
     account.rekeyedTo,
     loadableNfd,
+    loadableEscrow,
   ])
   return (
     <Card aria-label={accountInformationLabel}>
