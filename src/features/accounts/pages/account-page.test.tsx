@@ -32,6 +32,12 @@ import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 import { atom } from 'jotai'
 import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
 import { defaultNetworkConfigs, localnetId, useSetCustomNetworkConfig } from '@/features/network/data'
+import { useLoadableEscrowAppId } from '@/features/accounts/data/escrow'
+import { accountApplicationEscrowLabel } from '../components/labels'
+
+vi.mock('@/features/accounts/data/escrow', () => ({
+  useLoadableEscrowAppId: vi.fn().mockReturnValue({ state: 'hasData' as const, data: undefined }),
+}))
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -303,6 +309,42 @@ describe('account-page', () => {
             const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
             expect(applicationTabList).toBeTruthy()
             expect(applicationTabList.children.length).toBe(2)
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account that is an application escrow', () => {
+    const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
+    const assetResults = new Map([
+      [924268058n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
+    ])
+
+    it('should show the application escrow entry with the app ID', () => {
+      vi.mocked(useLoadableEscrowAppId).mockReturnValue({ state: 'hasData' as const, data: 12345n })
+
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
+      myStore.set(assetResultsAtom, assetResults)
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA' },
+                { term: accountApplicationEscrowLabel, description: 'App 12345' },
+                { term: accountBalanceLabel, description: '5.883741' },
+              ],
+            })
           })
         }
       )
