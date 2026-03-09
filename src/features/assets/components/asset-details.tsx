@@ -42,6 +42,8 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
+import { Arc89MetadataRegistry } from './arc89-metadata-registry'
+import { Arc89MigrateButton } from './arc89-migrate-button'
 
 type Props = {
   asset: Asset
@@ -182,6 +184,7 @@ export function AssetDetails({ asset }: Props) {
             <div className={cn('flex gap-2')}>
               <DescriptionList items={assetItems} />
               <div className="ml-auto hidden flex-col-reverse justify-end gap-2 md:flex lg:flex-row">
+                {asset.id > 0 && <Arc89MigrateButton asset={asset} />}
                 {asset.id > 0 && <AssetOptInOutButton asset={asset} />}
                 <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
               </div>
@@ -200,6 +203,7 @@ export function AssetDetails({ asset }: Props) {
           </Card>
 
           <AssetMetadata metadata={asset.metadata} />
+          {asset.arc89Metadata && <Arc89MetadataRegistry arc89Metadata={asset.arc89Metadata} />}
           <AssetTraits traits={asset.traits} />
 
           <Card>

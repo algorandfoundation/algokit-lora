@@ -1,4 +1,4 @@
-import { AssetId } from '../data/types'
+import { Arc89MetadataResult, AssetId } from '../data/types'
 
 export type AssetSummary = {
   id: AssetId
@@ -39,6 +39,7 @@ export type Asset = AssetSummary & {
   traits?: Record<string, string>
   metadata?: Record<string, string | number>
   media?: AssetMedia
+  arc89Metadata?: Arc89MetadataResult
   json: string
 }
 export enum AssetStandard {
@@ -47,4 +48,5 @@ export enum AssetStandard {
   ARC19 = 'ARC-19',
   ARC69 = 'ARC-69',
   ARC62 = 'ARC-62',
+  ARC89 = 'ARC-89',
 }

@@ -54,8 +54,26 @@ export type Arc62MetadataResult = {
   circulatingSupply: bigint
 }
 
+export type Arc89MetadataResult = {
+  appId: bigint
+  assetId: bigint
+  body: Record<string, unknown>
+  flags: {
+    reversible: { arc20: boolean; arc62: boolean; ntt: boolean }
+    irreversible: { arc3: boolean; arc89: boolean; arc54: boolean; immutable: boolean }
+  }
+  header: {
+    hash: Uint8Array
+    lastModifiedRound: bigint
+    deprecatedBy: bigint | undefined
+    isShort: boolean
+  }
+  controllerAppId?: bigint
+}
+
 export type AssetMetadataResult = {
   arc3?: Arc3MetadataResult
   arc69?: Arc69MetadataResult
   arc62?: Arc62MetadataResult
+  arc89?: Arc89MetadataResult
 } | null

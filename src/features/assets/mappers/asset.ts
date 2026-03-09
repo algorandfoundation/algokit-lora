@@ -21,6 +21,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     traits: asTraits(metadataResult),
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
+    arc89Metadata: metadataResult?.arc89,
     json: asJson(normaliseAlgoSdkData(assetResult)),
   }
 }
@@ -131,6 +132,9 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   }
   if (metadataResult?.arc69) {
     standardsUsed.add(AssetStandard.ARC69)
+  }
+  if (metadataResult?.arc89) {
+    standardsUsed.add(AssetStandard.ARC89)
   }
   return Array.from(standardsUsed)
 }

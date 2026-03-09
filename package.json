@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^4.0.0-alpha.6",
-    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.32",
+    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.40",
+    "@algorandfoundation/asa-metadata-registry-sdk": "file:../asa-metadata-registry-ts",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",

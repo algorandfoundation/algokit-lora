@@ -28,3 +28,12 @@ export const assetHistoricalTransactionsTabId = 'historical-transactions'
 export const assetHistoricalTransactionsTabLabel = 'Historical Transactions'
 
 export const circulatingSupplyLabel = 'Circulating Supply'
+
+export const arc89MetadataRegistryLabel = 'Metadata Registry (ARC-89)'
+export const arc89IrreversibleFlagsLabel = 'Irreversible Flags'
+export const arc89ReversibleFlagsLabel = 'Reversible Flags'
+export const arc89MetadataHashLabel = 'Metadata Hash'
+export const arc89LastModifiedRoundLabel = 'Last Modified Round'
+export const arc89DeprecatedByLabel = 'Deprecated By'
+export const arc89IsShortLabel = 'Short Metadata'
+export const arc89MetadataBodyLabel = 'Metadata'
