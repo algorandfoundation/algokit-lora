@@ -136,13 +136,6 @@
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
-    "esbuild": "0.25.0",
-    "js-yaml": "4.1.1",
-    "lodash": "4.17.23",
-    "lodash-es": "4.17.23",
-    "npm": "11.11.0",
-    "@walletconnect/utils": {
-      "bn.js": "4.12.3"
-    }
+    "bn.js": "4.12.3"
   }
 }
