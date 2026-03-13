@@ -18,5 +18,10 @@
     "active": true,
     "expiry": "2026-06-15",
     "notes": "tar 7.5.9 is bundled in npm 11.11.0 pulled by @semantic-release/npm; waiting for upstream npm to ship >7.5.9."
+  },
+  "1114302": {
+    "active": true,
+    "expiry": "2026-06-15",
+    "notes": "tar 7.5.9 is bundled in npm 11.11.0 pulled by @semantic-release/npm; waiting for upstream npm to ship >7.5.9."
   }
 }
