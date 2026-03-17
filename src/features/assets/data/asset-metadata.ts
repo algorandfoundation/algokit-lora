@@ -1,6 +1,13 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
-import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, Arc89MetadataResult, AssetMetadataResult, AssetResult } from './types'
+import {
+  Arc3MetadataResult,
+  Arc62MetadataResult,
+  Arc69MetadataResult,
+  Arc89MetadataResult,
+  AssetMetadataResult,
+  AssetResult,
+} from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -104,6 +111,7 @@ const createAssetMetadataResult = async (
     }
   }
 
+  console.log('here')
   // Fetch ARC-89 metadata optimistically (does not affect other metadata)
   arc89MetadataResult = await fetchArc89Metadata(assetResult.id)
 
@@ -132,6 +140,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
 }
 
 const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
+  console.log('getAssetMetadataResult called for asset', assetResult.id)
   if (assetResult.id === 0n) {
     return null
   }
