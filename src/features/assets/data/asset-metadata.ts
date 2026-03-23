@@ -1,13 +1,7 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
-import {
-  Arc3MetadataResult,
-  Arc62MetadataResult,
-  Arc69MetadataResult,
-  Arc89MetadataResult,
-  AssetMetadataResult,
-  AssetResult,
-} from './types'
+import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
+import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-registry-sdk'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -39,7 +33,7 @@ const createAssetMetadataResult = async (
   let arc69MetadataResult: Arc69MetadataResult | undefined = undefined
   let arc3MetadataResult: Arc3MetadataResult | undefined = undefined
   let arc62MetadataResult: Arc62MetadataResult | undefined = undefined
-  let arc89MetadataResult: Arc89MetadataResult | undefined = undefined
+  let arc89MetadataResult: AssetMetadataRecord | undefined = undefined
 
   // Get ARC-69 metadata if applicable
   if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
@@ -111,7 +105,7 @@ const createAssetMetadataResult = async (
     }
   }
 
-  // Fetch ARC-89 metadata optimistically (does not affect other metadata)
+  // Fetch ARC-89 metadata
   arc89MetadataResult = await fetchArc89Metadata(assetResult.id)
 
   if (arc3MetadataResult || arc69MetadataResult || arc62MetadataResult || arc89MetadataResult) {

@@ -1,4 +1,5 @@
-import { Arc89MetadataResult, AssetId } from '../data/types'
+import { AssetId } from '../data/types'
+import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-registry-sdk'
 
 export type AssetSummary = {
   id: AssetId
@@ -39,7 +40,7 @@ export type Asset = AssetSummary & {
   traits?: Record<string, string>
   metadata?: Record<string, string | number>
   media?: AssetMedia
-  arc89Metadata?: Arc89MetadataResult
+  arc89Metadata?: AssetMetadataRecord
   json: string
 }
 export enum AssetStandard {

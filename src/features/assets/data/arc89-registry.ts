@@ -6,10 +6,10 @@ import { testnetId, mainnetId, NetworkId, localnetId } from '@/features/network/
 
 // ARC-89 registry App IDs per network
 // MainNet App ID is TBD - not yet deployed
-const registryAppIds: Partial<Record<NetworkId, bigint>> = {
+const registryAppIds: Record<NetworkId, bigint | undefined> = {
   [testnetId]: 753324084n,
   [mainnetId]: undefined, // TBD
-  [localnetId]: undefined,
+  [localnetId]: 4516n,
 }
 
 export const getArc89RegistryAppId = (): bigint | undefined => {
