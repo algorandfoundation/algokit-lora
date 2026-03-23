@@ -3,9 +3,10 @@ import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
-import { ApplicationLink } from '@/features/applications/components/application-link'
+import { OpenJsonViewDialogLink } from '@/features/common/components/json-view-dialog-button'
+import { BlockLink } from '@/features/blocks/components/block-link'
 import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-registry-sdk'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { useMemo } from 'react'
 import {
   arc89MetadataRegistryLabel,
@@ -13,7 +14,6 @@ import {
   arc89ReversibleFlagsLabel,
   arc89MetadataHashLabel,
   arc89LastModifiedRoundLabel,
-  arc89DeprecatedByLabel,
   arc89IsShortLabel,
   arc89MetadataBodyLabel,
 } from './labels'
@@ -22,17 +22,11 @@ type Props = {
   arc89Metadata: AssetMetadataRecord
 }
 
-const uint8ArrayToHex = (bytes: Uint8Array): string => {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
-
 export function Arc89MetadataRegistry({ arc89Metadata }: Props) {
-  const metadataHashHex = useMemo(() => uint8ArrayToHex(arc89Metadata.header.metadataHash), [arc89Metadata.header.metadataHash])
+  const metadataHashBase64 = useMemo(() => uint8ArrayToBase64(arc89Metadata.header.metadataHash), [arc89Metadata.header.metadataHash])
 
-  const items = useMemo(() => {
-    const result = [
+  const items = useMemo(
+    () => [
       {
         dt: arc89IrreversibleFlagsLabel,
         dd: (
@@ -69,31 +63,26 @@ export function Arc89MetadataRegistry({ arc89Metadata }: Props) {
         dt: arc89MetadataHashLabel,
         dd: (
           <div className="flex items-center overflow-hidden">
-            <span className="truncate font-mono text-sm">{metadataHashHex}</span>
-            <CopyButton value={metadataHashHex} />
+            <span className="truncate font-mono text-sm">{metadataHashBase64}</span>
+            <CopyButton value={metadataHashBase64} />
           </div>
         ),
       },
       {
         dt: arc89LastModifiedRoundLabel,
-        dd: arc89Metadata.header.lastModifiedRound.toString(),
+        dd: <BlockLink round={arc89Metadata.header.lastModifiedRound} />,
       },
-    ]
-
-    if (arc89Metadata.header.deprecatedBy !== 0n) {
-      result.push({
-        dt: arc89DeprecatedByLabel,
-        dd: <ApplicationLink applicationId={arc89Metadata.header.deprecatedBy} />,
-      })
-    }
-
-    result.push({
-      dt: arc89MetadataBodyLabel,
-      dd: <OpenJsonViewDialogButton json={JSON.stringify(arc89Metadata.json)} />,
-    })
-
-    return result
-  }, [arc89Metadata, metadataHashHex])
+      ...(Object.keys(arc89Metadata.json).length > 0
+        ? [
+            {
+              dt: arc89MetadataBodyLabel,
+              dd: <OpenJsonViewDialogLink json={JSON.stringify(arc89Metadata.json)} />,
+            },
+          ]
+        : []),
+    ],
+    [arc89Metadata, metadataHashBase64]
+  )
 
   return (
     <Card>
