@@ -5,9 +5,12 @@ import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { OpenJsonViewDialogLink } from '@/features/common/components/json-view-dialog-button'
 import { BlockLink } from '@/features/blocks/components/block-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-registry-sdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { useMemo } from 'react'
+import { createAssetCirculatingSupplyAtom } from '../data/circulating-supply'
 import {
   arc89MetadataRegistryLabel,
   arc89IrreversibleFlagsLabel,
@@ -16,7 +19,35 @@ import {
   arc89LastModifiedRoundLabel,
   arc89IsShortLabel,
   arc89MetadataBodyLabel,
+  arc89ControllerAppIdLabel,
+  arc89CirculatingSupplyLabel,
 } from './labels'
+
+const getArc3PropertyAppId = (metadataJson: Record<string, unknown>, key: string): bigint | undefined => {
+  const properties = metadataJson['properties']
+  if (!properties || typeof properties !== 'object' || Array.isArray(properties)) return undefined
+
+  const entry = (properties as Record<string, unknown>)[key]
+  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return undefined
+
+  const appId = (entry as Record<string, unknown>)['application-id']
+  if (typeof appId === 'number' && Number.isInteger(appId) && appId > 0) {
+    return BigInt(appId)
+  }
+  if (typeof appId === 'string' && /^\d+$/.test(appId)) {
+    return BigInt(appId)
+  }
+
+  return undefined
+}
+
+const getArc20AppId = (metadataJson: Record<string, unknown>): bigint | undefined => {
+  return getArc3PropertyAppId(metadataJson, 'arc-20')
+}
+
+const getArc62AppIdFromJson = (metadataJson: Record<string, unknown>): bigint | undefined => {
+  return getArc3PropertyAppId(metadataJson, 'arc-62')
+}
 
 type Props = {
   arc89Metadata: AssetMetadataRecord
@@ -24,6 +55,22 @@ type Props = {
 
 export function Arc89MetadataRegistry({ arc89Metadata }: Props) {
   const metadataHashBase64 = useMemo(() => uint8ArrayToBase64(arc89Metadata.header.metadataHash), [arc89Metadata.header.metadataHash])
+  const metadataJson = useMemo(() => arc89Metadata.json, [arc89Metadata])
+
+  const arc20AppId = useMemo(
+    () => (arc89Metadata.header.flags.reversible.arc20 ? getArc20AppId(metadataJson) : undefined),
+    [arc89Metadata, metadataJson]
+  )
+
+  const arc62AppId = useMemo(
+    () => (arc89Metadata.header.flags.reversible.arc62 ? getArc62AppIdFromJson(metadataJson) : undefined),
+    [arc89Metadata, metadataJson]
+  )
+
+  const circulatingSupplyAtom = useMemo(
+    () => (arc62AppId ? createAssetCirculatingSupplyAtom(arc62AppId, arc89Metadata.assetId) : undefined),
+    [arc62AppId, arc89Metadata.assetId]
+  )
 
   const items = useMemo(
     () => [
@@ -72,16 +119,44 @@ export function Arc89MetadataRegistry({ arc89Metadata }: Props) {
         dt: arc89LastModifiedRoundLabel,
         dd: <BlockLink round={arc89Metadata.header.lastModifiedRound} />,
       },
-      ...(Object.keys(arc89Metadata.json).length > 0
+      ...(arc20AppId !== undefined
+        ? [
+            {
+              dt: arc89ControllerAppIdLabel,
+              dd: <ApplicationLink applicationId={arc20AppId} />,
+            },
+          ]
+        : []),
+      ...(circulatingSupplyAtom
+        ? [
+            {
+              dt: arc89CirculatingSupplyLabel,
+              dd: (
+                <RenderInlineAsyncAtom atom={circulatingSupplyAtom}>
+                  {(supply) => <span>{supply !== undefined ? supply.toString() : 'N/A'}</span>}
+                </RenderInlineAsyncAtom>
+              ),
+            },
+          ]
+        : []),
+      ...(arc89Metadata.header.deprecatedBy !== 0n
+        ? [
+            {
+              dt: 'Deprecated By',
+              dd: <ApplicationLink applicationId={arc89Metadata.header.deprecatedBy} />,
+            },
+          ]
+        : []),
+      ...(Object.keys(metadataJson).length > 0
         ? [
             {
               dt: arc89MetadataBodyLabel,
-              dd: <OpenJsonViewDialogLink json={JSON.stringify(arc89Metadata.json)} />,
+              dd: <OpenJsonViewDialogLink json={JSON.stringify(metadataJson)} />,
             },
           ]
         : []),
     ],
-    [arc89Metadata, metadataHashBase64]
+    [arc89Metadata, metadataHashBase64, metadataJson, arc20AppId, circulatingSupplyAtom]
   )
 
   return (
