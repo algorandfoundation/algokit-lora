@@ -9,7 +9,7 @@ import { testnetId, mainnetId, NetworkId, localnetId } from '@/features/network/
 const registryAppIds: Partial<Record<NetworkId, bigint>> = {
   [testnetId]: 753324084n,
   [mainnetId]: undefined, // TBD
-  [localnetId]: 1012n,
+  [localnetId]: undefined,
 }
 
 export const getArc89RegistryAppId = (): bigint | undefined => {

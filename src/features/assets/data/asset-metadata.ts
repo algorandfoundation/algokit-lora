@@ -111,7 +111,6 @@ const createAssetMetadataResult = async (
     }
   }
 
-  console.log('here')
   // Fetch ARC-89 metadata optimistically (does not affect other metadata)
   arc89MetadataResult = await fetchArc89Metadata(assetResult.id)
 
@@ -140,7 +139,6 @@ const noteToArc69Metadata = (note: string | undefined) => {
 }
 
 const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
-  console.log('getAssetMetadataResult called for asset', assetResult.id)
   if (assetResult.id === 0n) {
     return null
   }

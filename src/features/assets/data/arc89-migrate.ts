@@ -14,45 +14,35 @@ import { getAssetResultAtom } from './asset-result'
 import { Address } from '@algorandfoundation/algokit-utils'
 import { AddressWithSigners } from '@algorandfoundation/algokit-utils/transact'
 
-const hasExistingMetadata = (asset: Asset): boolean => {
-  return (
-    asset.standardsUsed.includes(AssetStandard.ARC3) ||
-    asset.standardsUsed.includes(AssetStandard.ARC19) ||
-    asset.standardsUsed.includes(AssetStandard.ARC69)
-  )
-}
-
 const buildMetadataJson = (metadataResult: AssetMetadataResult): Record<string, unknown> | undefined => {
   if (!metadataResult) return undefined
 
   // Prefer ARC-3/19 metadata (richer), fall back to ARC-69
   if (metadataResult.arc3?.metadata) {
-    return metadataResult.arc3.metadata as Record<string, unknown>
+    return metadataResult.arc3.metadata
   }
   if (metadataResult.arc69?.metadata) {
-    return metadataResult.arc69.metadata as Record<string, unknown>
+    return metadataResult.arc69.metadata
   }
+
   return undefined
 }
 
 export const useArc89Migration = (asset: Asset) => {
   const registryAppId = getArc89RegistryAppId()
 
-  const status = useMemo(() => {
+  const canMigrate = useMemo(() => {
     return atom(async (get) => {
       const activeAccount = await get(activeWalletAccountAtom)
 
       if (!registryAppId || !activeAccount) {
-        return { canMigrate: false, hasActiveAccount: !!activeAccount }
+        return false
       }
 
       const isManager = activeAccount.address === asset.manager
       const alreadyRegistered = !!asset.arc89Metadata
 
-      return {
-        canMigrate: isManager && !alreadyRegistered,
-        hasActiveAccount: !!activeAccount,
-      }
+      return isManager && !alreadyRegistered
     })
   }, [asset, registryAppId])
 
@@ -102,7 +92,7 @@ export const useArc89Migration = (asset: Asset) => {
   )
 
   return {
-    status: useAtomValue(loadable(status)),
+    canMigrate: useAtomValue(loadable(canMigrate)),
     migrate,
   }
 }
