@@ -11,6 +11,7 @@ import {
   arc89MetadataBodyLabel,
   arc89ControllerAppIdLabel,
   arc89CirculatingSupplyLabel,
+  arc89BurnedSupplyLabel,
 } from './labels'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
@@ -23,6 +24,7 @@ import { RenderInlineAsyncAtom } from '@/features/common/components/render-inlin
 import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-registry-sdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { createAssetCirculatingSupplyAtom } from '../data/circulating-supply'
+import { createAssetBurnedSupplyAtom } from '../data/burned-supply'
 
 type Props = {
   metadata: Asset['metadata']
@@ -74,6 +76,11 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
   const circulatingSupplyAtom = useMemo(
     () => (arc62AppId && arc89Metadata ? createAssetCirculatingSupplyAtom(arc62AppId, arc89Metadata.assetId) : undefined),
     [arc62AppId, arc89Metadata]
+  )
+
+  const burnedSupplyAtom = useMemo(
+    () => (arc89Metadata?.header.flags.irreversible.burnable ? createAssetBurnedSupplyAtom(arc89Metadata.assetId) : undefined),
+    [arc89Metadata]
   )
 
   return useMemo(() => {
@@ -145,6 +152,18 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
             },
           ]
         : []),
+      ...(burnedSupplyAtom
+        ? [
+            {
+              dt: arc89BurnedSupplyLabel,
+              dd: (
+                <RenderInlineAsyncAtom atom={burnedSupplyAtom}>
+                  {(burned) => <span>{burned !== undefined ? burned.toString() : 'N/A'}</span>}
+                </RenderInlineAsyncAtom>
+              ),
+            },
+          ]
+        : []),
       ...(Object.keys(metadataJson).length > 0
         ? [
             {
@@ -154,7 +173,7 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
           ]
         : []),
     ]
-  }, [arc89Metadata, metadataHashBase64, metadataJson, arc20AppId, circulatingSupplyAtom])
+  }, [arc89Metadata, metadataHashBase64, metadataJson, arc20AppId, circulatingSupplyAtom, burnedSupplyAtom])
 }
 
 const humanisePropertyKey = (key: string): string => {
