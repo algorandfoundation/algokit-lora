@@ -25,6 +25,8 @@ import type { AssetMetadataRecord } from '@algorandfoundation/asa-metadata-regis
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { createAssetCirculatingSupplyAtom } from '../data/circulating-supply'
 import { createAssetBurnedSupplyAtom } from '../data/burned-supply'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
+import { Info } from 'lucide-react'
 
 type Props = {
   metadata: Asset['metadata']
@@ -116,7 +118,22 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
         ),
       },
       {
-        dt: arc89IsShortLabel,
+        dt: (
+          <span className="flex items-center gap-1">
+            {arc89IsShortLabel}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="text-muted-foreground size-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">
+                  Metadata is short ({'<='} 4096 bytes) and can be read and processed directly by AVM opcodes on-chain
+                  (e.g. JSON decoding, hashing, byte manipulation).
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </span>
+        ),
         dd: arc89Metadata.header.isShort ? 'Yes' : 'No',
       },
       {

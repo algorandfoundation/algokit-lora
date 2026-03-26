@@ -1,7 +1,7 @@
 import { cn } from '../utils'
 
 export type DescriptionListItems = {
-  dt: string
+  dt: React.ReactNode
   dd: string | number | bigint | boolean | React.JSX.Element[] | React.JSX.Element | undefined
 }[]
 
