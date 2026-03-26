@@ -42,7 +42,6 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
-import { Arc89MetadataRegistry } from './arc89-metadata-registry'
 import { Arc89MigrateButton } from './arc89-migrate-button'
 
 type Props = {
@@ -202,8 +201,7 @@ export function AssetDetails({ asset }: Props) {
             </CardContent>
           </Card>
 
-          <AssetMetadata metadata={asset.metadata} />
-          {asset.arc89Metadata && <Arc89MetadataRegistry arc89Metadata={asset.arc89Metadata} />}
+          <AssetMetadata metadata={asset.metadata} arc89Metadata={asset.arc89Metadata} />
           <AssetTraits traits={asset.traits} />
 
           <Card>

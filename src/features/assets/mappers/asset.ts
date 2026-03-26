@@ -30,8 +30,9 @@ const asMetadata = (metadataResult: AssetMetadataResult): Asset['metadata'] => {
   if (metadataResult) {
     const { properties: _, ...arc3Metadata } = metadataResult.arc3?.metadata ?? {}
     const { properties: __, attributes: ___, ...arc69Metadata } = metadataResult.arc69?.metadata ?? {}
+    const { properties: ____, ...arc89Metadata } = metadataResult.arc89?.json ?? {}
 
-    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata }) as Record<string, string | number>
+    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata, ...arc89Metadata }) as Record<string, string | number>
   }
 }
 
@@ -49,10 +50,13 @@ const asTraits = (metadataResult: AssetMetadataResult): Asset['traits'] => {
       {} as Record<string, string | number>
     )
 
+    const arc89Properties = (metadataResult.arc89?.json?.properties ?? {}) as Record<string, unknown>
+
     const properties = {
       ...arc3Properties,
       ...arc69Attributes,
       ...arc69Properties,
+      ...arc89Properties,
     }
 
     if (isArc16Properties(properties)) {
@@ -98,6 +102,22 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
       return {
         type: metadataResult.arc69.metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
         url: replaceIpfsWithGatewayIfNeeded(url),
+      }
+    }
+  }
+
+  if (metadataResult?.arc89) {
+    const json = metadataResult.arc89.json
+    if (typeof json.image === 'string') {
+      return {
+        url: replaceIpfsWithGatewayIfNeeded(json.image),
+        type: AssetMediaType.Image,
+      }
+    }
+    if (typeof json.animation_url === 'string') {
+      return {
+        url: replaceIpfsWithGatewayIfNeeded(json.animation_url),
+        type: AssetMediaType.Video,
       }
     }
   }
