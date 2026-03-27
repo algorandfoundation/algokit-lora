@@ -4,17 +4,17 @@
     "expiry": "2026-06-15",
     "notes": "elliptic advisory in crypto-browserify chain from vite-plugin-node-polyfills; no patched elliptic release available."
   },
-  "1115432": {
+  "1115499": {
     "active": true,
     "expiry": "2026-06-15",
     "notes": "brace-expansion advisory via eslint (minimatch@3.x in @eslint/config-array and @eslint/eslintrc), eslint-plugin-react (minimatch@3.x), and npm (brace-expansion@5.0.4) bundled in @semantic-release/npm; waiting for upstream fixes."
   },
-  "1115384": {
+  "1115495": {
     "active": true,
     "expiry": "2026-06-15",
     "notes": "picomatch ReDoS advisory (4.0.3) via @semantic-release/npm → npm → node-gyp → tinyglobby; waiting for upstream npm to ship picomatch >=4.0.4."
   },
-  "1115396": {
+  "1115492": {
     "active": true,
     "expiry": "2026-06-15",
     "notes": "picomatch method injection advisory (4.0.3) via @semantic-release/npm → npm → node-gyp → tinyglobby; waiting for upstream npm to ship picomatch >=4.0.4."
