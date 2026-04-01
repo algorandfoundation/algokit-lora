@@ -65,15 +65,9 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
   const metadataHashBase64 = useMemo(() => (arc89Metadata ? uint8ArrayToBase64(arc89Metadata.header.metadataHash) : ''), [arc89Metadata])
   const metadataJson = useMemo(() => arc89Metadata?.json ?? {}, [arc89Metadata])
 
-  const arc20AppId = useMemo(
-    () => (arc89Metadata?.header.flags.reversible.arc20 ? arc89Metadata.asAssetMetadata().arc20AppId : undefined),
-    [arc89Metadata]
-  )
+  const arc20AppId = useMemo(() => (arc89Metadata?.header.flags.reversible.arc20 ? arc89Metadata.arc20AppId : undefined), [arc89Metadata])
 
-  const arc62AppId = useMemo(
-    () => (arc89Metadata?.header.flags.reversible.arc62 ? arc89Metadata.asAssetMetadata().arc62AppId : undefined),
-    [arc89Metadata]
-  )
+  const arc62AppId = useMemo(() => (arc89Metadata?.header.flags.reversible.arc62 ? arc89Metadata.arc62AppId : undefined), [arc89Metadata])
 
   const circulatingSupplyAtom = useMemo(
     () => (arc62AppId && arc89Metadata ? createAssetCirculatingSupplyAtom(arc62AppId, arc89Metadata.assetId) : undefined),
@@ -127,8 +121,8 @@ function useArc89Items(arc89Metadata?: AssetMetadataRecord) {
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">
-                  Metadata is short ({'<='} 4096 bytes) and can be read and processed directly by AVM opcodes on-chain
-                  (e.g. JSON decoding, hashing, byte manipulation).
+                  Metadata is short ({'<='} 4096 bytes) and can be read and processed directly by AVM opcodes on-chain (e.g. JSON decoding,
+                  hashing, byte manipulation).
                 </p>
               </TooltipContent>
             </Tooltip>
