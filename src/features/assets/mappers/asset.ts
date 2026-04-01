@@ -8,8 +8,12 @@ import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { getArc62AppId } from '../utils/arc62'
+import { getArc89RegistryAppId } from '../data/arc89-registry'
 
-export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
+export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult, activeAddress?: string): Asset => {
+  const registryAppId = getArc89RegistryAppId()
+  const canMigrate = !!registryAppId && !!activeAddress && activeAddress === assetResult.params.manager && !metadataResult?.arc89
+
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
@@ -22,6 +26,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
     arc89Metadata: metadataResult?.arc89,
+    canMigrate,
     json: asJson(normaliseAlgoSdkData(assetResult)),
   }
 }

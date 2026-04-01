@@ -1,8 +1,7 @@
 import { Asset, AssetStandard } from '@/features/assets/models'
-import { useCallback, useMemo } from 'react'
-import { atom, useAtomValue } from 'jotai/index'
+import { useCallback } from 'react'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
-import { loadable, useAtomCallback } from 'jotai/utils'
+import { useAtomCallback } from 'jotai/utils'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { toast } from 'react-toastify'
 import { asError } from '@/utils/error'
@@ -30,21 +29,6 @@ const buildMetadataJson = (metadataResult: AssetMetadataResult): Record<string, 
 
 export const useArc89Migration = (asset: Asset) => {
   const registryAppId = getArc89RegistryAppId()
-
-  const canMigrate = useMemo(() => {
-    return atom(async (get) => {
-      const activeAccount = await get(activeWalletAccountAtom)
-
-      if (!registryAppId || !activeAccount) {
-        return false
-      }
-
-      const isManager = activeAccount.address === asset.manager
-      const alreadyRegistered = !!asset.arc89Metadata
-
-      return isManager && !alreadyRegistered
-    })
-  }, [asset, registryAppId])
 
   const migrate = useAtomCallback(
     useCallback(
@@ -91,8 +75,5 @@ export const useArc89Migration = (asset: Asset) => {
     )
   )
 
-  return {
-    canMigrate: useAtomValue(loadable(canMigrate)),
-    migrate,
-  }
+  return { migrate }
 }
