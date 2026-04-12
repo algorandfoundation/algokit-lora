@@ -32,6 +32,7 @@ export function Arc89MigrateButton({ asset }: { asset: Asset }) {
 
       <Arc89MigrateDialog
         assetDisplayName={asset.name ?? asset.id.toString()}
+        hasMetadataHash={asset.hasMetadataHash}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onConfirm={handleMigrate}

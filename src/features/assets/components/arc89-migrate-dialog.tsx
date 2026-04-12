@@ -6,12 +6,13 @@ const migrateDialogTitle = 'Migrate to ASA Metadata Registry (ARC-89)'
 
 interface Props {
   assetDisplayName: string
+  hasMetadataHash: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: () => Promise<void>
 }
 
-export function Arc89MigrateDialog({ assetDisplayName, open, onOpenChange, onConfirm }: Props) {
+export function Arc89MigrateDialog({ assetDisplayName, hasMetadataHash, open, onOpenChange, onConfirm }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
       {open && (
@@ -31,6 +32,11 @@ export function Arc89MigrateDialog({ assetDisplayName, open, onOpenChange, onCon
               <p className="text-muted-foreground text-sm">
                 The original metadata will remain unchanged. This operation requires a transaction signed by the asset manager.
               </p>
+              {hasMetadataHash && (
+                <p className="text-yellow-500 text-sm font-medium">
+                  The existing ASA has a metadata hash, so it will be migrated as immutable.
+                </p>
+              )}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel

@@ -41,6 +41,7 @@ export type Asset = AssetSummary & {
   metadata?: Record<string, string | number>
   media?: AssetMedia
   arc89Metadata?: AssetMetadataRecord
+  hasMetadataHash: boolean
   canMigrate: boolean
   json: string
 }

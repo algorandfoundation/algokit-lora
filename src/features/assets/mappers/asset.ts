@@ -26,6 +26,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
     arc89Metadata: metadataResult?.arc89,
+    hasMetadataHash: !!assetResult.params.metadataHash?.length,
     canMigrate,
     json: asJson(normaliseAlgoSdkData(assetResult)),
   }
