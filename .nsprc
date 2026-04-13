@@ -1,32 +1,107 @@
 {
   "1112496": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "undici vulnerability in @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump to v6.23.0+."
+    "expiry": "2026-07-13",
+    "notes": "High in undici@6.23.0 via @actions/core > @actions/http-client (semantic-release dep). No fix in v5 line, fix requires major version bump."
+  },
+  "1114594": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in undici@6.23.0 via @actions/core (semantic-release dep). HTTP Request/Response Smuggling. Bundled in @actions/core, no fix available without major bump."
+  },
+  "1114638": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in undici@6.23.0 via @actions/core (semantic-release dep). WebSocket memory consumption. Bundled in @actions/core, no fix available without major bump."
+  },
+  "1114640": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in undici@6.23.0 via @actions/core (semantic-release dep). WebSocket exception. Bundled in @actions/core, no fix available without major bump."
+  },
+  "1114642": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in undici@6.23.0 via @actions/core (semantic-release dep). CRLF Injection via upgrade option. Bundled in @actions/core, no fix available without major bump."
   },
   "1112659": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "tar version 7.5.4 is bundled inside npm (semantic-release/npm) and can't be override. We need to wait for a fix from npm"
+    "expiry": "2026-07-13",
+    "notes": "High in tar@7.5.4 bundled inside npm (via @semantic-release/npm). Can't be overridden, need to wait for npm fix."
+  },
+  "1113375": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in tar@7.5.4 bundled inside npm (via @semantic-release/npm). Hardlink target escape through symlink chain. Can't be overridden."
+  },
+  "1114200": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in tar@7.5.4 bundled inside npm (via @semantic-release/npm). Hardlink path traversal via drive-relative linkpath. Can't be overridden."
+  },
+  "1114302": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in tar@7.5.4 bundled inside npm (via @semantic-release/npm). Symlink path traversal via drive-relative linkpath. Can't be overridden."
   },
   "1112954": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "@isaacs/brace-expansion version 5.0.0 is bundled inside npm and can't be override. We need to wait for a fix from npm"
+    "expiry": "2026-07-13",
+    "notes": "High in @isaacs/brace-expansion@5.0.0 bundled inside npm. Can't be overridden, need to wait for npm fix."
   },
-  "1113214": {
+  "1113466": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "ajv ReDoS advisory. Temporary exception while dependency updates are scheduled."
+    "expiry": "2026-07-13",
+    "notes": "High in minimatch@10.1.1 bundled inside npm (via @semantic-release/npm). ReDoS via repeated wildcards. Can't be overridden."
   },
-  "1113249": {
+  "1113545": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "tar is a transitive dependency of @semantic-release/npm: npm bundled in @semantic-release/npm - need semantic release to update their dependency on npm to a version that includes the fix for tar 7.5.4"
+    "expiry": "2026-07-13",
+    "notes": "High in minimatch@10.1.1 bundled inside npm (via @semantic-release/npm). ReDoS matchOne() backtracking. Can't be overridden."
   },
-  "1113296": {
+  "1113553": {
     "active": true,
-    "expiry": "2026-04-15",
-    "notes": "npm version 10.8.0 is bundled inside @semantic-release/npm and can't be override. We need to wait for a fix from npm"
+    "expiry": "2026-07-13",
+    "notes": "High in minimatch@10.1.1 bundled inside npm (via @semantic-release/npm). ReDoS nested extglobs. Can't be overridden."
+  },
+  "1115551": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in picomatch@4.0.3 bundled inside npm (via tinyglobby). Method injection in POSIX character classes. Can't be overridden."
+  },
+  "1115554": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in picomatch@4.0.3 bundled inside npm (via tinyglobby). ReDoS via extglob quantifiers. Can't be overridden."
+  },
+  "1113442": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in bn.js@4.12.2 via @walletconnect/utils > @blockshake/defly-connect (production dep). Infinite loop. No fix available for v4 line."
+  },
+  "1112030": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Low in elliptic@6.6.1 via vite-plugin-node-polyfills > node-stdlib-browser > crypto-browserify (dev dep). Risky crypto implementation. All versions affected, no fix available."
+  },
+  "1115806": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in lodash@4.17.21 via @semantic-release/changelog, @semantic-release/exec, @semantic-release/git, @commitlint/cli (dev dep). Code Injection via _.template. Fix requires breaking @commitlint/cli upgrade."
+  },
+  "1115810": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in lodash@4.17.21 via @semantic-release/changelog, @semantic-release/exec, @semantic-release/git, @commitlint/cli (dev dep). Prototype Pollution via _.unset/_.omit. Fix requires breaking @commitlint/cli upgrade."
+  },
+  "1115805": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "High in lodash-es via semantic-release, @semantic-release/commit-analyzer, @semantic-release/github, @semantic-release/npm (dev dep). Code Injection via _.template. No fix available in current semantic-release line."
+  },
+  "1115809": {
+    "active": true,
+    "expiry": "2026-07-13",
+    "notes": "Moderate in lodash-es via semantic-release, @semantic-release/commit-analyzer, @semantic-release/github, @semantic-release/npm (dev dep). Prototype Pollution via _.unset/_.omit. No fix available in current semantic-release line."
   }
 }

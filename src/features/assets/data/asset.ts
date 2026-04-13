@@ -6,6 +6,7 @@ import { getAssetMetadataResultAtom } from './asset-metadata'
 import { asAsset } from '../mappers/asset'
 import { assetResultsAtom, getAssetResultAtom } from './asset-result'
 import { atomEffect } from 'jotai-effect'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 
 const createAssetAtoms = (assetId: AssetId) => {
   const isStaleAtom = atom(false)
@@ -19,8 +20,9 @@ const createAssetAtoms = (assetId: AssetId) => {
     atomWithRefresh(async (get) => {
       const assetResult = await get(getAssetResultAtom(assetId))
       const assetMetadata = await get(getAssetMetadataResultAtom(assetResult))
+      const activeAccount = await get(activeWalletAccountAtom)
       get(detectIsStaleEffect)
-      return asAsset(assetResult, assetMetadata)
+      return asAsset(assetResult, assetMetadata, activeAccount?.address)
     }),
     isStaleAtom,
   ] as const
