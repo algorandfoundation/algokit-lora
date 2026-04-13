@@ -33,7 +33,7 @@ export function Arc89MigrateDialog({ assetDisplayName, hasMetadataHash, open, on
                 The original metadata will remain unchanged. This operation requires a transaction signed by the asset manager.
               </p>
               {hasMetadataHash && (
-                <p className="text-yellow-500 text-sm font-medium">
+                <p className="text-sm font-medium text-yellow-500">
                   The existing ASA has a metadata hash, so it will be migrated as immutable.
                 </p>
               )}
