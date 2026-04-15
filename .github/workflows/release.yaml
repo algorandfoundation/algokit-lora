@@ -196,11 +196,26 @@ jobs:
 
           echo "✅ Successfully synced $VERSION to main branch"
 
-  release-web:
-    name: Release Web
+  release-web-prod:
+    name: Release Web (Production)
     needs: [build-and-release]
+    # Only runs when pushing to the 'release' branch
     if: github.ref_name == 'release'
     uses: ./.github/workflows/release-web.yaml
     with:
       version: ${{ needs.build-and-release.outputs.release-version }}
+      environment: Production
+      branch: release
+    secrets: inherit
+
+  release-web-dev:
+    name: Release Web (Development)
+    needs: [build-and-release]
+    # Only runs when pushing to the 'main' branch
+    if: github.ref_name == 'main'
+    uses: ./.github/workflows/release-web.yaml
+    with:
+      version: dev-${{ github.sha }}
+      environment: Development
+      branch: main
     secrets: inherit

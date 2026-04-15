@@ -18,19 +18,27 @@ on:
         description: 'Release version'
         required: true
         type: string
+      environment:
+        description: 'GitHub Environment'
+        required: true
+        type: string
+      branch:
+        description: 'Cloudflare Pages target branch (e.g., release, main)'
+        required: true
+        type: string
     secrets:
       CLOUDFLARE_API_TOKEN:
         required: true
       CLOUDFLARE_ACCOUNT_ID:
         required: true
 
-concurrency: deploy-to-production
+concurrency: deploy-to-${{ inputs.environment }}
 
 jobs:
-  deploy-to-production:
-    name: Deploy Website to Production
+  deploy-to-cloudflare:
+    name: Deploy Website to ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    environment: Production
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,4 +55,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy artifacts/website --project-name=algokit-lora --branch=release
+          command: pages deploy artifacts/website --project-name=algokit-lora --branch=${{ inputs.branch }}
