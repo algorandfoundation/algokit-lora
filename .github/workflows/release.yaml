@@ -121,9 +121,9 @@ jobs:
           echo "release-notes: ${{ steps.generate-release-version.outputs.release-notes }}"
           echo "release-channel: ${{ steps.generate-release-version.outputs.release-channel }}"
 
-          # Validate required outputs
-          if [ -z "${{ steps.generate-release-version.outputs.release-version }}" ]; then
-            echo "❌ Error: release-version is empty"
+          # Only enforce release-version is present for production releases
+          if [ "${{ env.IS_PRODUCTION_RELEASE }}" = "true" ] && [ -z "${{ steps.generate-release-version.outputs.release-version }}" ]; then
+            echo "❌ Error: release-version is empty for production release"
             exit 1
           fi
 
