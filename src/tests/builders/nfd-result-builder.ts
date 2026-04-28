@@ -1,5 +1,5 @@
 import { NfdResult } from '@/features/nfd/data/types'
-import { DataBuilder, dossierProxy, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomString } from '@/tests/utils/dossier'
 
 export class NfdResultBuilder extends DataBuilder<NfdResult> {
   constructor(initialState?: NfdResult) {
