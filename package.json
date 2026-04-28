@@ -25,9 +25,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "^4.0.0-alpha.6",
-    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.40",
-    "@algorandfoundation/asa-metadata-registry-sdk": "^1.0.0-beta.6",
+    "@algorandfoundation/algokit-subscriber": "^4.0.0-beta.1",
+    "@algorandfoundation/algokit-utils": "^10.0.0-beta.2",
+    "@algorandfoundation/asa-metadata-registry-sdk": "^1.0.0-beta.8",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
@@ -82,7 +82,7 @@
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.2.1",
     "use-debounce": "^10.0.3",
-    "uuid": "^10.0.0",
+    "uuid": "^14.0.0",
     "vaul": "^0.9.0",
     "xstate": "^5.17.4",
     "zod": "^3.23.8",
@@ -92,9 +92,6 @@
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@eslint/js": "^9.15.0",
-    "@makerx/prettier-config": "^2.0.0",
-    "@makerx/ts-config": "^1.0.1",
-    "@makerx/ts-dossier": "^3.0.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -143,6 +140,9 @@
     "lodash": "4.17.23",
     "lodash-es": "4.17.23",
     "npm": "11.8.0",
-    "brace-expansion@<1.1.13": "1.1.13"
+    "brace-expansion@<1.1.13": "1.1.13",
+    "@algorandfoundation/asa-metadata-registry-sdk": {
+      "@algorandfoundation/algokit-utils": "$@algorandfoundation/algokit-utils"
+    }
   }
 }

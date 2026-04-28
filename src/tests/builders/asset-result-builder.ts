@@ -1,6 +1,6 @@
 import { AssetResult } from '@/features/assets/data/types'
 import { randomBigInt } from '@/tests/utils/random-bigint'
-import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomNumber, randomString } from '@/tests/utils/dossier'
 
 export class AssetResultBuilder extends DataBuilder<AssetResult> {
   constructor(initialState?: AssetResult) {

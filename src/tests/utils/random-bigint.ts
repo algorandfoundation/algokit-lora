@@ -1,4 +1,4 @@
-import { randomNumber, randomNumberBetween } from '@makerx/ts-dossier'
+import { randomNumber, randomNumberBetween } from './dossier'
 
 export const randomBigInt = () => BigInt(randomNumber())
 

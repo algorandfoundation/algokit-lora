@@ -1,6 +1,6 @@
 import { ApplicationResult } from '@/features/applications/data/types'
 import { randomBigInt } from '@/tests/utils/random-bigint'
-import { DataBuilder, dossierProxy, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomString } from '@/tests/utils/dossier'
 import { Address } from '@algorandfoundation/algokit-utils'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 

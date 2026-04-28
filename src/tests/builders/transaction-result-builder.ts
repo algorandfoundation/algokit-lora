@@ -1,4 +1,4 @@
-import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@/tests/utils/dossier'
 import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 import type {
   TransactionSignature,

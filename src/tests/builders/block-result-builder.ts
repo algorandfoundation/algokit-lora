@@ -1,6 +1,6 @@
 import { BlockResult } from '@/features/blocks/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { DataBuilder, dossierProxy, incrementedNumber, randomDate, randomNumberBetween, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, incrementedNumber, randomDate, randomNumberBetween, randomString } from '@/tests/utils/dossier'
 import { randomBigIntBetween } from '../utils/random-bigint'
 
 export class BlockResultBuilder extends DataBuilder<BlockResult> {

@@ -1,7 +1,7 @@
 import { AccountResult } from '@/features/accounts/data/types'
 import { randomBigInt } from '@/tests/utils/random-bigint'
 import { AccountStatus } from '@algorandfoundation/algokit-utils/indexer'
-import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomNumber, randomString } from '@/tests/utils/dossier'
 
 export class AccountResultBuilder extends DataBuilder<AccountResult> {
   constructor(initialState?: AccountResult) {

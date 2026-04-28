@@ -1,5 +1,5 @@
 import { GroupResult } from '@/features/groups/data/types'
-import { DataBuilder, dossierProxy, incrementedNumber, randomDate, randomNumberBetween, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, incrementedNumber, randomDate, randomNumberBetween, randomString } from '@/tests/utils/dossier'
 
 export class GroupResultBuilder extends DataBuilder<GroupResult> {
   constructor(initialState?: GroupResult) {
