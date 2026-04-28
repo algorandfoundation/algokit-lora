@@ -49,19 +49,19 @@ jobs:
       release-id: ${{ steps.generate-release-version.outputs.release-id }}
     steps:
       - name: Generate bot token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         id: app_token
         with:
           app-id: ${{ secrets.BOT_ID }}
           private-key: ${{ secrets.BOT_SK }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ steps.app_token.outputs.token }}
           fetch-depth: 0
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           registry-url: 'https://npm.pkg.github.com'
@@ -103,7 +103,7 @@ jobs:
         run: npm run build
 
       - name: Upload app build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-build
           path: dist/
@@ -137,13 +137,13 @@ jobs:
     if: github.ref_name == 'release'
     steps:
       - name: Generate bot token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         id: app_token
         with:
           app-id: ${{ secrets.BOT_ID }}
           private-key: ${{ secrets.BOT_SK }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ steps.app_token.outputs.token }}
