@@ -25,9 +25,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "^4.0.0-alpha.6",
-    "@algorandfoundation/algokit-utils": "^10.0.0-alpha.40",
-    "@algorandfoundation/asa-metadata-registry-sdk": "^1.0.0-beta.6",
+    "@algorandfoundation/algokit-subscriber": "^4.0.0-beta.1",
+    "@algorandfoundation/algokit-utils": "^10.0.0-beta.2",
+    "@algorandfoundation/asa-metadata-registry-sdk": "^1.0.0-beta.8",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
@@ -140,6 +140,9 @@
     "lodash": "4.17.23",
     "lodash-es": "4.17.23",
     "npm": "11.8.0",
-    "brace-expansion@<1.1.13": "1.1.13"
+    "brace-expansion@<1.1.13": "1.1.13",
+    "@algorandfoundation/asa-metadata-registry-sdk": {
+      "@algorandfoundation/algokit-utils": "$@algorandfoundation/algokit-utils"
+    }
   }
 }
