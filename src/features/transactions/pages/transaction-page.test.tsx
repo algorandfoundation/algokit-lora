@@ -87,9 +87,10 @@ import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
+import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 vi.mock('@/features/common/data/algo-client', async () => {
@@ -97,10 +98,14 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      tealDisassemble: vi.fn(),
+      disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
     },
     indexer: {
-      lookupTransactionById: vi.fn(),
+      lookupTransactionByID: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
     },
   }
 })
@@ -122,7 +127,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupTransactionByID('8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject(new HttpError('boom', 404))
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -136,7 +143,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionById).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupTransactionByID('7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject({})
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -292,8 +301,9 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-
-      vi.mocked(algod.tealDisassemble).mockResolvedValue({ result: teal })
+      vi.mocked(algod.disassemble('').do).mockImplementation(() =>
+        Promise.resolve(new algosdk.modelsv2.DisassembleResponse({ result: teal }))
+      )
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
@@ -526,7 +536,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -587,7 +597,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -613,7 +623,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -639,7 +649,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -676,8 +686,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          [asset.id, createReadOnlyAtomAndTimestamp(asset)],
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -777,8 +787,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')
@@ -907,8 +917,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.id, createReadOnlyAtomAndTimestamp(a)] as const),
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
 
@@ -944,8 +954,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
-          [asset.id, createReadOnlyAtomAndTimestamp(asset)],
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
 
@@ -1102,7 +1112,7 @@ describe('transaction-page', () => {
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {

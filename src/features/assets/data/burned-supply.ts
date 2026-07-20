@@ -1,6 +1,6 @@
+import { getApplicationAddress } from 'algosdk'
 import { atom } from 'jotai'
 import { indexer } from '@/features/common/data/algo-client'
-import { getApplicationAddress } from '@algorandfoundation/algokit-utils/common'
 import { settingsStore } from '@/features/settings/data'
 import { selectedNetworkAtomId } from '@/features/network/data'
 import { betanetId, mainnetId, NetworkId, testnetId } from '@/features/network/data/types'
@@ -26,7 +26,7 @@ export const createAssetBurnedSupplyAtom = (assetId: bigint) => {
     const burnAddress = getApplicationAddress(appId)
 
     try {
-      const result = await indexer.lookupAccountAssets(burnAddress, { assetId })
+      const result = await indexer.lookupAccountAssets(burnAddress.toString()).assetId(assetId).do()
       const holding = result.assets?.[0]
       if (!holding) return undefined
       return holding.amount

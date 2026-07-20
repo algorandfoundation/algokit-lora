@@ -1,7 +1,7 @@
 import { TransactionId, TransactionResult } from '../data/types'
-import { Transaction as IndexerTransaction } from '@algorandfoundation/algokit-utils/indexer-client'
+import algosdk from 'algosdk'
 
-export const indexerTransactionToTransactionResult = (transaction: IndexerTransaction): TransactionResult => {
+export const indexerTransactionToTransactionResult = (transaction: algosdk.indexerModels.Transaction): TransactionResult => {
   const { innerTxns, ...rest } = transaction
 
   const innerTxnsWithId = innerTxns?.map((innerTxn, index) =>
@@ -16,7 +16,7 @@ export const indexerTransactionToTransactionResult = (transaction: IndexerTransa
 }
 
 export const indexerTransactionToInnerTransactionResult = (
-  transaction: IndexerTransaction,
+  transaction: algosdk.indexerModels.Transaction,
   parentTransactionId: TransactionId,
   offset: number
 ): TransactionResult => {

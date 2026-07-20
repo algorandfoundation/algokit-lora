@@ -1,5 +1,5 @@
 import { TransactionType } from '@/features/transactions/models'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type TransactionsSummary = {
   count: number

@@ -1,4 +1,4 @@
-import { Address } from '@algorandfoundation/algokit-utils'
+import { Address } from 'algosdk'
 
 export const isAddress = (maybeAddress: string) => {
   try {

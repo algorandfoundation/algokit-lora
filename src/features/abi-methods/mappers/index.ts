@@ -3,8 +3,9 @@ import Arc4ContractSchema from '@/features/abi-methods/mappers/arc-4-json-schema
 import Arc32AppJsonSchema from '@/features/abi-methods/mappers/arc-32-json-schemas/arc32-application.schema.json'
 import Arc56JsonSchema from '@/features/abi-methods/mappers/arc-56-json-schemas/arc56.schema.json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
-import { ABIStructType, ABIType, Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract, getABITupleTypeFromABIStructDefinition, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
+import algosdk from 'algosdk'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 
 export const jsonAsArc32AppSpec = (json: unknown): Arc32AppSpec => {
@@ -47,14 +48,14 @@ export const jsonAsArc56AppSpec = (json: unknown): Arc56Contract => {
   return appSpec
 }
 
-export const asAbiOrAvmType = (appSpec: Arc56Contract, type: string): ABIType | AVMType => {
+export const asAbiOrAvmType = (appSpec: Arc56Contract, type: string): algosdk.ABIType | AVMType => {
   if (appSpec.structs[type]) {
-    return ABIStructType.fromStruct(type, appSpec.structs).toABITupleType()
+    return getABITupleTypeFromABIStructDefinition(appSpec.structs[type], appSpec.structs)
   }
   if (isAVMType(type)) {
     return type
   }
-  return ABIType.from(type)
+  return algosdk.ABIType.from(type)
 }
 
 export * from './form-schema-mappers'

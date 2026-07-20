@@ -9,7 +9,8 @@ import {
   TemplateParamType,
   AVMTypeTemplateParam,
 } from '@/features/app-interfaces/data/types'
-import { ABIType, AVMType } from '@algorandfoundation/algokit-utils/abi'
+import algosdk from 'algosdk'
+import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { AbiFormItemValue, AvmFormItemValue } from '@/features/abi-methods/models'
 
 export type TealTemplateParamField =
@@ -34,7 +35,7 @@ export type TealTemplateParamField =
   | {
       name: string
       path: string
-      type: ABIType
+      type: algosdk.ABIType
       struct?: StructDefinition
       fieldSchema: z.ZodTypeAny
       createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
@@ -45,7 +46,7 @@ export type TealTemplateParamField =
 
 export type TealTemplateParamDefinition = {
   name: string
-  type?: ABIType | AVMType
+  type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
   defaultValue?: AbiFormItemValue | AvmFormItemValue
 }

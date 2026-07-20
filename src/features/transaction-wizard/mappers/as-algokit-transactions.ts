@@ -1,4 +1,4 @@
-import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
+import algosdk from 'algosdk'
 import {
   BuildTransactionResult,
   BuildAppCallTransactionResult,
@@ -35,13 +35,12 @@ import {
   OfflineKeyRegistrationParams,
   OnlineKeyRegistrationParams,
   PaymentParams,
-} from '@algorandfoundation/algokit-utils/composer'
-import { Transaction } from '@algorandfoundation/algokit-utils/transact'
+} from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
 
-export const asAlgokitTransactions = async (transaction: BuildTransactionResult): Promise<Transaction[]> => {
+export const asAlgokitTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return [await asPaymentTransaction(transaction)]
   }
@@ -99,7 +98,7 @@ export const asPaymentTransactionParams = (
 }
 const asPaymentTransaction = async (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
-): Promise<Transaction> => {
+): Promise<algosdk.Transaction> => {
   const params = asPaymentTransactionParams(transaction)
   return await algorandClient.createTransaction.payment(params)
 }
@@ -142,7 +141,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   }
 }
 
-const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionResult): Promise<Transaction[]> => {
+const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
   const params = await asMethodCallParams(transaction)
   const result = await algorandClient.client
     .getAppClientById({
@@ -176,7 +175,7 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     ...asValidRounds(transaction.validRounds),
   }
 }
-const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<Transaction> => {
+const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
   const params = asAppCallTransactionParams(transaction)
   return await algorandClient.createTransaction.appCall(params)
 }
@@ -201,7 +200,7 @@ export const asApplicationCreateTransactionParams = (transaction: BuildApplicati
   }
 }
 
-const asApplicationCreateTransaction = async (transaction: BuildApplicationCreateTransactionResult): Promise<Transaction> => {
+const asApplicationCreateTransaction = async (transaction: BuildApplicationCreateTransactionResult): Promise<algosdk.Transaction> => {
   const params = asApplicationCreateTransactionParams(transaction)
   return await algorandClient.createTransaction.appCreate(params)
 }
@@ -219,7 +218,7 @@ export const asApplicationUpdateTransactionParams = (transaction: BuildApplicati
   }
 }
 
-const asApplicationUpdateTransaction = async (transaction: BuildApplicationUpdateTransactionResult): Promise<Transaction> => {
+const asApplicationUpdateTransaction = async (transaction: BuildApplicationUpdateTransactionResult): Promise<algosdk.Transaction> => {
   const params = asApplicationUpdateTransactionParams(transaction)
   return await algorandClient.createTransaction.appUpdate(params)
 }
@@ -258,7 +257,7 @@ const asAssetTransferTransaction = async (
     | BuildAssetOptInTransactionResult
     | BuildAssetOptOutTransactionResult
     | BuildAssetClawbackTransactionResult
-): Promise<Transaction> => {
+): Promise<algosdk.Transaction> => {
   if (
     transaction.type === BuildableTransactionType.AssetClawback &&
     (!transaction.asset.clawback || transaction.sender.resolvedAddress !== transaction.asset.clawback)
@@ -289,7 +288,7 @@ export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTran
     ...asValidRounds(transaction.validRounds),
   }
 }
-const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<Transaction> => {
+const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
   const params = asAssetCreateTransactionParams(transaction)
   return await algorandClient.createTransaction.assetCreate(params)
 }
@@ -307,7 +306,7 @@ const asAssetReconfigureTransactionParams = (transaction: BuildAssetReconfigureT
     ...asValidRounds(transaction.validRounds),
   }
 }
-const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<Transaction> => {
+const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
   const params = asAssetReconfigureTransactionParams(transaction)
   return await algorandClient.createTransaction.assetConfig(params)
 }
@@ -318,7 +317,7 @@ const asAssetDestroyTransactionParams = (transaction: BuildAssetDestroyTransacti
     assetId: BigInt(transaction.asset.id),
   }
 }
-const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<Transaction> => {
+const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
   const params = asAssetDestroyTransactionParams(transaction)
   return await algorandClient.createTransaction.assetDestroy(params)
 }
@@ -342,14 +341,14 @@ export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTran
   return {
     sender: transaction.sender.resolvedAddress,
     assetId: BigInt(transaction.asset.id),
-    freezeTarget: transaction.freezeTarget.resolvedAddress,
+    account: transaction.freezeTarget.resolvedAddress,
     frozen: transaction.frozen,
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
   }
 }
-const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<Transaction> => {
+const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
   if (!transaction.asset.freeze || transaction.sender.resolvedAddress !== transaction.asset.freeze) {
     throw new Error('Invalid freeze transaction')
   }
@@ -385,7 +384,7 @@ export const asKeyRegistrationTransactionParams = (
   }
 }
 
-const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTransactionResult): Promise<Transaction> => {
+const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTransactionResult): Promise<algosdk.Transaction> => {
   const params = asKeyRegistrationTransactionParams(transaction)
 
   return await ('voteKey' in params
@@ -408,26 +407,26 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
   switch (type) {
     case BuildableTransactionType.Payment:
     case BuildableTransactionType.AccountClose:
-      return ABITransactionType.Payment
+      return algosdk.ABITransactionType.pay
     case BuildableTransactionType.AppCall:
     case BuildableTransactionType.MethodCall:
     case BuildableTransactionType.ApplicationCreate:
     case BuildableTransactionType.ApplicationUpdate:
-      return ABITransactionType.AppCall
+      return algosdk.ABITransactionType.appl
     case BuildableTransactionType.AssetOptIn:
     case BuildableTransactionType.AssetOptOut:
     case BuildableTransactionType.AssetTransfer:
     case BuildableTransactionType.AssetClawback:
-      return ABITransactionType.AssetTransfer
+      return algosdk.ABITransactionType.axfer
     case BuildableTransactionType.AssetCreate:
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
-      return ABITransactionType.AssetConfig
+      return algosdk.ABITransactionType.acfg
     case BuildableTransactionType.AssetFreeze:
-      return ABITransactionType.AssetFreeze
+      return algosdk.ABITransactionType.afrz
     case BuildableTransactionType.KeyRegistration:
-      return ABITransactionType.KeyRegistration
+      return algosdk.ABITransactionType.keyreg
     default:
-      return ABITransactionType.Txn
+      return algosdk.ABITransactionType.any
   }
 }

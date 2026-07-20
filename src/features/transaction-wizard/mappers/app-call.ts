@@ -1,18 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  ABIMethodArgType,
-  ABIArrayDynamicType,
-  ABIArrayStaticType,
-  ABIBoolType,
-  ABIByteType,
-  ABIReferenceType,
-  ABITupleType,
-  ABIType,
-  ABIUfixedType,
-  ABIValue,
-  argTypeIsReference,
-  argTypeIsTransaction,
-} from '@algorandfoundation/algokit-utils/abi'
+import algosdk from 'algosdk'
 import { z } from 'zod'
 import { FieldPath } from 'react-hook-form'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -32,11 +19,11 @@ export const methodArgPrefix = 'methodArg'
 
 const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argumentPathSeparator}${argumentIndex}`
 
-const getFieldSchema = (type: ABIMethodArgType, isOptional: boolean): z.ZodTypeAny => {
-  if (argTypeIsReference(type)) {
+const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
+  if (algosdk.abiTypeIsReference(type)) {
     return abiReferenceTypeToFormFieldSchema(type)
   }
-  if (argTypeIsTransaction(type)) {
+  if (algosdk.abiTypeIsTransaction(type)) {
     return z.any().refine(
       (data) => {
         return isOptional || data
@@ -51,12 +38,12 @@ const getFieldSchema = (type: ABIMethodArgType, isOptional: boolean): z.ZodTypeA
 
 const getCreateField = (
   formFieldHelper: FormFieldHelper<any>,
-  type: ABIType | ABIReferenceType,
+  type: algosdk.ABIType | algosdk.ABIReferenceType,
   path: FieldPath<any>,
   structFields?: StructFieldDefinition[],
   options?: { prefix?: string; description?: string }
 ): React.JSX.Element | undefined => {
-  if (argTypeIsReference(type)) {
+  if (algosdk.abiTypeIsReference(type)) {
     return abiReferenceTypeToFormItem(formFieldHelper, type, path)
   }
   return abiTypeToFormItem(formFieldHelper, type, path, structFields, options)
@@ -64,7 +51,7 @@ const getCreateField = (
 
 const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | TransactionArgumentField => {
   const isArgOptional = !!arg.defaultArgument
-  if (!argTypeIsTransaction(arg.type)) {
+  if (!algosdk.abiTypeIsTransaction(arg.type)) {
     return {
       ...arg,
       type: arg.type,
@@ -72,7 +59,7 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
       createField: (helper: FormFieldHelper<any>) =>
         getCreateField(
           helper,
-          arg.type as ABIType | ABIReferenceType,
+          arg.type as algosdk.ABIType | algosdk.ABIReferenceType,
           argumentFieldPath(argIndex) as FieldPath<any>,
           arg.struct?.fields,
           {
@@ -80,7 +67,8 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
           }
         ),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      getAppCallArg: (value) => (value !== undefined ? abiFormItemValueToABIValue(arg.type as ABIType | ABIReferenceType, value) : undefined),
+      getAppCallArg: (value) =>
+        value !== undefined ? abiFormItemValueToABIValue(arg.type as algosdk.ABIType | algosdk.ABIReferenceType, value) : undefined,
     }
   } else {
     return {
@@ -126,36 +114,36 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
 }
 
 export const asFieldInput = (
-  type: ABIMethodArgType,
-  value: ABIValue
-): ABIValue | { id: string; child: ABIValue }[] => {
-  if (type instanceof ABIUfixedType) {
+  type: algosdk.ABIArgumentType,
+  value: algosdk.ABIValue
+): algosdk.ABIValue | { id: string; child: algosdk.ABIValue }[] => {
+  if (type instanceof algosdk.ABIUfixedType) {
     return value
   }
-  if (type instanceof ABIBoolType) {
+  if (type instanceof algosdk.ABIBoolType) {
     return value.toString().toLowerCase()
   }
   if (
-    (type instanceof ABIArrayStaticType && type.childType instanceof ABIByteType) ||
-    (type instanceof ABIArrayDynamicType && type.childType instanceof ABIByteType)
+    (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
+    (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
   ) {
     return uint8ArrayToBase64(value as Uint8Array)
   }
 
-  if (type instanceof ABIArrayStaticType) {
-    return (value as ABIValue[]).map((item) => asFieldInput(type.childType, item)) as ABIValue
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    return (value as algosdk.ABIValue[]).map((item) => asFieldInput(type.childType, item)) as algosdk.ABIValue
   }
-  if (type instanceof ABIArrayDynamicType) {
+  if (type instanceof algosdk.ABIArrayDynamicType) {
     return (value as any[]).map((item) => ({
       id: new Date().getTime().toString(),
       child: asFieldInput(type.childType, item),
-    })) as unknown as ABIValue[] | { id: string; child: ABIValue }[]
+    })) as unknown as algosdk.ABIValue[] | { id: string; child: algosdk.ABIValue }[]
   }
-  if (type instanceof ABITupleType) {
+  if (type instanceof algosdk.ABITupleType) {
     return (value as any[]).map((item, index) => asFieldInput(type.childTypes[index], item)) as unknown as {
       id: string
-      child: ABIValue
+      child: algosdk.ABIValue
     }[]
   }
-  return value as ABIValue
+  return value as algosdk.ABIValue
 }

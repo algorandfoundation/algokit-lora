@@ -5,23 +5,27 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
 import { asError, is400 } from '@/utils/error'
+import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
-const getAccountResult = async (address: Address): Promise<AccountResult> => {
+const getAccountResult = async (address: Address) => {
   try {
-    const result = await algod.accountInformation(address)
-    return {
-      ...result,
-      address: result.address.toString(),
-    }
+    return await algod
+      .accountInformation(address)
+      .do()
+      .then((result) => {
+        return removeEncodableMethods(result) as AccountResult
+      })
   } catch (e: unknown) {
     const error = asError(e)
     if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {
       // Exclude asset and application data, as the account exceeds the limit which prevents it from loading
-      const result = await algod.accountInformation(address, { exclude: 'all' })
-      return {
-        ...result,
-        address: result.address.toString(),
-      }
+      return await algod
+        .accountInformation(address)
+        .exclude('all')
+        .do()
+        .then((result) => {
+          return removeEncodableMethods(result) as AccountResult
+        })
     }
     throw e
   }
@@ -32,13 +36,13 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
 
-  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.id))
+  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.index))
   if (assetsToAdd.length > 0) {
     set(assetResultsAtom, (prev) => {
       const next = new Map(prev)
       assetsToAdd.forEach((asset) => {
-        if (!next.has(asset.id)) {
-          next.set(asset.id, createReadOnlyAtomAndTimestamp(asset))
+        if (!next.has(asset.index)) {
+          next.set(asset.index, createReadOnlyAtomAndTimestamp(asset))
         }
       })
       return next

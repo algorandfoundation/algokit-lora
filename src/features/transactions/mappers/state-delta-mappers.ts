@@ -1,4 +1,4 @@
-import { encodeAddress } from '@algorandfoundation/algokit-utils'
+import algosdk, { encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import {
   DecodedGlobalStateDelta,
@@ -9,15 +9,14 @@ import {
   RawLocalStateDelta,
 } from '../models'
 import { Buffer } from 'buffer'
-import { ABIType, Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiType, DecodedAbiStorageValue, DecodedAbiStorageKeyType } from '@/features/abi-methods/models'
 import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { Address } from '@/features/accounts/data/types'
-import type { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '@algorandfoundation/algokit-utils/indexer-client'
-import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '../data/types'
 
 export const asGlobalStateDelta = (stateDelta: EvalDeltaKeyValue[] | undefined, appSpec?: Arc56Contract): GlobalStateDelta[] => {
   if (!stateDelta) {
@@ -33,15 +32,14 @@ const asGlobalStateDeltaItem = (record: EvalDeltaKeyValue, appSpec?: Arc56Contra
   }
 
   const { key, value } = record
-  const keyBase64 = uint8ArrayToBase64(key)
   // Check for global keys first
   for (const [keyName, storageKey] of Object.entries(appSpec.state.keys.global)) {
-    if (storageKey.key === keyBase64) {
+    if (storageKey.key === key) {
       return {
         key: {
           name: keyName,
           type: DecodedAbiStorageKeyType.Key,
-          ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, key),
+          ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
         },
         value: mapEvalDeltaToDecodedArc56Value(appSpec, storageKey.valueType, value),
         action: getAction(value),
@@ -54,10 +52,11 @@ const asGlobalStateDeltaItem = (record: EvalDeltaKeyValue, appSpec?: Arc56Contra
     if (!storageMap.prefix) {
       continue
     }
+    const keyBytes = base64ToBytes(key)
 
     const prefixBytes = base64ToBytes(storageMap.prefix)
-    if (uint8ArrayStartsWith(key, prefixBytes)) {
-      const keyValueBytes = key.subarray(prefixBytes.length)
+    if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
+      const keyValueBytes = keyBytes.subarray(prefixBytes.length)
 
       return {
         key: {
@@ -79,11 +78,13 @@ const asGlobalStateDeltaItem = (record: EvalDeltaKeyValue, appSpec?: Arc56Contra
     }
 
     try {
+      const keyValueBytes = base64ToBytes(key)
+
       return {
         key: {
           name: keyName,
           type: DecodedAbiStorageKeyType.MapKey,
-          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, key),
+          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
         },
         action: getAction(value),
         value: mapEvalDeltaToDecodedArc56Value(appSpec, storageMap.valueType, value),
@@ -111,7 +112,7 @@ const mapEvalDeltaToDecodedArc56Value = (appSpec: Arc56Contract, type: string, v
     // When the value is uint, display it as uint64
     const b = BigInt(value.uint)
     return {
-      abiType: ABIType.from('uint64'),
+      abiType: algosdk.ABIUintType.from('uint64'),
       value: {
         type: DecodedAbiType.Uint,
         value: b,
@@ -121,12 +122,12 @@ const mapEvalDeltaToDecodedArc56Value = (appSpec: Arc56Contract, type: string, v
     } satisfies DecodedAbiStorageValue
   }
   if (value.bytes) {
-    return asDecodedAbiStorageValue(appSpec, type, value.bytes)
+    return asDecodedAbiStorageValue(appSpec, type, base64ToBytes(value.bytes))
   }
 
   // default to empty string, this should never happen
   return {
-    abiType: ABIType.from('string'),
+    abiType: algosdk.ABIStringType.from('string'),
     value: {
       type: DecodedAbiType.String,
       value: '',
@@ -153,16 +154,15 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
   }
 
   const { key, value } = delta
-  const keyBase64 = uint8ArrayToBase64(key)
-  // Check for local keys first
+  // Check for global keys first
   for (const [keyName, storageKey] of Object.entries(appSpec.state.keys.local)) {
-    if (storageKey.key === keyBase64) {
+    if (storageKey.key === key) {
       return {
         address,
         key: {
           name: keyName,
           type: DecodedAbiStorageKeyType.Key,
-          ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, key),
+          ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
         },
         value: mapEvalDeltaToDecodedArc56Value(appSpec, storageKey.valueType, value),
         action: getAction(value),
@@ -170,15 +170,16 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
     }
   }
 
-  // Check for local maps with prefix
+  // Check for global maps with prefix
   for (const [keyName, storageMap] of Object.entries(appSpec.state.maps.local)) {
     if (!storageMap.prefix) {
       continue
     }
+    const keyBytes = base64ToBytes(key)
 
     const prefixBytes = base64ToBytes(storageMap.prefix)
-    if (uint8ArrayStartsWith(key, prefixBytes)) {
-      const keyValueBytes = key.subarray(prefixBytes.length)
+    if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
+      const keyValueBytes = keyBytes.subarray(prefixBytes.length)
 
       return {
         address,
@@ -201,12 +202,14 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
     }
 
     try {
+      const keyValueBytes = base64ToBytes(key)
+
       return {
         address,
         key: {
           name: keyName,
           type: DecodedAbiStorageKeyType.MapKey,
-          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, key),
+          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
         },
         action: getAction(value),
         value: mapEvalDeltaToDecodedArc56Value(appSpec, storageMap.valueType, value),
@@ -230,8 +233,8 @@ const asRawLocalStateDelta = (address: Address, { key, value }: EvalDeltaKeyValu
   }
 }
 
-const getKey = (key: Uint8Array): string => {
-  const buffer = Buffer.from(key)
+const getKey = (key: string): string => {
+  const buffer = Buffer.from(key, 'base64')
 
   if (isUtf8(buffer)) {
     return buffer.toString()
@@ -259,14 +262,14 @@ const getType = (state: EvalDelta): 'Bytes' | 'Uint' => {
 }
 const getValue = (state: EvalDelta) => {
   if (state.bytes) {
-    const buf = Buffer.from(state.bytes)
+    const buf = Buffer.from(state.bytes, 'base64')
     if (buf.length === 32) {
-      return encodeAddress(state.bytes)
+      return encodeAddress(new Uint8Array(buf))
     } else {
       if (isUtf8(buf)) {
         return buf.toString('utf8')
       } else {
-        return uint8ArrayToBase64(state.bytes)
+        return buf.toString('base64')
       }
     }
   }

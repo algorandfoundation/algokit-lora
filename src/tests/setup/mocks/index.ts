@@ -1,6 +1,9 @@
 import { vi } from 'vitest'
 import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
-import { AlgodClient } from '@algorandfoundation/algokit-utils/algod-client'
+import algosdk from 'algosdk'
+import { SearchTransactionsMock } from '@/tests/setup/mocks/search-transactions'
+
+export const searchTransactionsMock = new SearchTransactionsMock()
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
@@ -33,7 +36,7 @@ vi.mock('@txnlab/use-wallet-react', async () => {
             },
           },
         ] as unknown as Wallet[],
-        algodClient: {} as unknown as AlgodClient,
+        algodClient: {} as unknown as algosdk.Algodv2,
         activeNetwork: NetworkId.LOCALNET,
         setActiveNetwork: vi.fn(),
         setAlgodClient: vi.fn(),

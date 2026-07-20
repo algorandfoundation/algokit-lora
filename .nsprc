@@ -1,12 +1,1 @@
-{
-  "1112030": {
-    "active": true,
-    "expiry": "2026-07-13",
-    "notes": "Low in elliptic@6.6.1 via vite-plugin-node-polyfills > node-stdlib-browser > crypto-browserify (dev dep). Risky crypto implementation. All versions affected, no fix available. crypto-browserify is not imported by app code; only bundled if a dep references it."
-  },
-  "1119088": {
-    "active": true,
-    "expiry": "2026-07-13",
-    "notes": "Moderate in brace-expansion@5.0.5 bundled inside npm CLI via @semantic-release/npm > npm > minimatch (dev/release tooling). DoS via crafted ranges, not exploitable on trusted CI input. Fix requires upstream npm release bundling brace-expansion>=5.0.6."
-  }
-}
+{}

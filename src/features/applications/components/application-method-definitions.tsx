@@ -1,7 +1,5 @@
-import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
-import { TransactionType as UtilsTransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
-import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useCallback, useMemo, useState } from 'react'
@@ -19,7 +17,7 @@ import { Parentheses } from 'lucide-react'
 import { buildComposer } from '@/features/transaction-wizard/data/common'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { SendTransactionResults } from '@algorandfoundation/algokit-utils/transaction'
+import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { GroupSendResults, SendResults } from '@/features/transaction-wizard/components/group-send-results'
 
 type Props = {
@@ -51,13 +49,13 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
+        { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
         BuildTransactionResult
       >
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={props.data?.transactionType as unknown as UtilsTransactionType}
+        transactionType={props.data?.transactionType as unknown as algosdk.TransactionType}
         type={BuildableTransactionType.MethodCall}
         defaultValues={props.data?.transaction}
         onCancel={props.onCancel}
@@ -68,7 +66,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
 
   const openDialog = useCallback(async () => {
     const transaction = await open({
-      transactionType: ABITransactionType.AppCall,
+      transactionType: algosdk.ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
         methodDefinition: method,
@@ -80,7 +78,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     }
   }, [applicationId, method, open])
 
-  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: SimulateResponse) => {
+  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
     const sentTransactions = asTransactionFromSendResult(result)
     const transactionsGraphData = asTransactionsGraphData(sentTransactions)
     const appCallTransactions = sentTransactions.filter((txn) => txn.type === TransactionType.AppCall)

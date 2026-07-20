@@ -1,7 +1,7 @@
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { vi } from 'vitest'
 import { useWallet } from '@txnlab/use-wallet-react'
-import { decodeTransaction } from '@algorandfoundation/algokit-utils/transact'
+import { decodeUnsignedTransaction } from 'algosdk'
 
 export const setWalletAddressAndSigner = async (localnet: ReturnType<typeof algorandFixture>) => {
   const { testAccount } = localnet.context
@@ -12,7 +12,7 @@ export const setWalletAddressAndSigner = async (localnet: ReturnType<typeof algo
       ...original.useWallet(),
       activeAddress: testAccount.addr.toString(),
       signTransactions: ((txnGroup: Uint8Array[], indexesToSign?: number[]) => {
-        const decodedTxns = txnGroup.map((bytes) => decodeTransaction(bytes))
+        const decodedTxns = txnGroup.map((bytes) => decodeUnsignedTransaction(bytes))
         return testAccount.signer(decodedTxns, indexesToSign ?? [])
       }) as ReturnType<typeof useWallet>['signTransactions'],
       isReady: true,

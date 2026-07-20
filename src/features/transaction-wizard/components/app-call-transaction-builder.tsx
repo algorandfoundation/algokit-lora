@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import {
   optionalAddressFieldSchema,
   commonSchema,
@@ -83,7 +83,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     }
     return {
       sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
-      onComplete: OnApplicationComplete.NoOp.toString(),
+      onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,
       },

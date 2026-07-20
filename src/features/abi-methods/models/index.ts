@@ -2,7 +2,8 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { StructDefinition } from '@/features/applications/models'
 import { AssetId } from '@/features/assets/data/types'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
-import { ABIType, AVMType } from '@algorandfoundation/algokit-utils/abi'
+import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import algosdk from 'algosdk'
 
 export enum DecodedAbiType {
   String = 'String',
@@ -121,11 +122,11 @@ export type DecodedAbiStorageValue =
       value: DecodedAvmValue
     }
   | {
-      abiType: ABIType
+      abiType: algosdk.ABIType
       value: DecodedAbiValue
     }
   | {
-      abiType: ABIType
+      abiType: algosdk.ABIType
       struct: StructDefinition
       value: DecodedAbiStruct
     }

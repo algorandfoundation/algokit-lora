@@ -3,10 +3,10 @@ import { isDefined } from '@/utils/is-defined'
 import { latestTransactionIdsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
-import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/indexer'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round, SubscriberState, SubscriberStatus, SubscriberStoppedDetails, SubscriberStoppedReason } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
@@ -115,7 +115,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(transaction)
-              .filter((t) => t.txType === TransactionType.AssetConfig)
+              .filter((t) => t.txType === algosdk.TransactionType.acfg)
               .map((t) => t.assetConfigTransaction!.assetId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
@@ -154,7 +154,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(transaction)
-              .filter((t) => t.txType === TransactionType.AppCall)
+              .filter((t) => t.txType === algosdk.TransactionType.appl)
               .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore application create transactions because they aren't in the atom
@@ -337,7 +337,7 @@ export const useSubscribeToBlocksEffect = () => {
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
-  if (txn.txType !== TransactionType.AppCall) {
+  if (txn.txType !== algosdk.TransactionType.appl) {
     return false
   }
   const appCallTransaction = txn.applicationTransaction!

@@ -1,4 +1,4 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { asAppCallTransaction } from './app-call-transaction-mappers'
 import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { asPaymentTransaction } from './payment-transaction-mappers'
@@ -27,27 +27,27 @@ export const asTransaction = (
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult> = getGroupResultAtom
 ) => {
   switch (transactionResult.txType) {
-    case TransactionType.Payment:
+    case algosdk.TransactionType.pay:
       return asPaymentTransaction(transactionResult)
-    case TransactionType.AssetTransfer: {
+    case algosdk.TransactionType.axfer: {
       return asAssetTransferTransaction(transactionResult, assetResolver)
     }
-    case TransactionType.AppCall: {
+    case algosdk.TransactionType.appl: {
       return asAppCallTransaction(transactionResult, assetResolver, abiMethodResolver, groupResolver)
     }
-    case TransactionType.AssetConfig: {
+    case algosdk.TransactionType.acfg: {
       return asAssetConfigTransaction(transactionResult)
     }
-    case TransactionType.AssetFreeze: {
+    case algosdk.TransactionType.afrz: {
       return asAssetFreezeTransaction(transactionResult, assetResolver)
     }
-    case TransactionType.StateProof: {
+    case algosdk.TransactionType.stpf: {
       return asStateProofTransaction(transactionResult)
     }
-    case TransactionType.KeyRegistration: {
+    case algosdk.TransactionType.keyreg: {
       return asKeyRegTransaction(transactionResult)
     }
-    case TransactionType.Heartbeat: {
+    case algosdk.TransactionType.hb: {
       return asHeartbeatTransaction(transactionResult)
     }
     default:

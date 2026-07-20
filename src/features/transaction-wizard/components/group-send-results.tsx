@@ -7,7 +7,7 @@ import { TransactionsGraph, TransactionsGraphData } from '@/features/transaction
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AppCallTransaction } from '@/features/transactions/models'
-import { encodeSimulateResponseToJson, SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import algosdk from 'algosdk'
 import { Download } from 'lucide-react'
 import { useCallback } from 'react'
 
@@ -17,7 +17,7 @@ export const groupSimulateResultsLabel = 'Simulation Result'
 export type SendResults = {
   transactionGraph: TransactionsGraphData
   sentAppCalls: AppCallTransaction[]
-  simulateResponse?: SimulateResponse
+  simulateResponse?: algosdk.modelsv2.SimulateResponse
 }
 
 export type Props = SendResults & {
@@ -37,7 +37,7 @@ const formatTimestampUtc = (date: Date): string => {
   return `${year}${month}${day}_${hours}${minutes}${seconds}`
 }
 
-const buildSimulateTraceFilename = (simulateResponse: SimulateResponse) => {
+const buildSimulateTraceFilename = (simulateResponse: algosdk.modelsv2.SimulateResponse) => {
   const timestamp = formatTimestampUtc(new Date())
   const txnGroups = simulateResponse.txnGroups
   const txnTypesCount = txnGroups.reduce(
@@ -75,7 +75,7 @@ const buildSimulateTraceFilename = (simulateResponse: SimulateResponse) => {
 export function GroupSendResults({ transactionGraph, transactionGraphBgClassName, sentAppCalls, simulateResponse }: Props) {
   const downloadSimulateTrace = useCallback(async () => {
     if (!simulateResponse) return
-    const file = new Blob([encodeSimulateResponseToJson(simulateResponse)], { type: 'application/json' })
+    const file = new Blob([algosdk.encodeJSON(simulateResponse, { space: 2 })], { type: 'application/json' })
     await downloadFile(buildSimulateTraceFilename(simulateResponse), file)
   }, [simulateResponse])
 
