@@ -645,7 +645,7 @@ export const asTransactionLabelFromTransactionType = (type: algosdk.ABITransacti
     case algosdk.ABITransactionType.appl:
       return TransactionType.AppCall
     case algosdk.ABITransactionType.axfer:
-      return TransactionType.AssetFreeze
+      return TransactionType.AssetTransfer
     case algosdk.ABITransactionType.acfg:
       return TransactionType.AssetConfig
     case algosdk.ABITransactionType.afrz:
