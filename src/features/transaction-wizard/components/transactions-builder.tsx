@@ -35,6 +35,8 @@ import { asAlgokitTransactionType } from '../mappers/as-algokit-transaction-type
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
 import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
+import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
+import { algod } from '@/features/common/data/algo-client'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 
@@ -200,7 +202,9 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
-      const { transactions: transactionsWithResources } = await composer.build()
+      const { atc } = await composer.build()
+      const populatedAtc = await populateAppCallResources(atc, algod)
+      const transactionsWithResources = populatedAtc.buildGroup()
 
       setTransactions((prev) => {
         let newTransactions = [...prev]
