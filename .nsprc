@@ -19,21 +19,6 @@
     "expiry": "2027-03-01",
     "notes": "esbuild is used only by the Vite development server and build tooling."
   },
-  "1124064": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "fast-uri is only reached through development and release tooling."
-  },
-  "1130720": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "fast-uri is only reached through development and release tooling."
-  },
-  "1147878": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "fast-uri is only reached through development and release tooling."
-  },
   "1130722": {
     "active": true,
     "expiry": "2027-03-01",
@@ -48,6 +33,16 @@
     "active": true,
     "expiry": "2027-03-01",
     "notes": "ip-address is bundled with npm used only by release tooling."
+  },
+  "1158506": {
+    "active": true,
+    "expiry": "2026-10-01",
+    "notes": "qs via vite-plugin-node-polyfills > node-stdlib-browser > url (dev dep). Fixed in qs 6.16.0, which is blocked by the min-release-age=7 policy in .npmrc until ~2026-09-05; remove this exception and override qs to ^6.16.0 then. Not reachable from prod: nodePolyfills only enables the Buffer global and the url/qs polyfill is absent from the built bundle."
+  },
+  "1158507": {
+    "active": true,
+    "expiry": "2026-10-01",
+    "notes": "qs via vite-plugin-node-polyfills > node-stdlib-browser > url (dev dep). Fixed in qs 6.16.0, which is blocked by the min-release-age=7 policy in .npmrc until ~2026-09-05; remove this exception and override qs to ^6.16.0 then. Not reachable from prod: nodePolyfills only enables the Buffer global and the url/qs polyfill is absent from the built bundle."
   },
   "1124268": {
     "active": true,
