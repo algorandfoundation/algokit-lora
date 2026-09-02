@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.3...v2.4.0) (2026-09-02)
+
+### 🚀 Features
+
+* support arc-89 ([#582](https://github.com/algorandfoundation/algokit-lora/issues/582)) ([4c1f16f](https://github.com/algorandfoundation/algokit-lora/commit/4c1f16fb1f9c8ad002b4a68e6795363218c64c01))
+
 ## [2.3.3](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.2...v2.3.3) (2026-02-19)
 
 ### ♻️ Code Refactoring
