@@ -1,4 +1,4 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
 import { MethodCallTransactionBuilder } from './method-call-transaction-builder'
@@ -28,91 +28,91 @@ export const transactionTypeLabel = 'Transaction type'
 
 const builderConfigs = [
   {
-    transactionType: TransactionType.Payment,
+    transactionType: algosdk.TransactionType.pay,
     type: BuildableTransactionType.Payment,
     label: 'Payment (pay)',
     component: PaymentTransactionBuilder,
   },
   {
-    transactionType: TransactionType.Payment,
+    transactionType: algosdk.TransactionType.pay,
     type: BuildableTransactionType.AccountClose,
     label: 'Account Close (pay)',
     component: AccountCloseTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AppCall,
+    transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.AppCall,
     label: 'Application Call (appl)',
     component: AppCallTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AppCall,
+    transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.MethodCall,
     label: 'ABI Method Call (appl)',
     component: MethodCallTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AppCall,
+    transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.ApplicationCreate,
     label: 'Application Create (appl)',
     component: ApplicationCreateTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AppCall,
+    transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.ApplicationUpdate,
     label: 'Application Update (appl)',
     component: ApplicationUpdateTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetTransfer,
+    transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetTransfer,
     label: 'Asset Transfer (axfer)',
     component: AssetTransferTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetTransfer,
+    transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetOptIn,
     label: 'Asset opt-in (axfer)',
     component: AssetOptInTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetTransfer,
+    transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetOptOut,
     label: 'Asset opt-out (axfer)',
     component: AssetOptOutTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetTransfer,
+    transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetClawback,
     label: 'Asset clawback (axfer)',
     component: AssetClawbackTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetConfig,
+    transactionType: algosdk.TransactionType.acfg,
     type: BuildableTransactionType.AssetCreate,
     label: 'Asset create (acfg)',
     component: AssetCreateTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetConfig,
+    transactionType: algosdk.TransactionType.acfg,
     type: BuildableTransactionType.AssetReconfigure,
     label: 'Asset reconfigure (acfg)',
     component: AssetReconfigureTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetConfig,
+    transactionType: algosdk.TransactionType.acfg,
     type: BuildableTransactionType.AssetDestroy,
     label: 'Asset destroy (acfg)',
     component: AssetDestroyTransactionBuilder,
   },
   {
-    transactionType: TransactionType.AssetFreeze,
+    transactionType: algosdk.TransactionType.afrz,
     type: BuildableTransactionType.AssetFreeze,
     label: 'Asset freeze (afrz)',
     component: AssetFreezeTransactionBuilder,
   },
   {
-    transactionType: TransactionType.KeyRegistration,
+    transactionType: algosdk.TransactionType.keyreg,
     type: BuildableTransactionType.KeyRegistration,
     label: 'Key registration (keyreg)',
     component: KeyRegistrationTransactionBuilder,
@@ -120,7 +120,7 @@ const builderConfigs = [
 ]
 
 type Props = {
-  transactionType?: TransactionType
+  transactionType?: algosdk.TransactionType
   type?: BuildableTransactionType
   mode: TransactionBuilderMode
   defaultValues?: Partial<BuildTransactionResult>

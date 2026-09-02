@@ -9,11 +9,10 @@ import {
 } from '@/features/transaction-wizard/models'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
-import { AppSpec } from '@algorandfoundation/algokit-utils/app-spec'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { invariant } from '@/utils/invariant'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 import { ArrowLeft, Parentheses, Rocket } from 'lucide-react'
@@ -22,12 +21,12 @@ import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
 import { Arc32AppSpec, TemplateParamType } from '../../data/types'
-import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/app-factory'
-import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/app-client'
+import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
@@ -83,7 +82,7 @@ export function DeployApp({ machine }: Props) {
       } satisfies AppClientMethodCallParams & CreateOnComplete & CreateSchema
     } else if (transaction.type === BuildableTransactionType.AppCall) {
       const { appId: _, ...params } = asAppCallTransactionParams(transaction)
-      invariant(params.onComplete !== OnApplicationComplete.ClearState, 'Clear state is not supported for app creates')
+      invariant(params.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
       return {
         ...params,
         onComplete: params.onComplete,
@@ -106,7 +105,7 @@ export function DeployApp({ machine }: Props) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={TransactionType.AppCall}
+        transactionType={algosdk.TransactionType.appl}
         type={props.data.type}
         defaultValues={props.data.transaction}
         onCancel={props.onCancel}
@@ -178,7 +177,7 @@ export function DeployApp({ machine }: Props) {
       appSpec?: Arc32AppSpec | Arc56Contract,
       method?: MethodDefinition
     ) => {
-      const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== OnApplicationComplete.UpdateApplication)
+      const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== algosdk.OnApplicationComplete.UpdateApplicationOC)
       const onComplete = createCallConfig.length > 0 ? (createCallConfig[0] as BuildAppCallTransactionResult['onComplete']) : undefined
       const transaction = await open({
         type,

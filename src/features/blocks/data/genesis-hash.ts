@@ -4,9 +4,12 @@ import { atomWithDefault, useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 
 const getGenesisHash = () =>
-  algod.version().then((result) => {
-    return uint8ArrayToBase64(result.genesisHashB64)
-  })
+  algod
+    .versionsCheck()
+    .do()
+    .then((result) => {
+      return uint8ArrayToBase64(result.genesisHashB64)
+    })
 
 export const genesisHashAtom = atomWithDefault<string | Promise<string>>(async () => {
   return await getGenesisHash()

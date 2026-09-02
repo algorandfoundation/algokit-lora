@@ -37,6 +37,7 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   magic: 'Magic',
   'w3-wallet': 'w3-wallet',
   biatec: 'Biatec',
+  web3auth: 'Web3Auth',
 }
 
 export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'

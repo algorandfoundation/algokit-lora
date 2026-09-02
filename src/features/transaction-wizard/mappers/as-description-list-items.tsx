@@ -1,12 +1,4 @@
-import {
-  ABIReferenceType,
-  ABITransactionType,
-  ABIValue,
-  argTypeIsReference,
-  argTypeIsTransaction,
-} from '@algorandfoundation/algokit-utils/abi'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
-import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
+import algosdk, { Address } from 'algosdk'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
@@ -47,8 +39,8 @@ import {
   asApplicationCreateTransactionParams,
   asApplicationUpdateTransactionParams,
 } from './as-algokit-transactions'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount'
-import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/composer'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
@@ -259,11 +251,11 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
-    ...(params.freezeTarget
+    ...(params.account
       ? [
           {
             dt: 'Freeze target',
-            dd: <AddressOrNfdLink address={params.freezeTarget} />,
+            dd: <AddressOrNfdLink address={params.account} />,
           },
         ]
       : []),
@@ -322,7 +314,7 @@ const asMethodArg = (
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   const arg = args[argIndex]
-  if (argTypeIsTransaction(argumentDefinition.type)) {
+  if (algosdk.abiTypeIsTransaction(argumentDefinition.type)) {
     invariant(isTransactionArg(arg), 'Transaction type args must be a transaction')
 
     const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
@@ -354,26 +346,26 @@ const asMethodArg = (
   if (arg === undefined) {
     return 'Not set'
   }
-  if (argTypeIsReference(argumentDefinition.type)) {
-    if (argumentDefinition.type === ABIReferenceType.Account) {
+  if (algosdk.abiTypeIsReference(argumentDefinition.type)) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
       return <AddressOrNfdLink address={arg.toString()} />
     }
-    if (argumentDefinition.type === ABIReferenceType.Asset) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
       const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
-    if (argumentDefinition.type === ABIReferenceType.Application) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
       const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
   }
   if (argumentDefinition.struct) {
-    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as ABIValue)
+    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as algosdk.ABIValue)
     return <DecodedAbiStruct struct={structModel} />
   }
 
-  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as ABIValue)
+  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
   return <DecodedAbiValue abiValue={abiValue} />
 }
 
@@ -391,7 +383,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
     {
       dt: 'Sender',
@@ -444,7 +436,7 @@ const asMethodCallTransaction = (
     ...(transaction.methodDefinition ? [{ dt: 'Method', dd: transaction.methodDefinition.name }] : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
     {
       dt: 'Sender',
@@ -505,7 +497,7 @@ const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
     : []
 
 const asResourcesItem = (
-  accounts?: ReadableAddress[],
+  accounts?: (string | Address)[],
   assets?: bigint[],
   apps?: bigint[],
   boxes?: CommonAppCallParams['boxReferences']
@@ -524,7 +516,7 @@ const asResourcesItem = (
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
                       <AddressOrNfdLink address={address} className="text-primary inline underline">
-                        {getAddress(address).toString()}
+                        {typeof address === 'string' ? address : address.toString()}
                       </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -629,36 +621,36 @@ const asResourcesItem = (
   ]
 }
 
-export const asOnCompleteLabel = (onComplete: OnApplicationComplete) => {
+export const asOnCompleteLabel = (onComplete: algosdk.OnApplicationComplete) => {
   switch (onComplete) {
-    case OnApplicationComplete.NoOp:
+    case algosdk.OnApplicationComplete.NoOpOC:
       return 'Call (NoOp)'
-    case OnApplicationComplete.OptIn:
+    case algosdk.OnApplicationComplete.OptInOC:
       return 'Opt-in'
-    case OnApplicationComplete.CloseOut:
+    case algosdk.OnApplicationComplete.CloseOutOC:
       return 'Close-out'
-    case OnApplicationComplete.ClearState:
+    case algosdk.OnApplicationComplete.ClearStateOC:
       return 'Clear state'
-    case OnApplicationComplete.UpdateApplication:
+    case algosdk.OnApplicationComplete.UpdateApplicationOC:
       return 'Update'
-    case OnApplicationComplete.DeleteApplication:
+    case algosdk.OnApplicationComplete.DeleteApplicationOC:
       return 'Delete'
   }
 }
 
-export const asTransactionLabelFromTransactionType = (type: ABITransactionType) => {
+export const asTransactionLabelFromTransactionType = (type: algosdk.ABITransactionType) => {
   switch (type) {
-    case ABITransactionType.Payment:
+    case algosdk.ABITransactionType.pay:
       return BuildableTransactionType.Payment
-    case ABITransactionType.AppCall:
+    case algosdk.ABITransactionType.appl:
       return TransactionType.AppCall
-    case ABITransactionType.AssetTransfer:
-      return TransactionType.AssetFreeze
-    case ABITransactionType.AssetConfig:
+    case algosdk.ABITransactionType.axfer:
+      return TransactionType.AssetTransfer
+    case algosdk.ABITransactionType.acfg:
       return TransactionType.AssetConfig
-    case ABITransactionType.AssetFreeze:
+    case algosdk.ABITransactionType.afrz:
       return TransactionType.AssetFreeze
-    case ABITransactionType.KeyRegistration:
+    case algosdk.ABITransactionType.keyreg:
       return TransactionType.KeyReg
     default:
       return 'Transaction'
@@ -704,7 +696,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
   return [
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
     {
       dt: 'Sender',
@@ -767,7 +759,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(OnApplicationComplete.UpdateApplication),
+      dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
     },
     {
       dt: 'Sender',

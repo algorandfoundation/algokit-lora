@@ -16,7 +16,13 @@ export const useProgramTeal = (base64Program: string) => {
       }
 
       const program = new Uint8Array(Buffer.from(base64Program, 'base64'))
-      set(tealAtom, algod.tealDisassemble(program).then((result) => result.result))
+      set(
+        tealAtom,
+        algod
+          .disassemble(program)
+          .do()
+          .then((result) => result.result as string)
+      )
     })
     return [tealAtom, getTealAtom] as const
   }, [base64Program])

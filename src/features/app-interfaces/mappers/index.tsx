@@ -23,7 +23,8 @@ import {
   avmFormItemValueToAVMValue,
   asAvmFormItemValue,
 } from '@/features/abi-methods/mappers'
-import { ABIType, Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import algosdk from 'algosdk'
 import { StructDefinition } from '@/features/applications/models'
 import { TealUnknownTypeTemplateParamFieldValue, TealTemplateParamField } from '@/features/app-interfaces/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -114,7 +115,7 @@ export const asTealTemplateParamField = ({
   defaultValue,
 }: {
   name: string
-  type?: ABIType | AVMType
+  type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
   defaultValue?: AbiFormItemValue | AvmFormItemValue
 }): TealTemplateParamField => {

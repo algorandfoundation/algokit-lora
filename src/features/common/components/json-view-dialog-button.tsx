@@ -15,39 +15,67 @@ type Props = {
   expandJsonLevel?: (level: number) => boolean
 }
 
-export function OpenJsonViewDialogButton({ json, expandJsonLevel = defaultExpandLevel }: Props) {
+function JsonViewDialog({
+  json,
+  expandJsonLevel = defaultExpandLevel,
+  open,
+  onOpenChange,
+}: Props & { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const theme = useResolvedTheme()
+  const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
+      {open && (
+        <DialogContent className="bg-card">
+          <Description hidden={true}>JSON information</Description>
+          <DialogHeader className="flex-row items-center space-y-0">
+            <DialogTitle asChild>
+              <h2>JSON</h2>
+            </DialogTitle>
+            <CopyButton value={json} />
+          </DialogHeader>
+          <div className={cn('grid w-auto min-w-[450px] h-[450px] overflow-auto px-4 pb-4')}>
+            <div className="[&>div>div]:m-0">
+              <ReactJsonView data={JSON.parse(json)} shouldExpandNode={expandJsonLevel} style={currentStyle} />
+            </div>
+          </div>
+        </DialogContent>
+      )}
+    </Dialog>
+  )
+}
+
+export function OpenJsonViewDialogButton({ json, expandJsonLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonViewDialog = useCallback(() => {
     setDialogOpen(true)
   }, [setDialogOpen])
 
-  const theme = useResolvedTheme()
-  const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
-
   return (
     <>
       <Button className="ml-auto hidden w-28 md:flex" variant="outline" onClick={openJsonViewDialog}>
         View JSON
       </Button>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        {dialogOpen && (
-          <DialogContent className="bg-card">
-            <Description hidden={true}>JSON information</Description>
-            <DialogHeader className="flex-row items-center space-y-0">
-              <DialogTitle asChild>
-                <h2>JSON</h2>
-              </DialogTitle>
-              <CopyButton value={json} />
-            </DialogHeader>
-            <div className={cn('grid w-auto min-w-[450px] h-[450px] overflow-auto px-4 pb-4')}>
-              <div className="[&>div>div]:m-0">
-                <ReactJsonView data={JSON.parse(json)} shouldExpandNode={expandJsonLevel} style={currentStyle} />
-              </div>
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
+      <JsonViewDialog json={json} expandJsonLevel={expandJsonLevel} open={dialogOpen} onOpenChange={setDialogOpen} />
+    </>
+  )
+}
+
+export function OpenJsonViewDialogLink({ json, expandJsonLevel }: Props) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+
+  const openJsonViewDialog = useCallback(() => {
+    setDialogOpen(true)
+  }, [setDialogOpen])
+
+  return (
+    <>
+      <Button variant="link" className="h-4 p-0" onClick={openJsonViewDialog}>
+        View JSON
+      </Button>
+      <JsonViewDialog json={json} expandJsonLevel={expandJsonLevel} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   )
 }

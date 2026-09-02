@@ -12,7 +12,7 @@ import { latestTransactionIdsAtom, transactionResultsAtom } from '@/features/tra
 import { BlockResult, Round } from '@/features/blocks/data/types'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { TransactionId } from '@/features/transactions/data/types'
-import { randomNumberBetween } from '@makerx/ts-dossier'
+import { randomNumberBetween } from '@/tests/utils/dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'

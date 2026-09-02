@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate bot token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         id: app_token
         with:
           app-id: ${{ secrets.BOT_ID }}

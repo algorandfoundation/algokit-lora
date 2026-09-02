@@ -1,7 +1,7 @@
 import { TransactionResult } from '@/features/transactions/data/types'
 import { TransactionSummary, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
-import { TransactionType as UtilsTransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 export const asTransactionSummary = (transactionResult: TransactionResult): TransactionSummary => {
@@ -12,14 +12,14 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
   }
 
   switch (transactionResult.txType) {
-    case UtilsTransactionType.Payment:
+    case algosdk.TransactionType.pay:
       invariant(transactionResult.paymentTransaction, 'payment-transaction is not set')
       return {
         ...common,
         type: TransactionType.Payment,
         to: transactionResult.paymentTransaction.receiver,
       }
-    case UtilsTransactionType.AssetTransfer: {
+    case algosdk.TransactionType.axfer: {
       invariant(transactionResult.assetTransferTransaction, 'asset-transfer-transaction is not set')
       return {
         ...common,
@@ -27,7 +27,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         to: transactionResult.assetTransferTransaction.receiver,
       }
     }
-    case UtilsTransactionType.AppCall: {
+    case algosdk.TransactionType.appl: {
       invariant(transactionResult.applicationTransaction, 'application-transaction is not set')
 
       return {
@@ -35,20 +35,20 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         type: TransactionType.AppCall,
         to: transactionResult.applicationTransaction.applicationId
           ? transactionResult.applicationTransaction.applicationId
-          : transactionResult.createdAppId!,
+          : transactionResult.createdApplicationIndex!,
       }
     }
-    case UtilsTransactionType.AssetConfig: {
+    case algosdk.TransactionType.acfg: {
       invariant(transactionResult.assetConfigTransaction, 'asset-config-transaction is not set')
       return {
         ...common,
         type: TransactionType.AssetConfig,
         to: transactionResult.assetConfigTransaction.assetId
           ? transactionResult.assetConfigTransaction.assetId
-          : transactionResult.createdAssetId,
+          : transactionResult.createdAssetIndex,
       }
     }
-    case UtilsTransactionType.AssetFreeze: {
+    case algosdk.TransactionType.afrz: {
       invariant(transactionResult.assetFreezeTransaction, 'asset-freeze-transaction is not set')
       return {
         ...common,
@@ -56,20 +56,21 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         to: transactionResult.assetFreezeTransaction.assetId,
       }
     }
-    case UtilsTransactionType.StateProof: {
+    case algosdk.TransactionType.stpf: {
       invariant(transactionResult.stateProofTransaction, 'state-proof-transaction is not set')
       return {
         ...common,
         type: TransactionType.StateProof,
       }
     }
-    case UtilsTransactionType.KeyRegistration: {
+    case algosdk.TransactionType.keyreg: {
+      invariant(transactionResult.keyregTransaction, 'keyreg-transaction is not set')
       return {
         ...common,
         type: TransactionType.KeyReg,
       }
     }
-    case UtilsTransactionType.Heartbeat: {
+    case algosdk.TransactionType.hb: {
       invariant(transactionResult.heartbeatTransaction, 'heartbeat-transaction is not set')
       return {
         ...common,

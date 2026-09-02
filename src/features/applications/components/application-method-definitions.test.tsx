@@ -5,7 +5,7 @@ import { ApplicationId } from '../data/types'
 import Arc32TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json'
 import Arc56TestContractAppSpec from '@/tests/test-app-specs/arc56/sample-one.json'
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
-import { AppSpec } from '@algorandfoundation/algokit-utils/app-spec'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { ApplicationPage } from '../pages/application-page'
 import { executeComponentTest } from '@/tests/test-component'
 import { useParams } from 'react-router-dom'
@@ -17,7 +17,7 @@ import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/
 import { selectOption } from '@/tests/utils/select-option'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
 import { getTestStore } from '@/tests/utils/get-test-store'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
@@ -294,7 +294,7 @@ describe('application-method-definitions', () => {
               await user.click(await component.findByRole('button', { name: sendButtonLabel }))
 
               const errorMessage = await component.findByText(
-                'Request to /v2/transactions/simulate failed with status 400: txgroup had 0 in fees, which is less than the minimum 1 * 1000'
+                'Error resolving execution info via simulate in transaction 0: txgroup with 0.0A fees is less than 1mA (usage=1.000000 * base=1mA)'
               )
               expect(errorMessage).toBeInTheDocument()
             }
@@ -468,9 +468,10 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
+                TransactionPayment {
                   "amount": 500000n,
                   "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
@@ -594,9 +595,10 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
+                TransactionPayment {
                   "amount": 600000n,
                   "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
@@ -715,9 +717,10 @@ describe('application-method-definitions', () => {
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
+                TransactionPayment {
                   "amount": 500000n,
                   "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
                   "receiver": "${testAccount2.addr.toString()}",
                 }
               `)

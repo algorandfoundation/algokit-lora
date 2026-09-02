@@ -23,7 +23,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
   }
 
   const subType = assetConfig.assetId ? AssetConfigTransactionSubType.Reconfigure : AssetConfigTransactionSubType.Create
-  const assetId = subType === AssetConfigTransactionSubType.Reconfigure ? assetConfig.assetId : transactionResult.createdAssetId
+  const assetId = subType === AssetConfigTransactionSubType.Reconfigure ? assetConfig.assetId : transactionResult.createdAssetIndex
 
   return {
     ...mapCommonTransactionProperties(transactionResult),

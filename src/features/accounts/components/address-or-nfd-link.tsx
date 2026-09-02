@@ -8,10 +8,10 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
 import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
-import { ReadableAddress } from '@algorandfoundation/algokit-utils'
+import { Address } from 'algosdk'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
-  address: ReadableAddress
+  address: string | Address
   short?: boolean
   className?: string
   showCopyButton?: boolean
