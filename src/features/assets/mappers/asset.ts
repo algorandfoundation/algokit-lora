@@ -8,12 +8,8 @@ import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { getArc62AppId } from '../utils/arc62'
-import { getArc89RegistryAppId } from '../data/arc89-registry'
 
-export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult, activeAddress?: string): Asset => {
-  const registryAppId = getArc89RegistryAppId()
-  const canMigrate = !!registryAppId && !!activeAddress && activeAddress === assetResult.params.manager && !metadataResult?.arc89
-
+export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
@@ -25,9 +21,6 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     traits: asTraits(metadataResult),
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
-    arc89Metadata: metadataResult?.arc89,
-    hasMetadataHash: !!assetResult.params.metadataHash?.length,
-    canMigrate,
     json: asJson(normaliseAlgoSdkData(assetResult)),
   }
 }
@@ -36,9 +29,8 @@ const asMetadata = (metadataResult: AssetMetadataResult): Asset['metadata'] => {
   if (metadataResult) {
     const { properties: _, ...arc3Metadata } = metadataResult.arc3?.metadata ?? {}
     const { properties: __, attributes: ___, ...arc69Metadata } = metadataResult.arc69?.metadata ?? {}
-    const { properties: ____, ...arc89Metadata } = metadataResult.arc89?.json ?? {}
 
-    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata, ...arc89Metadata }) as Record<string, string | number>
+    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata }) as Record<string, string | number>
   }
 }
 
@@ -56,13 +48,10 @@ const asTraits = (metadataResult: AssetMetadataResult): Asset['traits'] => {
       {} as Record<string, string | number>
     )
 
-    const arc89Properties = (metadataResult.arc89?.json?.properties ?? {}) as Record<string, unknown>
-
     const properties = {
       ...arc3Properties,
       ...arc69Attributes,
       ...arc69Properties,
-      ...arc89Properties,
     }
 
     if (isArc16Properties(properties)) {
@@ -77,14 +66,14 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
   if (metadataResult?.arc3) {
     const metadata = metadataResult?.arc3.metadata
     // If the asset follows ARC-3 or ARC-19, we use the media from the metadata
-    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.id, metadata.image, metadataResult.arc3.metadata_url)
+    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.image, metadataResult.arc3.metadata_url)
     if (imageUrl) {
       return {
         url: imageUrl,
         type: AssetMediaType.Image,
       }
     }
-    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.id, metadata.animation_url, metadataResult.arc3.metadata_url)
+    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.animation_url, metadataResult.arc3.metadata_url)
     if (videoUrl) {
       return {
         url: videoUrl,
@@ -108,22 +97,6 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
       return {
         type: metadataResult.arc69.metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
         url: replaceIpfsWithGatewayIfNeeded(url),
-      }
-    }
-  }
-
-  if (metadataResult?.arc89) {
-    const json = metadataResult.arc89.json
-    if (typeof json.image === 'string') {
-      return {
-        url: replaceIpfsWithGatewayIfNeeded(json.image),
-        type: AssetMediaType.Image,
-      }
-    }
-    if (typeof json.animation_url === 'string') {
-      return {
-        url: replaceIpfsWithGatewayIfNeeded(json.animation_url),
-        type: AssetMediaType.Video,
       }
     }
   }
@@ -158,9 +131,6 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   }
   if (metadataResult?.arc69) {
     standardsUsed.add(AssetStandard.ARC69)
-  }
-  if (metadataResult?.arc89) {
-    standardsUsed.add(AssetStandard.ARC89)
   }
   return Array.from(standardsUsed)
 }

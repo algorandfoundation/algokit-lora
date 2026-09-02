@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-router-dom/dist/index.d.ts b/node_modules/react-router-dom/dist/index.d.ts
-index 32bdccd..a1b92d7 100644
+index 32bdccd..0ba94ed 100644
 --- a/node_modules/react-router-dom/dist/index.d.ts
 +++ b/node_modules/react-router-dom/dist/index.d.ts
 @@ -202,6 +202,7 @@ export declare const Form: React.ForwardRefExoticComponent<FormProps & React.Ref
@@ -10,8 +10,12 @@ index 32bdccd..a1b92d7 100644
  }
  /**
   * This component will emulate the browser's scroll restoration on location
-@@ -291,6 +292,7 @@ export declare function useFetchers(): (Fetcher & {
- declare function useScrollRestoration({ getKey, storageKey, }?: {
+@@ -288,9 +289,10 @@ export declare function useFetchers(): (Fetcher & {
+ /**
+  * When rendered inside a RouterProvider, will restore scroll positions on navigations
+  */
+-declare function useScrollRestoration({ getKey, storageKey, }?: {
++declare function useScrollRestoration({ getKey, storageKey, elementRef, }?: {
      getKey?: GetScrollRestorationKeyFunction;
      storageKey?: string;
 +    elementRef?: React.RefObject<HTMLElement>;
@@ -19,17 +23,17 @@ index 32bdccd..a1b92d7 100644
  export { useScrollRestoration as UNSAFE_useScrollRestoration };
  /**
 diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
-index c134e16..c9711c7 100644
+index 68d6239..96680d4 100644
 --- a/node_modules/react-router-dom/dist/index.js
 +++ b/node_modules/react-router-dom/dist/index.js
-@@ -941,11 +941,13 @@ if (process.env.NODE_ENV !== "production") {
- function ScrollRestoration(_ref10) {
+@@ -933,11 +933,13 @@ if (process.env.NODE_ENV !== "production") {
+ function ScrollRestoration(_ref0) {
    let {
      getKey,
 -    storageKey
 +    storageKey,
 +    elementRef
-   } = _ref10;
+   } = _ref0;
    useScrollRestoration({
      getKey,
 -    storageKey
@@ -38,27 +42,22 @@ index c134e16..c9711c7 100644
    });
    return null;
  }
-@@ -1242,13 +1244,31 @@ function useFetchers() {
+@@ -1234,13 +1236,26 @@ function useFetchers() {
  }
  const SCROLL_RESTORATION_STORAGE_KEY = "react-router-scroll-positions";
  let savedScrollPositions = {};
 +
-+const getScrollTarget = (elementRef) =>
-+  elementRef ? elementRef.current : window;
-+
-+const getScrollY = (elementRef) => {
-+  const el = getScrollTarget(elementRef);
-+  // window has scrollY but normal elements have scrollTop
-+  return !el ? 0 : el.scrollY || el.scrollTop;
-+}
-+
++const getScrollTarget = elementRef => elementRef ? elementRef.current : window;
++const getScrollY = elementRef => {
++  const element = getScrollTarget(elementRef);
++  return !element ? 0 : element.scrollY || element.scrollTop;
++};
 +const scrollY = (elementRef, y) => {
-+  const el = getScrollTarget(elementRef);
-+  if (el) {
-+    el.scrollTo(0, y);
++  const element = getScrollTarget(elementRef);
++  if (element) {
++    element.scrollTo(0, y);
 +  }
-+}
-+
++};
  /**
   * When rendered inside a RouterProvider, will restore scroll positions on navigations
   */
@@ -71,7 +70,7 @@ index c134e16..c9711c7 100644
    } = _temp4 === void 0 ? {} : _temp4;
    let {
      router
-@@ -1274,7 +1294,7 @@ function useScrollRestoration(_temp4) {
+@@ -1266,7 +1281,7 @@ function useScrollRestoration(_temp4) {
    usePageHide(React.useCallback(() => {
      if (navigation.state === "idle") {
        let key = (getKey ? getKey(location, matches) : null) || location.key;
@@ -80,7 +79,7 @@ index c134e16..c9711c7 100644
      }
      try {
        sessionStorage.setItem(storageKey || SCROLL_RESTORATION_STORAGE_KEY, JSON.stringify(savedScrollPositions));
-@@ -1282,7 +1302,7 @@ function useScrollRestoration(_temp4) {
+@@ -1274,7 +1289,7 @@ function useScrollRestoration(_temp4) {
        process.env.NODE_ENV !== "production" ? UNSAFE_warning(false, "Failed to save scroll positions in sessionStorage, <ScrollRestoration /> will not work properly (" + error + ").") : void 0;
      }
      window.history.scrollRestoration = "auto";
@@ -89,7 +88,7 @@ index c134e16..c9711c7 100644
    // Read in any saved scroll locations
    if (typeof document !== "undefined") {
      // eslint-disable-next-line react-hooks/rules-of-hooks
-@@ -1303,9 +1323,9 @@ function useScrollRestoration(_temp4) {
+@@ -1295,9 +1310,9 @@ function useScrollRestoration(_temp4) {
        _extends({}, location, {
          pathname: stripBasename(location.pathname, basename) || location.pathname
        }), matches) : getKey;
@@ -101,16 +100,16 @@ index c134e16..c9711c7 100644
      // Restore scrolling when state.restoreScrollPosition changes
      // eslint-disable-next-line react-hooks/rules-of-hooks
      React.useLayoutEffect(() => {
-@@ -1315,7 +1335,7 @@ function useScrollRestoration(_temp4) {
+@@ -1307,7 +1322,7 @@ function useScrollRestoration(_temp4) {
        }
        // been here before, scroll to it
        if (typeof restoreScrollPosition === "number") {
 -        window.scrollTo(0, restoreScrollPosition);
-+        setTimeout(() => scrollY(elementRef, restoreScrollPosition), 1); // Timeout is required for our scenario
++        setTimeout(() => scrollY(elementRef, restoreScrollPosition), 1);
          return;
        }
        // try to scroll to the hash
-@@ -1331,8 +1351,8 @@ function useScrollRestoration(_temp4) {
+@@ -1323,8 +1338,8 @@ function useScrollRestoration(_temp4) {
          return;
        }
        // otherwise go to the top on new locations

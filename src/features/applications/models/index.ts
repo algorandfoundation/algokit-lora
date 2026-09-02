@@ -1,7 +1,7 @@
 import { ApplicationId } from '../data/types'
-import { ABIMethodArgType, ABIMethod, ABIMethodReturnType, ABIType, Arc56Contract, Arc56Method } from '@algorandfoundation/algokit-utils/abi'
+import algosdk from 'algosdk'
+import { Arc56Contract, Arc56Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { DecodedAbiStorageKey, DecodedAbiStorageKeyType, DecodedAbiStorageValue } from '@/features/abi-methods/models'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -71,7 +71,7 @@ export type ApplicationBox = {
   value: string
 }
 
-export type StructFieldType = ABIType | StructFieldDefinition[]
+export type StructFieldType = algosdk.ABIType | StructFieldDefinition[]
 
 export type StructFieldDefinition = {
   name: string
@@ -88,14 +88,14 @@ export type DefaultArgument = NonNullable<Arc56Method['args'][number]['defaultVa
 export type ArgumentDefinition = {
   name?: string
   description?: string
-  type: ABIMethodArgType
+  type: algosdk.ABIArgumentType
   struct?: StructDefinition
   defaultArgument?: DefaultArgument
 }
 
 export type ReturnsDefinition = {
   description?: string
-  type: ABIMethodReturnType
+  type: algosdk.ABIReturnType
   struct?: StructDefinition
 }
 
@@ -103,10 +103,10 @@ export type MethodDefinition = {
   name: string
   signature: string
   description?: string
-  abiMethod: ABIMethod
+  abiMethod: algosdk.ABIMethod
   callConfig?: {
-    call: OnApplicationComplete[]
-    create: OnApplicationComplete[]
+    call: algosdk.OnApplicationComplete[]
+    create: algosdk.OnApplicationComplete[]
   }
   arguments: ArgumentDefinition[]
   returns: ReturnsDefinition

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
-import { ABIMethod, ABIReferenceType, ABITransactionType, ABIType, ABIValue } from '@algorandfoundation/algokit-utils/abi'
+import algosdk from 'algosdk'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition, ArgumentDefinition, StructDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -8,10 +8,9 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { Nfd } from '@/features/nfd/data/types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import Decimal from 'decimal.js'
-import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 export enum BuildableTransactionType {
   // pay
@@ -41,22 +40,22 @@ export enum BuildableTransactionType {
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
-  abiMethod: ABIMethod
+  abiMethod: algosdk.ABIMethod
   arguments: (ArgumentField | TransactionArgumentField)[]
   schema: Record<string, z.ZodType<any>>
 }
 
 export type ArgumentField = Omit<ArgumentDefinition, 'type'> & {
-  type: ABIType | ABIReferenceType
+  type: algosdk.ABIType | algosdk.ABIReferenceType
   structs?: StructDefinition
   path: string
   fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-  getAppCallArg: (arg?: AbiFormItemValue) => ABIValue | undefined
+  getAppCallArg: (arg?: AbiFormItemValue) => algosdk.ABIValue | undefined
 }
 
 export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
-  type: ABITransactionType
+  type: algosdk.ABITransactionType
   path: string
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
 }
@@ -95,11 +94,11 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   foreignApps?: ApplicationId[]
   boxes?: (readonly [ApplicationId, string])[]
   onComplete:
-    | OnApplicationComplete.NoOp
-    | OnApplicationComplete.OptIn
-    | OnApplicationComplete.ClearState
-    | OnApplicationComplete.CloseOut
-    | OnApplicationComplete.DeleteApplication
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.ClearStateOC
+    | algosdk.OnApplicationComplete.CloseOutOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
@@ -114,11 +113,11 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   foreignApps?: ApplicationId[]
   boxes?: (readonly [ApplicationId, string])[]
   onComplete:
-    | OnApplicationComplete.NoOp
-    | OnApplicationComplete.OptIn
-    | OnApplicationComplete.ClearState
-    | OnApplicationComplete.CloseOut
-    | OnApplicationComplete.DeleteApplication
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.ClearStateOC
+    | algosdk.OnApplicationComplete.CloseOutOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
 export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResult & {
@@ -132,10 +131,10 @@ export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResu
   localInts?: number
   localByteSlices?: number
   onComplete:
-    | OnApplicationComplete.NoOp
-    | OnApplicationComplete.OptIn
-    | OnApplicationComplete.UpdateApplication
-    | OnApplicationComplete.DeleteApplication
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.UpdateApplicationOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
 export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResult & {
@@ -146,7 +145,7 @@ export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResu
   args: string[]
 }
 
-export type MethodCallArg = ABIValue | BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction | undefined
+export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction | undefined
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -271,13 +270,13 @@ export type BuildKeyRegistrationTransactionResult = CommonBuildTransactionResult
 export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
-  targetType: ABITransactionType
+  targetType: algosdk.ABITransactionType
 }
 
 export type FulfilledByTransaction = {
   id: string
   type: BuildableTransactionType.Fulfilled
-  targetType: ABITransactionType
+  targetType: algosdk.ABITransactionType
   fulfilledById: string
 }
 

@@ -1,4 +1,4 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { invariant } from '@/utils/invariant'
 import { Address } from '../data/types'
 import { TransactionResult } from '@/features/transactions/data/types'
@@ -6,25 +6,25 @@ import { TransactionResult } from '@/features/transactions/data/types'
 export const getAddressesForTransaction = (transaction: TransactionResult): Address[] => {
   const addresses = new Set<Address>()
   addresses.add(transaction.sender)
-  if (transaction.txType === TransactionType.Payment) {
+  if (transaction.txType === algosdk.TransactionType.pay) {
     invariant(transaction.paymentTransaction, 'payment-transaction is not set')
 
     addresses.add(transaction.paymentTransaction.receiver)
     if (transaction.paymentTransaction.closeRemainderTo) {
       addresses.add(transaction.paymentTransaction.closeRemainderTo)
     }
-  } else if (transaction.txType === TransactionType.AssetTransfer) {
+  } else if (transaction.txType === algosdk.TransactionType.axfer) {
     invariant(transaction.assetTransferTransaction, 'asset-transfer-transaction is not set')
 
     addresses.add(transaction.assetTransferTransaction.receiver)
     if (transaction.assetTransferTransaction.closeTo) {
       addresses.add(transaction.assetTransferTransaction.closeTo)
     }
-  } else if (transaction.txType === TransactionType.AssetFreeze) {
+  } else if (transaction.txType === algosdk.TransactionType.afrz) {
     invariant(transaction.assetFreezeTransaction, 'asset-freeze-transaction is not set')
 
     addresses.add(transaction.assetFreezeTransaction.address)
-  } else if (transaction.txType === TransactionType.AssetConfig) {
+  } else if (transaction.txType === algosdk.TransactionType.acfg) {
     invariant(transaction.assetConfigTransaction, 'asset-config-transaction is not set')
     if (transaction.assetConfigTransaction.params?.manager) {
       addresses.add(transaction.assetConfigTransaction.params?.manager)
@@ -38,7 +38,7 @@ export const getAddressesForTransaction = (transaction: TransactionResult): Addr
     if (transaction.assetConfigTransaction.params?.clawback) {
       addresses.add(transaction.assetConfigTransaction.params?.clawback)
     }
-  } else if (transaction.txType === TransactionType.AppCall) {
+  } else if (transaction.txType === algosdk.TransactionType.appl) {
     invariant(transaction.applicationTransaction, 'application-transaction is not set')
 
     const innerTransactions = transaction.innerTxns ?? []

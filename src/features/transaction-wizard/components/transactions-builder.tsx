@@ -1,6 +1,4 @@
-import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
-import type { SimulateTraceConfig } from '@algorandfoundation/algokit-utils/algod-client'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
@@ -36,7 +34,9 @@ import React from 'react'
 import { asAlgokitTransactionType } from '../mappers/as-algokit-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
-import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/composer'
+import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
+import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
+import { algod } from '@/features/common/data/algo-client'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 
@@ -96,7 +96,7 @@ export function TransactionsBuilder({
     dialogBody: (
       props: DialogBodyProps<
         {
-          type?: TransactionType
+          type?: algosdk.TransactionType
           mode: TransactionBuilderMode
           transaction?: BuildTransactionResult
           defaultValues?: Partial<BuildTransactionResult>
@@ -168,12 +168,12 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
-        execTraceConfig: {
+        execTraceConfig: new algosdk.modelsv2.SimulateTraceConfig({
           enable: true,
           scratchChange: true,
           stackChange: true,
           stateChange: true,
-        } satisfies SimulateTraceConfig,
+        }),
       } satisfies SimulateOptions
 
       const result = await (requireSignaturesOnSimulate
@@ -202,7 +202,9 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
-      const { transactions: transactionsWithResources } = await composer.build()
+      const { atc } = await composer.build()
+      const populatedAtc = await populateAppCallResources(atc, algod)
+      const transactionsWithResources = populatedAtc.buildGroup()
 
       setTransactions((prev) => {
         let newTransactions = [...prev]
@@ -213,13 +215,12 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: transactionWithResources.txn.appCall?.accountReferences?.map((account) => account.toString()) ?? [],
-              assets: transactionWithResources.txn.appCall?.assetReferences?.map((a) => a) ?? [],
-              applications: transactionWithResources.txn.appCall?.appReferences?.map((a) => a) ?? [],
+              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
               boxes:
-                transactionWithResources.txn.appCall?.boxReferences?.map(
-                  (box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const
-                ) ?? [],
+                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
+                [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
@@ -525,8 +526,8 @@ export const patchTransactions = (
 
             if (
               previousRelatedTransactionType === argType ||
-              previousRelatedTransactionType === ABITransactionType.Txn ||
-              argType === ABITransactionType.Txn
+              previousRelatedTransactionType === algosdk.ABITransactionType.any ||
+              argType === algosdk.ABITransactionType.any
             ) {
               replacements.push([
                 previousRelatedTransaction.id,
@@ -540,7 +541,7 @@ export const patchTransactions = (
 
               if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
-              } else if (argType === ABITransactionType.Txn && arg.type === BuildableTransactionType.Placeholder) {
+              } else if (argType === algosdk.ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
                 replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
               }
             } else {

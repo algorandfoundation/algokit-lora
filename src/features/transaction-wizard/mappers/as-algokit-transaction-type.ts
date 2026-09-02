@@ -1,20 +1,19 @@
-import { ABITransactionType } from '@algorandfoundation/algokit-utils/abi'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 
-export function asAlgokitTransactionType(type: ABITransactionType): TransactionType | undefined {
+export function asAlgokitTransactionType(type: algosdk.ABITransactionType): algosdk.TransactionType | undefined {
   switch (type) {
-    case ABITransactionType.Payment:
-      return TransactionType.Payment
-    case ABITransactionType.KeyRegistration:
-      return TransactionType.KeyRegistration
-    case ABITransactionType.AssetConfig:
-      return TransactionType.AssetConfig
-    case ABITransactionType.AssetTransfer:
-      return TransactionType.AssetTransfer
-    case ABITransactionType.AssetFreeze:
-      return TransactionType.AssetFreeze
-    case ABITransactionType.AppCall:
-      return TransactionType.AppCall
+    case algosdk.ABITransactionType.pay:
+      return algosdk.TransactionType.pay
+    case algosdk.ABITransactionType.keyreg:
+      return algosdk.TransactionType.keyreg
+    case algosdk.ABITransactionType.acfg:
+      return algosdk.TransactionType.acfg
+    case algosdk.ABITransactionType.axfer:
+      return algosdk.TransactionType.axfer
+    case algosdk.ABITransactionType.afrz:
+      return algosdk.TransactionType.afrz
+    case algosdk.ABITransactionType.appl:
+      return algosdk.TransactionType.appl
     default:
       return undefined
   }

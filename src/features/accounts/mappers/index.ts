@@ -57,7 +57,7 @@ const asAccountAssetSummaries = (
 ): AccountAssetSummary[] =>
   createdAssets.map((asset) => {
     return {
-      assetId: asset.id,
-      asset: assetResolver(asset.id),
+      assetId: asset.index,
+      asset: assetResolver(asset.index),
     }
   })

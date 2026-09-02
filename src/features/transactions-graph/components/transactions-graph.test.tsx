@@ -305,7 +305,7 @@ describe('heartbeat-transaction-graph', () => {
 })
 
 const createAssetResolver = (assetResults: AssetResult[]) => (assetId: bigint) => {
-  const assetResult = assetResults.find((a) => a.id === assetId)
+  const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))
 }
