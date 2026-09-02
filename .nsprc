@@ -1,1 +1,17 @@
-{}
+{
+  "1130591": "brace-expansion is only reached through development and release tooling.",
+  "1130734": "brace-expansion is only reached through development and release tooling.",
+  "1120680": "esbuild is used only by the Vite development server and build tooling.",
+  "1124064": "fast-uri is only reached through development and release tooling.",
+  "1130720": "fast-uri is only reached through development and release tooling.",
+  "1147878": "fast-uri is only reached through development and release tooling.",
+  "1130722": "ip-address is bundled with npm used only by release tooling.",
+  "1130723": "ip-address is bundled with npm used only by release tooling.",
+  "1130724": "ip-address is bundled with npm used only by release tooling.",
+  "1124268": "React Router navigation targets are constructed internally; untrusted paths are never passed to navigation APIs.",
+  "1124272": "The application is a client-side SPA and does not use React Router SSR or hydration.",
+  "1145647": "tar is bundled with npm used only by release tooling.",
+  "1130716": "undici is only reached through semantic-release tooling.",
+  "1130727": "undici is only reached through semantic-release tooling.",
+  "1130732": "undici is only reached through semantic-release tooling."
+}
