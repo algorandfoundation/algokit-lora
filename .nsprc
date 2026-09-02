@@ -1,17 +1,82 @@
 {
-  "1130591": "brace-expansion is only reached through development and release tooling.",
-  "1130734": "brace-expansion is only reached through development and release tooling.",
-  "1120680": "esbuild is used only by the Vite development server and build tooling.",
-  "1124064": "fast-uri is only reached through development and release tooling.",
-  "1130720": "fast-uri is only reached through development and release tooling.",
-  "1147878": "fast-uri is only reached through development and release tooling.",
-  "1130722": "ip-address is bundled with npm used only by release tooling.",
-  "1130723": "ip-address is bundled with npm used only by release tooling.",
-  "1130724": "ip-address is bundled with npm used only by release tooling.",
-  "1124268": "React Router navigation targets are constructed internally; untrusted paths are never passed to navigation APIs.",
-  "1124272": "The application is a client-side SPA and does not use React Router SSR or hydration.",
-  "1145647": "tar is bundled with npm used only by release tooling.",
-  "1130716": "undici is only reached through semantic-release tooling.",
-  "1130727": "undici is only reached through semantic-release tooling.",
-  "1130732": "undici is only reached through semantic-release tooling."
+  "1112030": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "Low in elliptic via vite-plugin-node-polyfills > node-stdlib-browser > crypto-browserify (dev dep). Risky crypto implementation. All versions affected, no fix available. crypto-browserify is not imported by app code; only bundled if a dep references it."
+  },
+  "1130591": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "brace-expansion is only reached through development and release tooling."
+  },
+  "1130734": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "brace-expansion is only reached through development and release tooling."
+  },
+  "1120680": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "esbuild is used only by the Vite development server and build tooling."
+  },
+  "1124064": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "fast-uri is only reached through development and release tooling."
+  },
+  "1130720": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "fast-uri is only reached through development and release tooling."
+  },
+  "1147878": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "fast-uri is only reached through development and release tooling."
+  },
+  "1130722": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "ip-address is bundled with npm used only by release tooling."
+  },
+  "1130723": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "ip-address is bundled with npm used only by release tooling."
+  },
+  "1130724": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "ip-address is bundled with npm used only by release tooling."
+  },
+  "1124268": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "React Router navigation targets are constructed internally; untrusted paths are never passed to navigation APIs."
+  },
+  "1124272": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "The application is a client-side SPA and does not use React Router SSR or hydration."
+  },
+  "1145647": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "tar is bundled with npm used only by release tooling."
+  },
+  "1130716": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "undici is only reached through semantic-release tooling."
+  },
+  "1130727": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "undici is only reached through semantic-release tooling."
+  },
+  "1130732": {
+    "active": true,
+    "expiry": "2027-03-01",
+    "notes": "undici is only reached through semantic-release tooling."
+  }
 }

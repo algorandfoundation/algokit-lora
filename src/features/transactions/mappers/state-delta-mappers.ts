@@ -154,7 +154,7 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
   }
 
   const { key, value } = delta
-  // Check for global keys first
+  // Check for local keys first
   for (const [keyName, storageKey] of Object.entries(appSpec.state.keys.local)) {
     if (storageKey.key === key) {
       return {
@@ -170,7 +170,7 @@ const asLocalStateDeltaItem = (address: Address, delta: EvalDeltaKeyValue, appSp
     }
   }
 
-  // Check for global maps with prefix
+  // Check for local maps with prefix
   for (const [keyName, storageMap] of Object.entries(appSpec.state.maps.local)) {
     if (!storageMap.prefix) {
       continue
