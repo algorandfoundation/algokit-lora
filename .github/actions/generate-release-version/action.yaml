@@ -52,12 +52,14 @@ runs:
 
     - name: Debug dry-run outputs
       shell: bash
+      env:
+        DRY_RUN_OUTPUTS: ${{ toJSON(steps.get-next-version.outputs) }}
       run: |
         echo "=== Debugging semantic-release dry-run outputs ==="
         echo "new-release-published: '${{ steps.get-next-version.outputs.new-release-published }}'"
         echo "new-release-version: '${{ steps.get-next-version.outputs.new-release-version }}'"
         echo "=== All step outputs ==="
-        echo '${{ toJSON(steps.get-next-version.outputs) }}'
+        printf '%s\n' "$DRY_RUN_OUTPUTS"
         echo "=== Done debugging ==="
 
     - name: Create release
