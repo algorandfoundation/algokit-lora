@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.4.0...v2.4.1) (2026-09-10)
+
+### 🐛 Bug Fixes
+
+* use utils 9.2.2 to work with Pera's PQ fee changes ([#609](https://github.com/algorandfoundation/algokit-lora/issues/609)) ([7461262](https://github.com/algorandfoundation/algokit-lora/commit/746126278c85c16b1da5c8570e0e156aafb24de4))
+
 ## [2.4.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.3.3...v2.4.0) (2026-09-02)
 
 ### 🚀 Features
