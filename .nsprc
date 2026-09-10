@@ -4,46 +4,6 @@
     "expiry": "2027-03-01",
     "notes": "Low in elliptic via vite-plugin-node-polyfills > node-stdlib-browser > crypto-browserify (dev dep). Risky crypto implementation. All versions affected, no fix available. crypto-browserify is not imported by app code; only bundled if a dep references it."
   },
-  "1130591": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "brace-expansion is only reached through development and release tooling."
-  },
-  "1130734": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "brace-expansion is only reached through development and release tooling."
-  },
-  "1120680": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "esbuild is used only by the Vite development server and build tooling."
-  },
-  "1130722": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "ip-address is bundled with npm used only by release tooling."
-  },
-  "1130723": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "ip-address is bundled with npm used only by release tooling."
-  },
-  "1130724": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "ip-address is bundled with npm used only by release tooling."
-  },
-  "1158506": {
-    "active": true,
-    "expiry": "2026-10-01",
-    "notes": "qs via vite-plugin-node-polyfills > node-stdlib-browser > url (dev dep). Fixed in qs 6.16.0, which is blocked by the min-release-age=7 policy in .npmrc until ~2026-09-05; remove this exception and override qs to ^6.16.0 then. Not reachable from prod: nodePolyfills only enables the Buffer global and the url/qs polyfill is absent from the built bundle."
-  },
-  "1158507": {
-    "active": true,
-    "expiry": "2026-10-01",
-    "notes": "qs via vite-plugin-node-polyfills > node-stdlib-browser > url (dev dep). Fixed in qs 6.16.0, which is blocked by the min-release-age=7 policy in .npmrc until ~2026-09-05; remove this exception and override qs to ^6.16.0 then. Not reachable from prod: nodePolyfills only enables the Buffer global and the url/qs polyfill is absent from the built bundle."
-  },
   "1124268": {
     "active": true,
     "expiry": "2027-03-01",
@@ -53,25 +13,5 @@
     "active": true,
     "expiry": "2027-03-01",
     "notes": "The application is a client-side SPA and does not use React Router SSR or hydration."
-  },
-  "1145647": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "tar is bundled with npm used only by release tooling."
-  },
-  "1130716": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "undici is only reached through semantic-release tooling."
-  },
-  "1130727": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "undici is only reached through semantic-release tooling."
-  },
-  "1130732": {
-    "active": true,
-    "expiry": "2027-03-01",
-    "notes": "undici is only reached through semantic-release tooling."
   }
 }
