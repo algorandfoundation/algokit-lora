@@ -53,6 +53,8 @@ export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
 
+export const rekeyToFieldSchema = { rekeyTo: optionalAddressFieldSchema }
+
 export const feeFieldSchema = {
   fee: z
     .object({
@@ -152,6 +154,7 @@ export const commonSchema = {
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
   ...noteFieldSchema,
+  ...rekeyToFieldSchema,
 }
 
 export const commonFormData = zfd.formData(commonSchema)

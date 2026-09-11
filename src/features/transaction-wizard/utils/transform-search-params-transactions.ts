@@ -48,6 +48,7 @@ const transformKeyRegistrationTransaction = async (params: BaseSearchParamTransa
   voteLastValid: params.votelst ? BigInt(params.votelst) : undefined,
   voteKeyDilution: params.votekd ? BigInt(params.votekd) : undefined,
   stateProofKey: params.sprfkey,
+  rekeyTo: asRekeyTo(params.rekeyto),
   validRounds: {
     setAutomatically: true,
     firstValid: undefined,
@@ -72,12 +73,14 @@ const transformPaymentTransaction = async (params: BaseSearchParamTransaction): 
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const defaultOptionalAddress = {
   value: '',
   resolvedAddress: '',
 }
+const asRekeyTo = (rekeyTo?: string) => (rekeyTo ? { value: rekeyTo, resolvedAddress: rekeyTo } : defaultOptionalAddress)
 const transformAssetCreateTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetCreateTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetCreate,
@@ -121,6 +124,7 @@ const transformAssetCreateTransaction = async (params: BaseSearchParamTransactio
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetOptInTransactionResult> => ({
@@ -141,6 +145,7 @@ const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetOptOutTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetOptOutTransactionResult> => ({
@@ -165,6 +170,7 @@ const transformAssetOptOutTransaction = async (params: BaseSearchParamTransactio
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetTransferTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetTransferTransactionResult> => ({
@@ -190,6 +196,7 @@ const transformAssetTransferTransaction = async (params: BaseSearchParamTransact
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetReconfigureTransaction = async (
@@ -236,6 +243,7 @@ const transformAssetReconfigureTransaction = async (
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetFreezeTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetFreezeTransactionResult> => ({
@@ -261,6 +269,7 @@ const transformAssetFreezeTransaction = async (params: BaseSearchParamTransactio
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetDestroyTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetDestroyTransactionResult> => ({
@@ -280,6 +289,7 @@ const transformAssetDestroyTransaction = async (params: BaseSearchParamTransacti
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformAssetClawbackTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetClawbackTransactionResult> => ({
@@ -309,6 +319,7 @@ const transformAssetClawbackTransaction = async (params: BaseSearchParamTransact
     lastValid: undefined,
   },
   note: params.note,
+  rekeyTo: asRekeyTo(params.rekeyto),
 })
 
 const transformationConfigByTransactionType = {

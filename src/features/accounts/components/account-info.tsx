@@ -42,6 +42,14 @@ export function AccountInfo({ account }: Props) {
           </div>
         ),
       },
+      ...(account.rekeyedTo
+        ? [
+            {
+              dt: accountRekeyedToLabel,
+              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} showQRButton={true} />,
+            },
+          ]
+        : []),
       ...(loadableNfd.state === 'hasData' && loadableNfd.data !== null
         ? [
             {
@@ -82,14 +90,6 @@ export function AccountInfo({ account }: Props) {
         dt: accountApplicationsOptedInLabel,
         dd: account.totalApplicationsOptedIn,
       },
-      ...(account.rekeyedTo
-        ? [
-            {
-              dt: accountRekeyedToLabel,
-              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} showQRButton={true} />,
-            },
-          ]
-        : []),
     ]
     return items
   }, [

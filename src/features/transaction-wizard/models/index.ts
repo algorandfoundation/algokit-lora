@@ -82,6 +82,7 @@ type CommonBuildTransactionResult = {
     lastValid?: bigint
   }
   note?: string
+  rekeyTo?: AddressOrNfd
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
