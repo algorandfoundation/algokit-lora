@@ -15,6 +15,7 @@ export type CommonTransactionProperties = {
   group?: GroupId
   fee: AlgoAmount
   sender: Address
+  lease?: string
   note?: string
   signature?: Singlesig | Multisig | Logicsig
   json: string

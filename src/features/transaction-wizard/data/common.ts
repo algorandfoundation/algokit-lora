@@ -8,6 +8,7 @@ import { BuildTransactionResult } from '../models'
 import { asAlgokitTransactions } from '../mappers'
 import { isNfd } from '@/features/nfd/data'
 import algosdk, { Transaction } from 'algosdk'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const requiredMessage = 'Required'
 
@@ -52,6 +53,17 @@ export const senderFieldSchema = { sender: addressFieldSchema }
 export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
+
+const invalidLeaseMessage = 'Must be a base64 encoded 32 byte value'
+
+export const leaseFieldSchema = {
+  lease: zfd.text(
+    z
+      .string()
+      .refine((value) => /^[A-Za-z0-9+/_-]+={0,2}$/.test(value) && base64ToBytes(value).length === 32, { message: invalidLeaseMessage })
+      .optional()
+  ),
+}
 
 export const feeFieldSchema = {
   fee: z
@@ -151,6 +163,7 @@ export const onCompleteOptionsForAppCreate = [
 export const commonSchema = {
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
+  ...leaseFieldSchema,
   ...noteFieldSchema,
 }
 

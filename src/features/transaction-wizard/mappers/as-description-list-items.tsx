@@ -50,6 +50,7 @@ import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
 import TransactionSenderLink from '@/features/accounts/components/transaction-sender-link'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -122,6 +123,7 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -170,6 +172,7 @@ const asAssetTransferTransaction = (
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -235,6 +238,7 @@ const asAssetConfigTransaction = (
       : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -265,6 +269,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -293,6 +298,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
     ...('voteKeyDilution' in params && params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -407,6 +413,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -469,6 +476,7 @@ const asMethodCallTransaction = (
       : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -480,6 +488,16 @@ const asNoteItem = (note?: string | Uint8Array) =>
         {
           dt: 'Note',
           dd: note,
+        },
+      ]
+    : []
+
+const asLeaseItem = (lease?: string | Uint8Array) =>
+  lease
+    ? [
+        {
+          dt: 'Lease',
+          dd: typeof lease === 'string' ? lease : uint8ArrayToBase64(lease),
         },
       ]
     : []
@@ -744,6 +762,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
       : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -783,6 +802,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
       : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]

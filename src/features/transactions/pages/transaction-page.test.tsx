@@ -11,6 +11,7 @@ import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { transactionResultsAtom } from '../data'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
@@ -27,6 +28,7 @@ import {
   transactionFeeLabel,
   transactionGroupLabel,
   transactionIdLabel,
+  transactionLeaseLabel,
   transactionRekeyToLabel,
   transactionSignerAddressLabel,
   transactionTimestampLabel,
@@ -151,6 +153,49 @@ describe('transaction-page', () => {
         () => render(<TransactionPage />),
         async (component) => {
           await waitFor(() => expect(component.getByText(transactionFailedToLoadMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
+  describe('when rendering a payment transaction with a lease', () => {
+    const lease = 'bG9yYS1sZWFzZS10ZXN0LTAxMjM0NTY3ODlhYmNkZWY='
+    const transaction = transactionResultMother
+      .payment()
+      .withId('LEASESDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
+      .withConfirmedRound(36570178n)
+      .withRoundTime(1709189521)
+      .withSender('M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM')
+      .withPaymentTransaction({
+        amount: 236070000n,
+        receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        closeAmount: 0n,
+      })
+      .withFee(1000n)
+      .withLease(base64ToBytes(lease))
+      .build()
+
+    it('should show the lease', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionLeaseLabel, description: lease },
+              ],
+            })
+          })
         }
       )
     })

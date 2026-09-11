@@ -31,6 +31,7 @@ import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode, useLoadableArc56AppSpecWithMethodDefinitions } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { Info } from 'lucide-react'
@@ -163,6 +164,7 @@ export function MethodCallTransactionBuilder({
         methodArgs: methodArgs,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         note: values.note,
       } satisfies BuildMethodCallTransactionResult
 
@@ -194,6 +196,7 @@ export function MethodCallTransactionBuilder({
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         ...methodArgs,
       }
@@ -406,6 +409,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       ))}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
     </div>
   )

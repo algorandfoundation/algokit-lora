@@ -81,6 +81,7 @@ type CommonBuildTransactionResult = {
     firstValid?: bigint
     lastValid?: bigint
   }
+  lease?: string
   note?: string
 }
 

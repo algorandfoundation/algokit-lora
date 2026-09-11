@@ -15,6 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -48,6 +49,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
       })
     },
@@ -61,6 +63,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
       }
     }
@@ -116,6 +119,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
         </>
       )}

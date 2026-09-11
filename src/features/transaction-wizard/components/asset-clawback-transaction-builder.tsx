@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
@@ -108,6 +109,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
     </>
   )
@@ -194,6 +196,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         amount: data.amount!,
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
       })
     },
@@ -209,6 +212,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
       }
     }

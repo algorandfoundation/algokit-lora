@@ -53,6 +53,7 @@ const transformKeyRegistrationTransaction = async (params: BaseSearchParamTransa
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
 })
 
 const transformPaymentTransaction = async (params: BaseSearchParamTransaction): Promise<BuildPaymentTransactionResult> => ({
@@ -71,6 +72,7 @@ const transformPaymentTransaction = async (params: BaseSearchParamTransaction): 
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -120,6 +122,7 @@ const transformAssetCreateTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -140,6 +143,7 @@ const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -164,6 +168,7 @@ const transformAssetOptOutTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -189,6 +194,7 @@ const transformAssetTransferTransaction = async (params: BaseSearchParamTransact
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -235,6 +241,7 @@ const transformAssetReconfigureTransaction = async (
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -260,6 +267,7 @@ const transformAssetFreezeTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -279,6 +287,7 @@ const transformAssetDestroyTransaction = async (params: BaseSearchParamTransacti
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 
@@ -308,6 +317,7 @@ const transformAssetClawbackTransaction = async (params: BaseSearchParamTransact
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
 })
 

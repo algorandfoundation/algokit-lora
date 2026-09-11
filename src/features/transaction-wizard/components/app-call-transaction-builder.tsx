@@ -19,6 +19,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -58,6 +59,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         args: values.args.map((arg) => arg.value),
         note: values.note,
       })
@@ -74,6 +76,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
@@ -153,6 +156,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
         </div>
       )}
