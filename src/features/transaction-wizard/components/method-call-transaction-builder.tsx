@@ -31,12 +31,13 @@ import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode, useLoadableArc56AppSpecWithMethodDefinitions } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -164,6 +165,7 @@ export function MethodCallTransactionBuilder({
         fee: values.fee,
         validRounds: values.validRounds,
         note: values.note,
+        rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       } satisfies BuildMethodCallTransactionResult
 
       onSubmit(methodCallTxn)
@@ -195,6 +197,7 @@ export function MethodCallTransactionBuilder({
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
         ...methodArgs,
       }
     }
@@ -407,6 +410,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </div>
   )
 }

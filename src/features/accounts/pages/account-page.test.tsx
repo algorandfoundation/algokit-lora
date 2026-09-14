@@ -192,6 +192,7 @@ describe('account-page', () => {
               container: informationCard,
               items: [
                 { term: accountAddressLabel, description: 'DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4' },
+                { term: accountRekeyedToLabel, description: 'K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E' },
                 { term: accountBalanceLabel, description: '98.433606' },
                 { term: accountMinBalanceLabel, description: '2.2285' },
                 { term: accountAssetsHeldLabel, description: '0' },
@@ -199,7 +200,6 @@ describe('account-page', () => {
                 { term: accountAssetsOptedInLabel, description: '0' },
                 { term: accountApplicationsCreatedLabel, description: '0' },
                 { term: accountApplicationsOptedInLabel, description: '8' },
-                { term: accountRekeyedToLabel, description: 'K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E' },
               ],
             })
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })

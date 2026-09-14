@@ -120,6 +120,7 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
       dt: 'Amount',
       dd: <DisplayAlgo amount={params.amount} />,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -168,6 +169,7 @@ const asAssetTransferTransaction = (
       dt: 'Amount',
       dd: `${asAssetDisplayAmount(params.amount, transaction.asset.decimals!)}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -233,6 +235,7 @@ const asAssetConfigTransaction = (
     ...('metadataHash' in transaction && transaction.metadataHash
       ? [{ dt: 'Metadata hash', dd: transaction.metadataHash.toString() }]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -263,6 +266,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Action',
       dd: params.frozen ? freezeAssetLabel : unfreezeAssetLabel,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -291,6 +295,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
     ...('voteFirst' in params && params.voteFirst !== undefined ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
     ...('voteLast' in params && params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
     ...('voteKeyDilution' in params && params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -405,6 +410,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -467,6 +473,7 @@ const asMethodCallTransaction = (
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -485,6 +492,16 @@ const asNoteItem = (note?: string | Uint8Array) =>
     : []
 
 const asFeeItem = (fee?: AlgoAmount) => (fee ? [{ dt: 'Fee', dd: <DisplayAlgo amount={fee} /> }] : [])
+
+const asRekeyToItem = (rekeyTo?: string | Address) =>
+  rekeyTo
+    ? [
+        {
+          dt: 'Rekey to',
+          dd: <AddressOrNfdLink address={rekeyTo} />,
+        },
+      ]
+    : []
 
 const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
   firstValid && lastValid
@@ -742,6 +759,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -781,6 +799,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
