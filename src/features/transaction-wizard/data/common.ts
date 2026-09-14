@@ -124,6 +124,7 @@ export const onCompleteFieldSchema = {
     z.literal(algosdk.OnApplicationComplete.OptInOC.toString(), { required_error: requiredMessage }),
     z.literal(algosdk.OnApplicationComplete.ClearStateOC.toString(), { required_error: requiredMessage }),
     z.literal(algosdk.OnApplicationComplete.CloseOutOC.toString(), { required_error: requiredMessage }),
+    z.literal(algosdk.OnApplicationComplete.UpdateApplicationOC.toString(), { required_error: requiredMessage }),
     z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString(), { required_error: requiredMessage }),
   ]),
 }
@@ -133,6 +134,10 @@ export const onCompleteOptions = [
   { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
   { label: asOnCompleteLabel(algosdk.OnApplicationComplete.ClearStateOC), value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
   { label: asOnCompleteLabel(algosdk.OnApplicationComplete.CloseOutOC), value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
+  {
+    label: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
+    value: algosdk.OnApplicationComplete.UpdateApplicationOC.toString(),
+  },
   {
     label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
     value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
