@@ -9,7 +9,7 @@ import {
 import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
+import { getByDescriptionTerm, queryByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { transactionResultsAtom } from '../data'
@@ -54,6 +54,7 @@ import {
   foreignAssetsTabLabel,
   globalStateDeltaTabLabel,
   onCompletionLabel,
+  rejectVersionLabel,
   localStateDeltaTabLabel,
   decodedAbiMethodTabLabel,
 } from '../components/app-call-transaction-info'
@@ -760,6 +761,7 @@ describe('transaction-page', () => {
               ],
             })
           })
+          expect(queryByDescriptionTerm(component.container, rejectVersionLabel)).toBeNull()
 
           const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
           expect(detailsTabList).toBeTruthy()
@@ -810,6 +812,45 @@ describe('transaction-page', () => {
               { cells: ['', 'inner/1', '', '2ZPN…DJJ4', 'W2IZ…NCEY', 'Payment', '236.706032'] },
               { cells: ['', 'inner/2', '', '2ZPN…DJJ4', '971350278', 'Application Call', ''] },
             ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction with a reject version', () => {
+    const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
+    transaction.applicationTransaction!.rejectVersion = 3
+    const asset = assetResultMother['mainnet-971381860']().build()
+
+    it('should show the reject version', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(
+        assetResultsAtom,
+        new Map([
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
+        ])
+      )
+      myStore.set(genesisHashAtom, 'some-hash')
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: onCompletionLabel, description: 'NoOp' },
+                { term: rejectVersionLabel, description: '3' },
+              ],
+            })
           })
         }
       )

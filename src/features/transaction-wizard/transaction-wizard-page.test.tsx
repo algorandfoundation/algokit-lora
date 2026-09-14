@@ -717,6 +717,96 @@ describe('transaction-wizard-page', () => {
           }
         )
       })
+
+      it('succeeds when a reject version has been supplied', async () => {
+        const { testAccount } = localnet.context
+
+        // A newly created application has version 0, so a reject version of 1 doesn't reject the update
+        const appCreateResult = await localnet.context.algorand.send.appCreate({
+          sender: testAccount.addr,
+          approvalProgram: '#pragma version 10\nint 1\nreturn',
+          clearStateProgram: '#pragma version 10\nint 1\nreturn',
+        })
+        const appId = Number(appCreateResult.confirmation.applicationIndex!)
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Update (appl)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
+            fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const applicationIdInput = await component.findByLabelText(/Application ID/)
+            fireEvent.input(applicationIdInput, {
+              target: { value: appId },
+            })
+
+            const rejectVersionInput = await component.findByLabelText(/Reject version/)
+            fireEvent.input(rejectVersionInput, {
+              target: { value: 1 },
+            })
+
+            const program = 'CoEBQw=='
+            const approvalProgramInput = await component.findByLabelText(/Approval program/)
+            fireEvent.input(approvalProgramInput, {
+              target: { value: program },
+            })
+
+            const clearStateProgramInput = await component.findByLabelText(/Clear state program/)
+            fireEvent.input(clearStateProgramInput, {
+              target: { value: program },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.applicationTransaction?.onCompletion).toBe('update')
+            expect(result.transaction.applicationTransaction?.rejectVersion).toBe(1)
+          }
+        )
+      })
     })
   })
 })

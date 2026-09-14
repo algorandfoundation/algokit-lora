@@ -18,6 +18,7 @@ import {
   applicationAccountLabel,
   applicationBoxesLabel,
   applicationCreatorAccountLabel,
+  applicationVersionLabel,
   applicationDetailsLabel,
   applicationGlobalStateByteLabel,
   applicationGlobalStateLabel,
@@ -191,6 +192,7 @@ describe('application-page', () => {
               { term: applicationIdLabel, description: '80441968' },
               { term: applicationCreatorAccountLabel, description: '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA' },
               { term: applicationAccountLabel, description: 'S3TLYVDRMR5VRKPACAYFXFLPNTYWQG37A6LPKERQ2DNABLTTGCXDUE2T3E' },
+              { term: applicationVersionLabel, description: '0' },
               { term: applicationGlobalStateByteLabel, description: '3' },
               { term: applicationLocalStateByteLabel, description: '0' },
               { term: applicationGlobalStateUintLabel, description: '12' },
@@ -377,6 +379,48 @@ describe('application-page', () => {
           await user.type(addressInput, 'HELLO')
 
           await findByText(localStateTab, invalidAddressForLocalStateMessage)
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application that has been updated', () => {
+    const applicationResult = applicationResultMother['mainnet-1196727051']().build()
+    applicationResult.params.version = 2
+    const transactionResult = transactionResultMother['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']().build()
+
+    it('should be rendered with the version', () => {
+      const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [transactionResult] as algosdk.indexerModels.Transaction[],
+            nextToken: '',
+          })
+        )
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(async () => {
+            const detailsCard = component.getByLabelText(applicationDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: applicationIdLabel, description: '1196727051' },
+                { term: applicationVersionLabel, description: '2' },
+              ],
+            })
+          })
         }
       )
     })

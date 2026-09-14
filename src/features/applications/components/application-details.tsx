@@ -4,6 +4,7 @@ import { Application } from '../models'
 import { useMemo } from 'react'
 import {
   applicationAccountLabel,
+  applicationVersionLabel,
   applicationBoxesLabel,
   applicationCreatorAccountLabel,
   applicationDetailsLabel,
@@ -80,6 +81,10 @@ export function ApplicationDetails({ application }: Props) {
         dt: applicationAccountLabel,
         dd: <AccountLink address={application.account} showCopyButton={true} showQRButton={true} />,
       },
+      {
+        dt: applicationVersionLabel,
+        dd: application.version,
+      },
       ...(application.globalStateSchema
         ? [
             {
@@ -119,6 +124,7 @@ export function ApplicationDetails({ application }: Props) {
       application.name,
       application.creator,
       application.account,
+      application.version,
       application.globalStateSchema,
       application.localStateSchema,
     ]

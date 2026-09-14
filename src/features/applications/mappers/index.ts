@@ -47,6 +47,7 @@ export const asApplication = (
     name: metadata?.name,
     creator: application.params.creator?.toString() ?? ZERO_ADDRESS,
     account: getApplicationAddress(application.id).toString(),
+    version: application.params.version ?? 0,
     globalStateSchema: application.params.globalStateSchema
       ? {
           numByteSlice: application.params.globalStateSchema.numByteSlice,

@@ -177,6 +177,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   localStateDeltas: Atom<Promise<LocalStateDelta[]>>
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
+  rejectVersion?: number
   logs: string[]
   abiMethod: Atom<Promise<DecodedAbiMethod | undefined>>
 }
