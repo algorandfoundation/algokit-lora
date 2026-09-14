@@ -64,6 +64,7 @@ export const leaseFieldSchema = {
       .optional()
   ),
 }
+export const rekeyToFieldSchema = { rekeyTo: optionalAddressFieldSchema }
 
 export const feeFieldSchema = {
   fee: z
@@ -165,6 +166,7 @@ export const commonSchema = {
   ...validRoundsFieldSchema,
   ...leaseFieldSchema,
   ...noteFieldSchema,
+  ...rekeyToFieldSchema,
 }
 
 export const commonFormData = zfd.formData(commonSchema)

@@ -17,6 +17,7 @@ import {
   BuildKeyRegistrationTransactionResult,
   BuildApplicationCreateTransactionResult,
   BuildApplicationUpdateTransactionResult,
+  AddressOrNfd,
 } from '@/features/transaction-wizard/models'
 import { isBuildTransactionResult, isFulfilledByTransaction, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { invariant } from '@/utils/invariant'
@@ -95,6 +96,7 @@ export const asPaymentTransactionParams = (
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asPaymentTransaction = async (
@@ -140,6 +142,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -176,6 +179,7 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
@@ -201,6 +205,7 @@ export const asApplicationCreateTransactionParams = (transaction: BuildApplicati
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -220,6 +225,7 @@ export const asApplicationUpdateTransactionParams = (transaction: BuildApplicati
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -255,6 +261,7 @@ export const asAssetTransferTransactionParams = (
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetTransferTransaction = async (
@@ -293,6 +300,7 @@ export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTran
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
@@ -312,6 +320,7 @@ const asAssetReconfigureTransactionParams = (transaction: BuildAssetReconfigureT
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
@@ -324,6 +333,7 @@ const asAssetDestroyTransactionParams = (transaction: BuildAssetDestroyTransacti
     sender: transaction.sender.resolvedAddress,
     assetId: BigInt(transaction.asset.id),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
@@ -356,6 +366,7 @@ export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTran
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
@@ -387,12 +398,14 @@ export const asKeyRegistrationTransactionParams = (
       ...asFee(transaction.fee),
       ...asValidRounds(transaction.validRounds),
       ...asLease(transaction.lease),
+      ...asRekeyTo(transaction.rekeyTo),
     }
   }
 
   return {
     sender: transaction.sender.resolvedAddress,
     ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -408,6 +421,7 @@ const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
   !fee.setAutomatically && fee.value != null ? { staticFee: algos(fee.value) } : undefined
 
 const asLease = (lease?: string) => (lease ? { lease: base64ToBytes(lease) } : undefined)
+const asRekeyTo = (rekeyTo?: AddressOrNfd) => (rekeyTo?.resolvedAddress ? { rekeyTo: rekeyTo.resolvedAddress } : undefined)
 
 const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid

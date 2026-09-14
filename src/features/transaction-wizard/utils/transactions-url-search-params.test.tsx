@@ -66,6 +66,7 @@ describe('Render transactions page with search params', () => {
       const votelst = 11300
       const fee = 2_000_000
       const lease = 'bG9yYS1sZWFzZS10ZXN0LTAxMjM0NTY3ODlhYmNkZWY='
+      const rekeyTo = 'DOPXFWC655OLDRKA65ACD37RHMOCY56N3TEUBLRPPGDRN3OSBDIKY7CDBM'
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'keyreg',
@@ -78,6 +79,7 @@ describe('Render transactions page with search params', () => {
           'votelst[0]': votelst.toString(),
           'fee[0]': fee.toString(),
           'lease[0]': lease,
+          'rekeyto[0]': rekeyTo,
         }),
       })
       expect(await screen.findByText('Online')).toBeInTheDocument()
@@ -92,6 +94,7 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(votelst.toString())).toBeInTheDocument()
       expect(await screen.findByText('2')).toBeInTheDocument()
       expect(await screen.findByText(lease)).toBeInTheDocument()
+      expect(await screen.findByText(rekeyTo)).toBeInTheDocument()
     })
 
     it('should render online key registration with url encoded values', async () => {
@@ -147,6 +150,7 @@ describe('Render transactions page with search params', () => {
     const fee = 3_000_000
     const note = 'Some payment notes'
     const lease = 'bG9yYS1sZWFzZS10ZXN0LTAxMjM0NTY3ODlhYmNkZWY='
+    const rekeyTo = 'DOPXFWC655OLDRKA65ACD37RHMOCY56N3TEUBLRPPGDRN3OSBDIKY7CDBM'
 
     it('should render payment transaction with minimal required fields only', async () => {
       renderTxnsWizardPageWithSearchParams({
@@ -173,6 +177,7 @@ describe('Render transactions page with search params', () => {
           'fee[0]': fee.toString(),
           'note[0]': note,
           'lease[0]': lease,
+          'rekeyto[0]': rekeyTo,
         }),
       })
       expect(await screen.findByText(sender)).toBeInTheDocument()
@@ -181,6 +186,7 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText('3')).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
       expect(await screen.findByText(lease)).toBeInTheDocument()
+      expect(await screen.findByText(rekeyTo)).toBeInTheDocument()
     })
 
     it('should render payment transaction with lease only', async () => {
@@ -211,6 +217,22 @@ describe('Render transactions page with search params', () => {
       })
       expect(await screen.findByText(sender)).toBeInTheDocument()
       expect(await screen.findByText('Pj4+Pz8/bG9yYS11cmwtc2FmZS1sZWFzZS10ZXN0ISE=')).toBeInTheDocument()
+    })
+
+    it('should render payment transaction with rekey to only', async () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'pay',
+          'sender[0]': sender,
+          'receiver[0]': receiver,
+          'amount[0]': amount.toString(),
+          'rekeyto[0]': rekeyTo,
+        }),
+      })
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText(rekeyTo)).toBeInTheDocument()
     })
 
     it('should render payment transaction with fee only', async () => {

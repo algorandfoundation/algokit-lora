@@ -22,7 +22,8 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
@@ -89,6 +90,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       <TransactionBuilderValidRoundField />
       <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </>
   )
 }
@@ -172,6 +174,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
         validRounds: data.validRounds,
         lease: data.lease,
         note: data.note,
+        rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -187,6 +190,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
         validRounds: transaction.validRounds,
         lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
       }
     }
 

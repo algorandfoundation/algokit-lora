@@ -25,7 +25,8 @@ import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetDestroyFormSchema = z.object({
@@ -90,6 +91,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       <TransactionBuilderValidRoundField />
       <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </>
   )
 }
@@ -173,6 +175,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         validRounds: data.validRounds,
         lease: data.lease,
         note: data.note,
+        rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -186,6 +189,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         validRounds: transaction.validRounds,
         lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
       }
     }
 

@@ -83,6 +83,7 @@ type CommonBuildTransactionResult = {
   }
   lease?: string
   note?: string
+  rekeyTo?: AddressOrNfd
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {

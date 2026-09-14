@@ -14,11 +14,12 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
@@ -169,6 +170,7 @@ function FormFields({ helper }: FormFieldsProps) {
       <TransactionBuilderValidRoundField />
       <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </>
   )
 }
@@ -199,6 +201,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
         validRounds: data.validRounds,
         lease: data.lease,
         note: data.note,
+        rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -218,6 +221,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
         validRounds: transaction.validRounds,
         lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
       }
     }
 
