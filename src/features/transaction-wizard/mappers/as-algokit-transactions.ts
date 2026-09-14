@@ -143,6 +143,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion),
   }
 }
 
@@ -180,6 +181,7 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion),
   }
 }
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
@@ -226,6 +228,7 @@ export const asApplicationUpdateTransactionParams = (transaction: BuildApplicati
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion),
   }
 }
 
@@ -422,6 +425,7 @@ const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
 
 const asLease = (lease?: string) => (lease ? { lease: base64ToBytes(lease) } : undefined)
 const asRekeyTo = (rekeyTo?: AddressOrNfd) => (rekeyTo?.resolvedAddress ? { rekeyTo: rekeyTo.resolvedAddress } : undefined)
+const asRejectVersion = (rejectVersion?: number) => (rejectVersion ? { rejectVersion } : undefined)
 
 const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid

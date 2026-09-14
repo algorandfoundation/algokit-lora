@@ -66,6 +66,10 @@ export const leaseFieldSchema = {
 }
 export const rekeyToFieldSchema = { rekeyTo: optionalAddressFieldSchema }
 
+export const rejectVersionFieldSchema = {
+  rejectVersion: numberSchema(z.number().int().min(0).optional()),
+}
+
 export const feeFieldSchema = {
   fee: z
     .object({
@@ -170,6 +174,8 @@ export const commonSchema = {
 }
 
 export const commonFormData = zfd.formData(commonSchema)
+
+export const rejectVersionFormData = zfd.formData(rejectVersionFieldSchema)
 
 export const buildComposer = async (transactions: BuildTransactionResult[]) => {
   const algokitTxns: Transaction[] = []

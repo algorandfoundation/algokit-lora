@@ -5,6 +5,7 @@ import {
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions,
+  rejectVersionFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -21,6 +22,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { TransactionBuilderRejectVersionField } from './transaction-builder-reject-version-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -29,6 +31,7 @@ const formData = zfd.formData({
   ...commonSchema,
   sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
+  ...rejectVersionFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
   args: zfd.repeatableOfType(
@@ -57,6 +60,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         applicationId: BigInt(values.applicationId),
         sender: await resolveTransactionSender(values.sender),
         onComplete: Number(values.onComplete),
+        rejectVersion: values.rejectVersion,
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
@@ -75,6 +79,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        rejectVersion: transaction.rejectVersion,
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -97,8 +102,9 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         setAutomatically: true,
       },
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
+      rejectVersion: _defaultValues?.rejectVersion,
     }
-  }, [mode, activeAccount, _defaultValues?.applicationId, transaction])
+  }, [mode, activeAccount, _defaultValues?.applicationId, _defaultValues?.rejectVersion, transaction])
 
   return (
     <Form
@@ -126,6 +132,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
+          {defaultValues.applicationId !== 0n && <TransactionBuilderRejectVersionField />}
           {helper.addressField({
             field: 'sender',
             label: 'Sender',

@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { commonSchema, optionalAddressFieldSchema, rejectVersionFieldSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -15,6 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { TransactionBuilderRejectVersionField } from './transaction-builder-reject-version-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -23,6 +24,7 @@ const formData = zfd.formData({
   ...commonSchema,
   sender: optionalAddressFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  ...rejectVersionFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   args: zfd.repeatableOfType(
@@ -50,6 +52,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: BigInt(values.applicationId),
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
+        rejectVersion: values.rejectVersion,
         sender: await resolveTransactionSender(values.sender),
         fee: values.fee,
         validRounds: values.validRounds,
@@ -68,6 +71,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         approvalProgram: transaction.approvalProgram,
         clearStateProgram: transaction.clearStateProgram,
+        rejectVersion: transaction.rejectVersion,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -120,6 +124,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
             label: 'Clear state program',
             helpText: 'The compiled AVM bytecode clear state program, base64 encoded',
           })}
+          <TransactionBuilderRejectVersionField />
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
