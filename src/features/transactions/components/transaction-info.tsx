@@ -25,6 +25,7 @@ export const transactionTimestampLabel = 'Timestamp'
 export const transactionBlockLabel = 'Block'
 export const transactionFeeLabel = 'Fee'
 export const transactionGroupLabel = 'Group'
+export const transactionLeaseLabel = 'Lease'
 export const transactionRekeyToLabel = 'Rekey To'
 export const transactionSignerAddressLabel = 'Signer'
 
@@ -92,6 +93,19 @@ export function TransactionInfo({ transaction }: Props) {
             {
               dt: transactionGroupLabel,
               dd: <GroupLink round={transaction.confirmedRound} groupId={transaction.group} />,
+            },
+          ]
+        : []),
+      ...(transaction.lease
+        ? [
+            {
+              dt: transactionLeaseLabel,
+              dd: (
+                <div className="flex items-center">
+                  <span className="truncate">{transaction.lease}</span>
+                  <CopyButton value={transaction.lease} />
+                </div>
+              ),
             },
           ]
         : []),

@@ -19,6 +19,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
@@ -59,6 +60,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         args: values.args.map((arg) => arg.value),
         note: values.note,
         rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
@@ -76,6 +78,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         rekeyTo: transaction.rekeyTo,
         args: transaction.args.map((arg) => ({
@@ -156,6 +159,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
           <TransactionBuilderRekeyToField />
         </div>

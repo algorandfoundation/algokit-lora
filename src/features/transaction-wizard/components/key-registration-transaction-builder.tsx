@@ -13,6 +13,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
@@ -167,6 +168,7 @@ function FormFields({ helper }: FormFieldsProps) {
       )}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
       <TransactionBuilderRekeyToField />
     </>
@@ -197,6 +199,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
         voteKeyDilution: data.voteKeyDilution,
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
         rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
@@ -216,6 +219,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
         voteKeyDilution: transaction.voteKeyDilution,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         rekeyTo: transaction.rekeyTo,
       }

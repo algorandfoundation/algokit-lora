@@ -19,6 +19,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     fee: microAlgos(transactionResult.fee),
     sender: transactionResult.sender,
     signature: transformSignature(transactionResult.signature),
+    lease: transactionResult.lease && transactionResult.lease.length > 0 ? uint8ArrayToBase64(transactionResult.lease) : undefined,
     note: transactionResult.note ? uint8ArrayToBase64(transactionResult.note) : undefined,
     json: asJson(normaliseAlgoSdkData(transactionResult)),
     rekeyTo: transactionResult.rekeyTo?.toString(),

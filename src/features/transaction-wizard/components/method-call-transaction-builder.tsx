@@ -31,6 +31,7 @@ import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode, useLoadableArc56AppSpecWithMethodDefinitions } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
@@ -164,6 +165,7 @@ export function MethodCallTransactionBuilder({
         methodArgs: methodArgs,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         note: values.note,
         rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       } satisfies BuildMethodCallTransactionResult
@@ -196,6 +198,7 @@ export function MethodCallTransactionBuilder({
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         rekeyTo: transaction.rekeyTo,
         ...methodArgs,
@@ -409,6 +412,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       ))}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
       <TransactionBuilderRekeyToField />
     </div>

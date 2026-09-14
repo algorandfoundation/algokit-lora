@@ -24,6 +24,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
 import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -88,6 +89,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
       <TransactionBuilderRekeyToField />
     </>
@@ -171,6 +173,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         sender: await resolveTransactionSender(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
         rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
@@ -184,6 +187,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
         rekeyTo: transaction.rekeyTo,
       }

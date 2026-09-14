@@ -54,6 +54,7 @@ const transformKeyRegistrationTransaction = async (params: BaseSearchParamTransa
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
 })
 
 const transformPaymentTransaction = async (params: BaseSearchParamTransaction): Promise<BuildPaymentTransactionResult> => ({
@@ -72,6 +73,7 @@ const transformPaymentTransaction = async (params: BaseSearchParamTransaction): 
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -123,6 +125,7 @@ const transformAssetCreateTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -144,6 +147,7 @@ const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -169,6 +173,7 @@ const transformAssetOptOutTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -195,6 +200,7 @@ const transformAssetTransferTransaction = async (params: BaseSearchParamTransact
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -242,6 +248,7 @@ const transformAssetReconfigureTransaction = async (
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -268,6 +275,7 @@ const transformAssetFreezeTransaction = async (params: BaseSearchParamTransactio
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -288,6 +296,7 @@ const transformAssetDestroyTransaction = async (params: BaseSearchParamTransacti
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
@@ -318,6 +327,7 @@ const transformAssetClawbackTransaction = async (params: BaseSearchParamTransact
     firstValid: undefined,
     lastValid: undefined,
   },
+  lease: params.lease,
   note: params.note,
   rekeyTo: asRekeyTo(params.rekeyto),
 })
