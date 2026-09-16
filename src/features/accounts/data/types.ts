@@ -1,9 +1,14 @@
 import { ApplicationResult, ApplicationStateSchema } from '@/features/applications/data/types'
 import { AssetResult } from '@/features/assets/data/types'
-import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 import algosdk from 'algosdk'
 
 export type Address = string
+
+/**
+ * The type of signature used by an account, as reported by the indexer.
+ * Only present for accounts that have signed at least one transaction.
+ */
+export type AccountSignatureType = 'sig' | 'msig' | 'lsig' | 'pqsig'
 
 export type AppLocalState = Omit<
   algosdk.indexerModels.ApplicationLocalState,
@@ -37,7 +42,6 @@ export type AccountResult = Omit<
   assets?: AssetHoldingResult[]
   createdApps?: ApplicationResult[]
   createdAssets?: AssetResult[]
-  sigType?: SignatureType
   appsTotalSchema?: ApplicationStateSchema
   totalBoxBytes?: number
   totalBoxes?: number

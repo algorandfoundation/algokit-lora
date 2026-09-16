@@ -3,7 +3,7 @@ import { groupResultsAtom } from '@/features/groups/data'
 import { latestTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { Getter, PrimitiveAtom, Setter, useAtom } from 'jotai'
 import { atomEffect } from 'jotai-effect'
-import { accountResultsAtom } from '@/features/accounts/data'
+import { accountResultsAtom, accountSignatureTypesAtom } from '@/features/accounts/data'
 import { applicationMetadataResultsAtom } from '@/features/applications/data/application-metadata'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { assetMetadataResultsAtom, assetResultsAtom } from '@/features/assets/data'
@@ -29,6 +29,7 @@ const stateCleanupEffect = atomEffect((get, set) => {
     removeExpired(groupResultsAtom)
     removeExpired(transactionResultsAtom)
     removeExpired(accountResultsAtom)
+    removeExpired(accountSignatureTypesAtom)
     removeExpired(applicationMetadataResultsAtom)
     removeExpired(applicationResultsAtom)
     removeExpired(assetMetadataResultsAtom)

@@ -29,3 +29,11 @@ export const accountAssetsOptedInLabel = 'Opted assets'
 export const accountApplicationsCreatedLabel = 'Created applications'
 export const accountApplicationsOptedInLabel = 'Opted applications'
 export const accountRekeyedToLabel = 'Rekeyed to'
+export const accountSignatureTypeLabel = 'Signature type'
+
+export const accountSignatureTypeDescriptions = {
+  sig: 'Ed25519',
+  msig: 'Multisig',
+  lsig: 'LogicSig',
+  pqsig: 'Post-Quantum',
+} as const
