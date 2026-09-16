@@ -22,6 +22,7 @@ import {
   transactionVisualGraphTabLabel,
 } from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
+import { pqsigPublicKeyLabel, pqsigSaltLabel, pqsigSchemeLabel } from '../components/pqsig-details'
 import {
   parentTransactionIdLabel,
   transactionBlockLabel,
@@ -307,6 +308,38 @@ describe('transaction-page', () => {
                   description:
                     'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4',
                 },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a post-quantum signed payment transaction', () => {
+    const transaction = transactionResultMother.pqsig().build()
+
+    beforeEach(() => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show the pqsig information', () => {
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionTypeLabel, description: 'PaymentPQSig' },
+                { term: pqsigSchemeLabel, description: 'f1' },
+                { term: pqsigSaltLabel, description: '7' },
+                { term: pqsigPublicKeyLabel, description: 'hYkIN+Iyt2675q+XuYwoAzwR8B0P17WTUFGYn456E4o=' },
               ],
             })
           })

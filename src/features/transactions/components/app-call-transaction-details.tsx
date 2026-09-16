@@ -1,6 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { Card, CardContent } from '@/features/common/components/card'
 import { LogicsigDetails } from './logicsig-details'
+import { PqsigDetails } from './pqsig-details'
 import { MultisigDetails } from './multisig-details'
 import { TransactionNote } from './transaction-note'
 import { AppCallTransaction, InnerAppCallTransaction, SignatureType } from '../models'
@@ -22,6 +23,7 @@ export function AppCallTransactionDetails({ transaction }: Props) {
         {transaction.logs.length > 0 && <AppCallTransactionLogs logs={transaction.logs} />}
         {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
         {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
+        {transaction.signature?.type === SignatureType.PostQuantum && <PqsigDetails signature={transaction.signature} />}
       </CardContent>
     </Card>
   )

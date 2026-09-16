@@ -1,4 +1,4 @@
-import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
+import { InnerTransactionId, Logicsig, Multisig, Pqsig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { TransactionResult, TransactionSignature } from '@/features/transactions/data/types'
@@ -51,6 +51,15 @@ export const transformSignature = (signature?: TransactionSignature) => {
       type: SignatureType.Logic,
       logic: uint8ArrayToBase64(signature.logicsig.logic),
     } satisfies Logicsig
+  }
+
+  if (signature?.pqsig) {
+    return {
+      type: SignatureType.PostQuantum,
+      scheme: signature.pqsig.scheme,
+      salt: signature.pqsig.salt ?? 0,
+      publicKey: uint8ArrayToBase64(signature.pqsig.publicKey),
+    } satisfies Pqsig
   }
 }
 

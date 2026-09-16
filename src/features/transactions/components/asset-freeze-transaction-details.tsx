@@ -4,6 +4,7 @@ import { TransactionNote } from './transaction-note'
 import { AssetFreezeTransaction, InnerAssetFreezeTransaction, SignatureType } from '../models'
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
+import { PqsigDetails } from './pqsig-details'
 import { AssetFreezeTransactionInfo } from './asset-freeze-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
 
@@ -20,6 +21,7 @@ export function AssetFreezeTransactionDetails({ transaction }: AssetFreezeTransa
         {transaction.note && <TransactionNote note={transaction.note} />}
         {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
         {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
+        {transaction.signature?.type === SignatureType.PostQuantum && <PqsigDetails signature={transaction.signature} />}
       </CardContent>
     </Card>
   )
