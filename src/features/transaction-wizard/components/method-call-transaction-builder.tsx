@@ -1,9 +1,10 @@
 import algosdk from 'algosdk'
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
   onCompleteFieldSchema,
   rejectVersionFieldSchema,
+  applicationIdFieldSchema,
   onCompleteOptions as _onCompleteOptions,
   optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
@@ -50,12 +51,12 @@ const appCallFormSchema = {
   sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   ...rejectVersionFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
 }
+// Only used for type inference, the form schema is built per instance
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const baseFormData = zfd.formData(appCallFormSchema)
+const baseFormData = zfd.formData({ ...appCallFormSchema, ...applicationIdFieldSchema(true) })
 
 type Props = {
   mode: TransactionBuilderMode
@@ -122,15 +123,20 @@ export function MethodCallTransactionBuilder({
   }, [methodDefinition])
 
   const formData = useMemo(() => {
+    const isApplicationCreate = initialValues.applicationId === 0n
+    const schema = {
+      ...appCallFormSchema,
+      ...applicationIdFieldSchema(isApplicationCreate),
+    }
     if (!methodForm) {
-      return zfd.formData(appCallFormSchema)
+      return zfd.formData(schema)
     }
 
     return zfd.formData({
-      ...appCallFormSchema,
+      ...schema,
       ...methodForm.schema,
     })
-  }, [methodForm])
+  }, [methodForm, initialValues.applicationId])
 
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {

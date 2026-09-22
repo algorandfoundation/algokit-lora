@@ -1,4 +1,4 @@
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import {
   optionalAddressFieldSchema,
@@ -6,6 +6,7 @@ import {
   onCompleteFieldSchema,
   onCompleteOptions,
   rejectVersionFieldSchema,
+  applicationIdFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -27,20 +28,22 @@ import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
-const formData = zfd.formData({
-  ...commonSchema,
-  sender: optionalAddressFieldSchema,
-  ...onCompleteFieldSchema,
-  ...rejectVersionFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
-  args: zfd.repeatableOfType(
-    z.object({
-      id: z.string(),
-      value: zfd.text(),
-    })
-  ),
-})
+const buildFormData = (isApplicationCreate: boolean) =>
+  zfd.formData({
+    ...commonSchema,
+    sender: optionalAddressFieldSchema,
+    ...onCompleteFieldSchema,
+    ...rejectVersionFieldSchema,
+    ...applicationIdFieldSchema(isApplicationCreate),
+    extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
+    args: zfd.repeatableOfType(
+      z.object({
+        id: z.string(),
+        value: zfd.text(),
+      })
+    ),
+  })
+type FormData = z.infer<ReturnType<typeof buildFormData>>
 
 type Props = {
   mode: TransactionBuilderMode
@@ -53,7 +56,7 @@ type Props = {
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
-    async (values: z.infer<typeof formData>) => {
+    async (values: FormData) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
@@ -73,7 +76,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     [onSubmit, transaction?.id]
   )
 
-  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+  const defaultValues = useMemo<Partial<FormData>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
@@ -106,6 +109,9 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     }
   }, [mode, activeAccount, _defaultValues?.applicationId, _defaultValues?.rejectVersion, transaction])
 
+  const isApplicationCreate = defaultValues.applicationId === 0n
+  const formData = useMemo(() => buildFormData(isApplicationCreate), [isApplicationCreate])
+
   return (
     <Form
       schema={formData}
@@ -120,7 +126,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     >
       {(helper) => (
         <div className="space-y-4">
-          {defaultValues.applicationId !== 0n &&
+          {!isApplicationCreate &&
             helper.numberField({
               field: 'applicationId',
               label: 'Application ID',
@@ -132,7 +138,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
-          {defaultValues.applicationId !== 0n && <TransactionBuilderRejectVersionField />}
+          {!isApplicationCreate && <TransactionBuilderRejectVersionField />}
           {helper.addressField({
             field: 'sender',
             label: 'Sender',

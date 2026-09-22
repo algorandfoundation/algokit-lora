@@ -37,6 +37,10 @@ describe('asAppCallTransactionParams', () => {
   it('omits the reject version when not provided', () => {
     expect(asAppCallTransactionParams(appCall()).rejectVersion).toBeUndefined()
   })
+
+  it('omits the reject version when the application id is 0, as it is not valid on an application create', () => {
+    expect(asAppCallTransactionParams({ ...appCall(7), applicationId: 0n }).rejectVersion).toBeUndefined()
+  })
 })
 
 describe('asApplicationUpdateTransactionParams', () => {
@@ -59,23 +63,27 @@ describe('asApplicationUpdateTransactionParams', () => {
 })
 
 describe('asMethodCallParams', () => {
-  it('maps the reject version when provided', async () => {
-    const transaction: BuildMethodCallTransactionResult = {
-      id: 'method-call',
-      type: BuildableTransactionType.MethodCall,
-      applicationId: 123n,
-      rejectVersion: 7,
-      sender,
-      methodDefinition: {
-        abiMethod: new algosdk.ABIMethod({ name: 'ping', args: [], returns: { type: 'void' } }),
-      } as BuildMethodCallTransactionResult['methodDefinition'],
-      appSpec: {} as BuildMethodCallTransactionResult['appSpec'],
-      methodArgs: [],
-      onComplete: algosdk.OnApplicationComplete.NoOpOC,
-      fee: automaticFee,
-      validRounds: automaticValidRounds,
-    }
+  const methodCall = (rejectVersion: number | undefined, applicationId: bigint): BuildMethodCallTransactionResult => ({
+    id: 'method-call',
+    type: BuildableTransactionType.MethodCall,
+    applicationId,
+    rejectVersion,
+    sender,
+    methodDefinition: {
+      abiMethod: new algosdk.ABIMethod({ name: 'ping', args: [], returns: { type: 'void' } }),
+    } as BuildMethodCallTransactionResult['methodDefinition'],
+    appSpec: {} as BuildMethodCallTransactionResult['appSpec'],
+    methodArgs: [],
+    onComplete: algosdk.OnApplicationComplete.NoOpOC,
+    fee: automaticFee,
+    validRounds: automaticValidRounds,
+  })
 
-    expect((await asMethodCallParams(transaction)).rejectVersion).toBe(7)
+  it('omits the reject version when the application id is 0, as it is not valid on an application create', async () => {
+    expect((await asMethodCallParams(methodCall(7, 0n))).rejectVersion).toBeUndefined()
+  })
+
+  it('maps the reject version when provided', async () => {
+    expect((await asMethodCallParams(methodCall(7, 123n))).rejectVersion).toBe(7)
   })
 })

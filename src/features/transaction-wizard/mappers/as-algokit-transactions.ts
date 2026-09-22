@@ -38,6 +38,7 @@ import {
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { ApplicationId } from '@/features/applications/data/types'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
 
@@ -143,7 +144,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
-    ...asRejectVersion(transaction.rejectVersion),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 
@@ -181,7 +182,7 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
-    ...asRejectVersion(transaction.rejectVersion),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
@@ -228,7 +229,7 @@ export const asApplicationUpdateTransactionParams = (transaction: BuildApplicati
     ...asValidRounds(transaction.validRounds),
     ...asLease(transaction.lease),
     ...asRekeyTo(transaction.rekeyTo),
-    ...asRejectVersion(transaction.rejectVersion),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 
@@ -425,7 +426,9 @@ const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
 
 const asLease = (lease?: string) => (lease ? { lease: base64ToBytes(lease) } : undefined)
 const asRekeyTo = (rekeyTo?: AddressOrNfd) => (rekeyTo?.resolvedAddress ? { rekeyTo: rekeyTo.resolvedAddress } : undefined)
-const asRejectVersion = (rejectVersion?: number) => (rejectVersion ? { rejectVersion } : undefined)
+// Reject version is only valid when calling an existing application, so it isn't set on an application create
+const asRejectVersion = (rejectVersion: number | undefined, applicationId: ApplicationId) =>
+  rejectVersion && BigInt(applicationId) !== 0n ? { rejectVersion } : undefined
 
 const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid

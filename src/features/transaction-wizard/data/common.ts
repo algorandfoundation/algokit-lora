@@ -70,6 +70,13 @@ export const rejectVersionFieldSchema = {
   rejectVersion: numberSchema(z.number().int().min(0).optional()),
 }
 
+export const existingApplicationIdMessage = 'Must be an existing application'
+const applicationIdSchema = z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })
+// An application id of 0 means create, which is only supported when the builder is opened in create mode
+export const applicationIdFieldSchema = (isApplicationCreate: boolean) => ({
+  applicationId: bigIntSchema(isApplicationCreate ? applicationIdSchema : applicationIdSchema.min(1n, existingApplicationIdMessage)),
+})
+
 export const feeFieldSchema = {
   fee: z
     .object({

@@ -11,6 +11,7 @@ import { addTransactionLabel } from './components/transactions-builder'
 import { groupSendResultsLabel, groupSimulateResultsLabel } from './components/group-send-results'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { existingApplicationIdMessage } from './data/common'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -474,6 +475,78 @@ describe('transaction-wizard-page', () => {
                 "receiver": "${testAccount.addr}",
               }
             `)
+          }
+        )
+      })
+    })
+
+    describe('and an application call transaction is being sent', () => {
+      it('reports a validation error when the application id is 0', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Call (appl)')
+
+            const applicationIdInput = await component.findByLabelText(/Application ID/)
+            fireEvent.input(applicationIdInput, {
+              target: { value: 0 },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            await waitFor(() => {
+              expect(component.getByText(existingApplicationIdMessage)).toBeInTheDocument()
+            })
+          }
+        )
+      })
+    })
+
+    describe('and an ABI method call transaction is being sent', () => {
+      it('reports a validation error when the application id is 0', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'ABI Method Call (appl)')
+
+            const applicationIdInput = await component.findByLabelText(/Application ID/)
+            fireEvent.input(applicationIdInput, {
+              target: { value: 0 },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            await waitFor(() => {
+              expect(component.getByText(existingApplicationIdMessage)).toBeInTheDocument()
+            })
           }
         )
       })

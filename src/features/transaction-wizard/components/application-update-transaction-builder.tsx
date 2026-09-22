@@ -1,5 +1,9 @@
-import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, rejectVersionFieldSchema } from '@/features/transaction-wizard/data/common'
+import {
+  applicationIdFieldSchema,
+  commonSchema,
+  optionalAddressFieldSchema,
+  rejectVersionFieldSchema,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -23,7 +27,7 @@ import { resolveTransactionSender } from '../utils/resolve-sender-address'
 const formData = zfd.formData({
   ...commonSchema,
   sender: optionalAddressFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  ...applicationIdFieldSchema(false),
   ...rejectVersionFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
