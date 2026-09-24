@@ -176,6 +176,7 @@ const subscriberAtom = atom(null, (get, set) => {
         genesisHash: base64ToBytes(b.genesisHash),
         genesisId: b.genesisId,
         previousBlockHash: base64ToBytes(b.previousBlockHash ?? ''),
+        ...(b.previousBlockHashSha512 ? { previousBlockHash512: base64ToBytes(b.previousBlockHashSha512) } : undefined),
         ...(b.rewards
           ? {
               rewards: {
@@ -203,6 +204,10 @@ const subscriberAtom = atom(null, (get, set) => {
         timestamp: b.timestamp,
         transactionsRoot: base64ToBytes(b.transactionsRoot),
         transactionsRootSha256: base64ToBytes(b.transactionsRootSha256),
+        ...(b.transactionsRootSha512 ? { transactionsRootSha512: base64ToBytes(b.transactionsRootSha512) } : undefined),
+        // The indexer omits load and congestion tax when they are 0
+        ...(b.load ? { load: b.load } : undefined),
+        ...(b.congestionTax ? { congestionTax: b.congestionTax } : undefined),
         txnCounter: b.txnCounter,
         proposer: b.proposer,
         ...(b.upgradeState

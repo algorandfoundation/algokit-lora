@@ -1,4 +1,5 @@
 import { Address } from '@/features/accounts/data/types'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
@@ -16,6 +17,8 @@ export type Block = CommonBlockProperties & {
   transactions: Transaction[]
   json: string
   proposer?: Address
+  load?: bigint
+  congestionTax?: AlgoAmount
 }
 
 export type BlockSummary = CommonBlockProperties & {
