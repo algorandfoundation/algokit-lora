@@ -9,11 +9,15 @@ export type BlockResult = {
   genesisId: string
   genesisHash: Uint8Array
   previousBlockHash: Uint8Array
+  previousBlockHash512?: Uint8Array
   seed: Uint8Array
   rewards?: BlockRewards
   txnCounter: bigint
   transactionsRoot: Uint8Array
   transactionsRootSha256: Uint8Array
+  transactionsRootSha512?: Uint8Array
+  load?: bigint
+  congestionTax?: bigint
   upgradeState?: BlockUpgradeState
   transactionIds: string[]
   stateProofTracking?: StateProofTracking[]

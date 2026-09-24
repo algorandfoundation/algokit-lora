@@ -15,8 +15,9 @@ export type CommonTransactionProperties = {
   group?: GroupId
   fee: AlgoAmount
   sender: Address
+  lease?: string
   note?: string
-  signature?: Singlesig | Multisig | Logicsig
+  signature?: Singlesig | Multisig | Logicsig | Pqsig
   json: string
   rekeyTo?: Address
   signer?: Address
@@ -107,6 +108,7 @@ export enum SignatureType {
   Single = 'Single',
   Multi = 'Multi',
   Logic = 'Logic',
+  PostQuantum = 'PostQuantum',
 }
 
 export type Singlesig = {
@@ -124,6 +126,13 @@ export type Multisig = {
 export type Logicsig = {
   type: SignatureType.Logic
   logic: string
+}
+
+export type Pqsig = {
+  type: SignatureType.PostQuantum
+  scheme: string
+  salt: number
+  publicKey: string
 }
 
 export type RawGlobalStateDelta = {
@@ -176,6 +185,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   localStateDeltas: Atom<Promise<LocalStateDelta[]>>
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
+  rejectVersion?: number
   logs: string[]
   abiMethod: Atom<Promise<DecodedAbiMethod | undefined>>
 }

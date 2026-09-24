@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { SignatureType, StateProofTransaction } from '../models'
 import { cn } from '@/features/common/utils'
 import { LogicsigDetails } from './logicsig-details'
+import { PqsigDetails } from './pqsig-details'
 import { MultisigDetails } from './multisig-details'
 import { TransactionNote } from './transaction-note'
 import { TransactionViewTabs } from './transaction-view-tabs'
@@ -21,6 +22,7 @@ export function StateProofTransactionDetails({ transaction }: Props) {
         {transaction.note && <TransactionNote note={transaction.note} />}
         {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
         {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
+        {transaction.signature?.type === SignatureType.PostQuantum && <PqsigDetails signature={transaction.signature} />}
       </CardContent>
     </Card>
   )

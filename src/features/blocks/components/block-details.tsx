@@ -12,6 +12,11 @@ import { DateFormatted } from '@/features/common/components/date-formatted'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { formatDecimalAmount } from '@/utils/number-format'
+import Decimal from 'decimal.js'
+
+const loadDecimals = 6 // The load is a fixed-point integer, where 1,000,000 is a completely full block
 
 type Props = {
   block: Block
@@ -23,6 +28,8 @@ export const transactionsLabel = 'Transactions'
 export const previousRoundLabel = 'Previous Round'
 export const nextRoundLabel = 'Next Round'
 export const proposerLabel = 'Proposer'
+export const loadLabel = 'Load'
+export const congestionTaxLabel = 'Congestion Tax'
 
 export function BlockDetails({ block }: Props) {
   const blockItems = useMemo(
@@ -53,6 +60,22 @@ export function BlockDetails({ block }: Props) {
           </div>
         ),
       },
+      ...(block.load
+        ? [
+            {
+              dt: loadLabel,
+              dd: formatDecimalAmount(new Decimal(block.load.toString()).div(new Decimal(10).pow(loadDecimals))),
+            },
+          ]
+        : []),
+      ...(block.congestionTax
+        ? [
+            {
+              dt: congestionTaxLabel,
+              dd: <DisplayAlgo amount={block.congestionTax} />,
+            },
+          ]
+        : []),
       ...(block.proposer
         ? [
             {
@@ -71,6 +94,8 @@ export function BlockDetails({ block }: Props) {
       },
     ],
     [
+      block.congestionTax,
+      block.load,
       block.nextRound,
       block.previousRound,
       block.proposer,

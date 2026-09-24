@@ -21,7 +21,9 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
@@ -108,7 +110,9 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </>
   )
 }
@@ -194,7 +198,9 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         amount: data.amount!,
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
+        rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -209,7 +215,9 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
       }
     }
     return {

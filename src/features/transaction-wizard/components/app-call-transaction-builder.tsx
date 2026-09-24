@@ -1,10 +1,12 @@
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import {
   optionalAddressFieldSchema,
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions,
+  rejectVersionFieldSchema,
+  applicationIdFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -19,23 +21,29 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { TransactionBuilderRejectVersionField } from './transaction-builder-reject-version-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
-const formData = zfd.formData({
-  ...commonSchema,
-  sender: optionalAddressFieldSchema,
-  ...onCompleteFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
-  args: zfd.repeatableOfType(
-    z.object({
-      id: z.string(),
-      value: zfd.text(),
-    })
-  ),
-})
+const buildFormData = (isApplicationCreate: boolean) =>
+  zfd.formData({
+    ...commonSchema,
+    sender: optionalAddressFieldSchema,
+    ...onCompleteFieldSchema,
+    ...rejectVersionFieldSchema,
+    ...applicationIdFieldSchema(isApplicationCreate),
+    extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
+    args: zfd.repeatableOfType(
+      z.object({
+        id: z.string(),
+        value: zfd.text(),
+      })
+    ),
+  })
+type FormData = z.infer<ReturnType<typeof buildFormData>>
 
 type Props = {
   mode: TransactionBuilderMode
@@ -48,33 +56,39 @@ type Props = {
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
-    async (values: z.infer<typeof formData>) => {
+    async (values: FormData) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
         sender: await resolveTransactionSender(values.sender),
         onComplete: Number(values.onComplete),
+        rejectVersion: values.rejectVersion,
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         args: values.args.map((arg) => arg.value),
         note: values.note,
+        rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
   )
 
-  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+  const defaultValues = useMemo<Partial<FormData>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        rejectVersion: transaction.rejectVersion,
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
           value: arg,
@@ -91,8 +105,12 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         setAutomatically: true,
       },
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
+      rejectVersion: _defaultValues?.rejectVersion,
     }
-  }, [mode, activeAccount, _defaultValues?.applicationId, transaction])
+  }, [mode, activeAccount, _defaultValues?.applicationId, _defaultValues?.rejectVersion, transaction])
+
+  const isApplicationCreate = defaultValues.applicationId === 0n
+  const formData = useMemo(() => buildFormData(isApplicationCreate), [isApplicationCreate])
 
   return (
     <Form
@@ -108,7 +126,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     >
       {(helper) => (
         <div className="space-y-4">
-          {defaultValues.applicationId !== 0n &&
+          {!isApplicationCreate &&
             helper.numberField({
               field: 'applicationId',
               label: 'Application ID',
@@ -120,6 +138,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
+          {!isApplicationCreate && <TransactionBuilderRejectVersionField />}
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
@@ -153,7 +172,9 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
+          <TransactionBuilderRekeyToField />
         </div>
       )}
     </Form>

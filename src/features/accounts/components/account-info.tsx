@@ -17,11 +17,14 @@ import {
   accountMinBalanceLabel,
   accountNfdLabel,
   accountRekeyedToLabel,
+  accountSignatureTypeDescriptions,
+  accountSignatureTypeLabel,
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
+import { useLoadableAccountSignatureType } from '../data/account-signature-type'
 
 type Props = {
   account: Account
@@ -29,6 +32,7 @@ type Props = {
 
 export function AccountInfo({ account }: Props) {
   const loadableNfd = useLoadableReverseLookupNfdResult(account.address, true)
+  const loadableSignatureType = useLoadableAccountSignatureType(account.address)
 
   const accountInfoItems = useMemo(() => {
     const items = [
@@ -42,6 +46,22 @@ export function AccountInfo({ account }: Props) {
           </div>
         ),
       },
+      ...(account.rekeyedTo
+        ? [
+            {
+              dt: accountRekeyedToLabel,
+              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} showQRButton={true} />,
+            },
+          ]
+        : []),
+      ...(loadableSignatureType.state === 'hasData' && loadableSignatureType.data !== null
+        ? [
+            {
+              dt: accountSignatureTypeLabel,
+              dd: accountSignatureTypeDescriptions[loadableSignatureType.data] ?? loadableSignatureType.data,
+            },
+          ]
+        : []),
       ...(loadableNfd.state === 'hasData' && loadableNfd.data !== null
         ? [
             {
@@ -82,14 +102,6 @@ export function AccountInfo({ account }: Props) {
         dt: accountApplicationsOptedInLabel,
         dd: account.totalApplicationsOptedIn,
       },
-      ...(account.rekeyedTo
-        ? [
-            {
-              dt: accountRekeyedToLabel,
-              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} showQRButton={true} />,
-            },
-          ]
-        : []),
     ]
     return items
   }, [
@@ -103,6 +115,7 @@ export function AccountInfo({ account }: Props) {
     account.totalApplicationsOptedIn,
     account.rekeyedTo,
     loadableNfd,
+    loadableSignatureType,
   ])
   return (
     <Card aria-label={accountInformationLabel}>

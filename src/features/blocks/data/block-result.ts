@@ -39,6 +39,8 @@ export const getBlockAndExtractData = async (round: Round) => {
           timestamp: block.timestamp,
           transactionIds,
           txnCounter: block.txnCounter !== undefined ? BigInt(block.txnCounter) : undefined,
+          load: block.load !== undefined ? BigInt(block.load) : undefined,
+          congestionTax: block.congestionTax !== undefined ? BigInt(block.congestionTax) : undefined,
         } as BlockResult,
         (transactions ?? []).map((txn) => indexerTransactionToTransactionResult(txn)),
         Array.from(groupResults.values()),

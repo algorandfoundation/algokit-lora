@@ -1,8 +1,10 @@
 import algosdk from 'algosdk'
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
   onCompleteFieldSchema,
+  rejectVersionFieldSchema,
+  applicationIdFieldSchema,
   onCompleteOptions as _onCompleteOptions,
   optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
@@ -31,12 +33,15 @@ import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode, useLoadableArc56AppSpecWithMethodDefinitions } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { TransactionBuilderRejectVersionField } from './transaction-builder-reject-version-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -45,12 +50,13 @@ const appCallFormSchema = {
   ...commonSchema,
   sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  ...rejectVersionFieldSchema,
   methodName: zfd.text(),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
 }
+// Only used for type inference, the form schema is built per instance
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const baseFormData = zfd.formData(appCallFormSchema)
+const baseFormData = zfd.formData({ ...appCallFormSchema, ...applicationIdFieldSchema(true) })
 
 type Props = {
   mode: TransactionBuilderMode
@@ -117,15 +123,20 @@ export function MethodCallTransactionBuilder({
   }, [methodDefinition])
 
   const formData = useMemo(() => {
+    const isApplicationCreate = initialValues.applicationId === 0n
+    const schema = {
+      ...appCallFormSchema,
+      ...applicationIdFieldSchema(isApplicationCreate),
+    }
     if (!methodForm) {
-      return zfd.formData(appCallFormSchema)
+      return zfd.formData(schema)
     }
 
     return zfd.formData({
-      ...appCallFormSchema,
+      ...schema,
       ...methodForm.schema,
     })
-  }, [methodForm])
+  }, [methodForm, initialValues.applicationId])
 
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
@@ -157,13 +168,16 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
+        rejectVersion: values.rejectVersion,
         sender: await resolveTransactionSender(values.sender),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         note: values.note,
+        rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       } satisfies BuildMethodCallTransactionResult
 
       onSubmit(methodCallTxn)
@@ -190,11 +204,14 @@ export function MethodCallTransactionBuilder({
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        rejectVersion: transaction.rejectVersion,
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
         ...methodArgs,
       }
     }
@@ -209,6 +226,7 @@ export function MethodCallTransactionBuilder({
       methodName: _defaultValues?.methodDefinition?.name,
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
+      rejectVersion: _defaultValues?.rejectVersion,
     }
   }, [mode, transaction, activeAccount, _defaultValues])
 
@@ -386,6 +404,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         options: onCompleteOptions,
         helpText: 'Action to perform after executing the program',
       })}
+      {appId !== 0n && <TransactionBuilderRejectVersionField />}
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
@@ -406,7 +425,9 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       ))}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderLeaseField />
       <TransactionBuilderNoteField />
+      <TransactionBuilderRekeyToField />
     </div>
   )
 }

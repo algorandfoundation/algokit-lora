@@ -81,12 +81,15 @@ type CommonBuildTransactionResult = {
     firstValid?: bigint
     lastValid?: bigint
   }
+  lease?: string
   note?: string
+  rekeyTo?: AddressOrNfd
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
+  rejectVersion?: number
   extraProgramPages?: number
   args: string[]
   accounts?: Address[]
@@ -104,6 +107,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
+  rejectVersion?: number
   appSpec: Arc56Contract
   methodDefinition: MethodDefinition
   extraProgramPages?: number
@@ -140,6 +144,7 @@ export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResu
 export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.ApplicationUpdate
   applicationId: ApplicationId
+  rejectVersion?: number
   approvalProgram: string
   clearStateProgram: string
   args: string[]

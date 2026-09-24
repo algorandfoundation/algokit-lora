@@ -12,6 +12,7 @@ export function TransactionTypeDescriptionDetails({ transaction }: { transaction
       )}
       {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
       {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
+      {transaction.signature?.type === SignatureType.PostQuantum && <Badge variant="outline">PQSig</Badge>}
       {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
     </div>
   )

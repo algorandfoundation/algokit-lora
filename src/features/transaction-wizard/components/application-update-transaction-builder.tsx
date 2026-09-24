@@ -1,5 +1,9 @@
-import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
+import {
+  applicationIdFieldSchema,
+  commonSchema,
+  optionalAddressFieldSchema,
+  rejectVersionFieldSchema,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -13,14 +17,18 @@ import { BuildApplicationUpdateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { TransactionBuilderRejectVersionField } from './transaction-builder-reject-version-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
   sender: optionalAddressFieldSchema,
-  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  ...applicationIdFieldSchema(false),
+  ...rejectVersionFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   args: zfd.repeatableOfType(
@@ -48,11 +56,14 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: BigInt(values.applicationId),
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
+        rejectVersion: values.rejectVersion,
         sender: await resolveTransactionSender(values.sender),
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         args: values.args.map((arg) => arg.value),
         note: values.note,
+        rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -64,10 +75,13 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         approvalProgram: transaction.approvalProgram,
         clearStateProgram: transaction.clearStateProgram,
+        rejectVersion: transaction.rejectVersion,
         sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
           value: arg,
@@ -114,6 +128,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
             label: 'Clear state program',
             helpText: 'The compiled AVM bytecode clear state program, base64 encoded',
           })}
+          <TransactionBuilderRejectVersionField />
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
@@ -141,7 +156,9 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
+          <TransactionBuilderRekeyToField />
         </div>
       )}
     </Form>

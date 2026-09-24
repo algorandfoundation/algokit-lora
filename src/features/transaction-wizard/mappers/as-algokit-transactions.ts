@@ -17,6 +17,7 @@ import {
   BuildKeyRegistrationTransactionResult,
   BuildApplicationCreateTransactionResult,
   BuildApplicationUpdateTransactionResult,
+  AddressOrNfd,
 } from '@/features/transaction-wizard/models'
 import { isBuildTransactionResult, isFulfilledByTransaction, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { invariant } from '@/utils/invariant'
@@ -37,6 +38,7 @@ import {
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { ApplicationId } from '@/features/applications/data/types'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
 
@@ -94,6 +96,8 @@ export const asPaymentTransactionParams = (
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asPaymentTransaction = async (
@@ -138,6 +142,9 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 
@@ -173,6 +180,9 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
@@ -197,6 +207,8 @@ export const asApplicationCreateTransactionParams = (transaction: BuildApplicati
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -215,6 +227,9 @@ export const asApplicationUpdateTransactionParams = (transaction: BuildApplicati
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
+    ...asRejectVersion(transaction.rejectVersion, transaction.applicationId),
   }
 }
 
@@ -249,6 +264,8 @@ export const asAssetTransferTransactionParams = (
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetTransferTransaction = async (
@@ -286,6 +303,8 @@ export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTran
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
@@ -304,6 +323,8 @@ const asAssetReconfigureTransactionParams = (transaction: BuildAssetReconfigureT
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
@@ -315,6 +336,8 @@ const asAssetDestroyTransactionParams = (transaction: BuildAssetDestroyTransacti
   return {
     sender: transaction.sender.resolvedAddress,
     assetId: BigInt(transaction.asset.id),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
@@ -346,6 +369,8 @@ export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTran
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
@@ -376,11 +401,15 @@ export const asKeyRegistrationTransactionParams = (
       note: transaction.note,
       ...asFee(transaction.fee),
       ...asValidRounds(transaction.validRounds),
+      ...asLease(transaction.lease),
+      ...asRekeyTo(transaction.rekeyTo),
     }
   }
 
   return {
     sender: transaction.sender.resolvedAddress,
+    ...asLease(transaction.lease),
+    ...asRekeyTo(transaction.rekeyTo),
   }
 }
 
@@ -394,6 +423,12 @@ const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTra
 
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
   !fee.setAutomatically && fee.value != null ? { staticFee: algos(fee.value) } : undefined
+
+const asLease = (lease?: string) => (lease ? { lease: base64ToBytes(lease) } : undefined)
+const asRekeyTo = (rekeyTo?: AddressOrNfd) => (rekeyTo?.resolvedAddress ? { rekeyTo: rekeyTo.resolvedAddress } : undefined)
+// Reject version is only valid when calling an existing application, so it isn't set on an application create
+const asRejectVersion = (rejectVersion: number | undefined, applicationId: ApplicationId) =>
+  rejectVersion && BigInt(applicationId) !== 0n ? { rejectVersion } : undefined
 
 const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid

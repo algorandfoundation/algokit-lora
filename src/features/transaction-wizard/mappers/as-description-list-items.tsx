@@ -50,6 +50,7 @@ import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
 import TransactionSenderLink from '@/features/accounts/components/transaction-sender-link'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -120,8 +121,10 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
       dt: 'Amount',
       dd: <DisplayAlgo amount={params.amount} />,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -168,8 +171,10 @@ const asAssetTransferTransaction = (
       dt: 'Amount',
       dd: `${asAssetDisplayAmount(params.amount, transaction.asset.decimals!)}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -233,8 +238,10 @@ const asAssetConfigTransaction = (
     ...('metadataHash' in transaction && transaction.metadataHash
       ? [{ dt: 'Metadata hash', dd: transaction.metadataHash.toString() }]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -263,8 +270,10 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Action',
       dd: params.frozen ? freezeAssetLabel : unfreezeAssetLabel,
     },
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -291,8 +300,10 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
     ...('voteFirst' in params && params.voteFirst !== undefined ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
     ...('voteLast' in params && params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
     ...('voteKeyDilution' in params && params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
   ]
 }
@@ -385,6 +396,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
@@ -405,8 +417,10 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -438,6 +452,7 @@ const asMethodCallTransaction = (
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
@@ -467,8 +482,10 @@ const asMethodCallTransaction = (
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -484,7 +501,37 @@ const asNoteItem = (note?: string | Uint8Array) =>
       ]
     : []
 
+const asRejectVersionItem = (rejectVersion?: number) =>
+  rejectVersion
+    ? [
+        {
+          dt: 'Reject version',
+          dd: rejectVersion,
+        },
+      ]
+    : []
+
+const asLeaseItem = (lease?: string | Uint8Array) =>
+  lease
+    ? [
+        {
+          dt: 'Lease',
+          dd: typeof lease === 'string' ? lease : uint8ArrayToBase64(lease),
+        },
+      ]
+    : []
+
 const asFeeItem = (fee?: AlgoAmount) => (fee ? [{ dt: 'Fee', dd: <DisplayAlgo amount={fee} /> }] : [])
+
+const asRekeyToItem = (rekeyTo?: string | Address) =>
+  rekeyTo
+    ? [
+        {
+          dt: 'Rekey to',
+          dd: <AddressOrNfdLink address={rekeyTo} />,
+        },
+      ]
+    : []
 
 const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
   firstValid && lastValid
@@ -742,8 +789,10 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
@@ -761,6 +810,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
       dt: 'On complete',
       dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
@@ -781,8 +831,10 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
           },
         ]
       : []),
+    ...asRekeyToItem(params.rekeyTo),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asLeaseItem(params.lease),
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]

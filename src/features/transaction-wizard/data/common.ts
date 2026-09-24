@@ -8,6 +8,7 @@ import { BuildTransactionResult } from '../models'
 import { asAlgokitTransactions } from '../mappers'
 import { isNfd } from '@/features/nfd/data'
 import algosdk, { Transaction } from 'algosdk'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const requiredMessage = 'Required'
 
@@ -52,6 +53,29 @@ export const senderFieldSchema = { sender: addressFieldSchema }
 export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
+
+const invalidLeaseMessage = 'Must be a base64 encoded 32 byte value'
+
+export const leaseFieldSchema = {
+  lease: zfd.text(
+    z
+      .string()
+      .refine((value) => /^[A-Za-z0-9+/_-]+={0,2}$/.test(value) && base64ToBytes(value).length === 32, { message: invalidLeaseMessage })
+      .optional()
+  ),
+}
+export const rekeyToFieldSchema = { rekeyTo: optionalAddressFieldSchema }
+
+export const rejectVersionFieldSchema = {
+  rejectVersion: numberSchema(z.number().int().min(0).optional()),
+}
+
+export const existingApplicationIdMessage = 'Must be an existing application'
+const applicationIdSchema = z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })
+// An application id of 0 means create, which is only supported when the builder is opened in create mode
+export const applicationIdFieldSchema = (isApplicationCreate: boolean) => ({
+  applicationId: bigIntSchema(isApplicationCreate ? applicationIdSchema : applicationIdSchema.min(1n, existingApplicationIdMessage)),
+})
 
 export const feeFieldSchema = {
   fee: z
@@ -151,10 +175,14 @@ export const onCompleteOptionsForAppCreate = [
 export const commonSchema = {
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
+  ...leaseFieldSchema,
   ...noteFieldSchema,
+  ...rekeyToFieldSchema,
 }
 
 export const commonFormData = zfd.formData(commonSchema)
+
+export const rejectVersionFormData = zfd.formData(rejectVersionFieldSchema)
 
 export const buildComposer = async (transactions: BuildTransactionResult[]) => {
   const algokitTxns: Transaction[] = []

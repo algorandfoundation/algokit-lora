@@ -15,6 +15,8 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
@@ -70,7 +72,9 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
+        lease: data.lease,
         note: data.note,
+        rekeyTo: asOptionalAddressOrNfd(data.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -84,7 +88,9 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
       }
     }
     return {
@@ -144,7 +150,9 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
+          <TransactionBuilderRekeyToField />
         </>
       )}
     </Form>

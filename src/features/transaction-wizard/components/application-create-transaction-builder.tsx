@@ -19,7 +19,9 @@ import { BuildApplicationCreateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { TransactionBuilderLeaseField } from './transaction-builder-lease-field'
+import { TransactionBuilderRekeyToField } from './transaction-builder-rekey-to-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
@@ -67,8 +69,10 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         localByteSlices: values.localByteSlices,
         fee: values.fee,
         validRounds: values.validRounds,
+        lease: values.lease,
         args: values.args.map((arg) => arg.value),
         note: values.note,
+        rekeyTo: asOptionalAddressOrNfd(values.rekeyTo),
       })
     },
     [onSubmit, transaction?.id]
@@ -88,7 +92,9 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         localByteSlices: transaction.localByteSlices,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        lease: transaction.lease,
         note: transaction.note,
+        rekeyTo: transaction.rekeyTo,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
           value: arg,
@@ -190,7 +196,9 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderLeaseField />
           <TransactionBuilderNoteField />
+          <TransactionBuilderRekeyToField />
         </div>
       )}
     </Form>

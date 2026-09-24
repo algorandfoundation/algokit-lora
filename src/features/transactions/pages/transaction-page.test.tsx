@@ -9,8 +9,9 @@ import {
 import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
+import { getByDescriptionTerm, queryByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { transactionResultsAtom } from '../data'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
@@ -21,12 +22,14 @@ import {
   transactionVisualGraphTabLabel,
 } from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
+import { pqsigPublicKeyLabel, pqsigSaltLabel, pqsigSchemeLabel } from '../components/pqsig-details'
 import {
   parentTransactionIdLabel,
   transactionBlockLabel,
   transactionFeeLabel,
   transactionGroupLabel,
   transactionIdLabel,
+  transactionLeaseLabel,
   transactionRekeyToLabel,
   transactionSignerAddressLabel,
   transactionTimestampLabel,
@@ -52,6 +55,7 @@ import {
   foreignAssetsTabLabel,
   globalStateDeltaTabLabel,
   onCompletionLabel,
+  rejectVersionLabel,
   localStateDeltaTabLabel,
   decodedAbiMethodTabLabel,
 } from '../components/app-call-transaction-info'
@@ -151,6 +155,49 @@ describe('transaction-page', () => {
         () => render(<TransactionPage />),
         async (component) => {
           await waitFor(() => expect(component.getByText(transactionFailedToLoadMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
+  describe('when rendering a payment transaction with a lease', () => {
+    const lease = 'bG9yYS1sZWFzZS10ZXN0LTAxMjM0NTY3ODlhYmNkZWY='
+    const transaction = transactionResultMother
+      .payment()
+      .withId('LEASESDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
+      .withConfirmedRound(36570178n)
+      .withRoundTime(1709189521)
+      .withSender('M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM')
+      .withPaymentTransaction({
+        amount: 236070000n,
+        receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        closeAmount: 0n,
+      })
+      .withFee(1000n)
+      .withLease(base64ToBytes(lease))
+      .build()
+
+    it('should show the lease', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionLeaseLabel, description: lease },
+              ],
+            })
+          })
         }
       )
     })
@@ -262,6 +309,38 @@ describe('transaction-page', () => {
                   description:
                     'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4',
                 },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a post-quantum signed payment transaction', () => {
+    const transaction = transactionResultMother.pqsig().build()
+
+    beforeEach(() => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show the pqsig information', () => {
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionTypeLabel, description: 'PaymentPQSig' },
+                { term: pqsigSchemeLabel, description: 'f1' },
+                { term: pqsigSaltLabel, description: '7' },
+                { term: pqsigPublicKeyLabel, description: 'hYkIN+Iyt2675q+XuYwoAzwR8B0P17WTUFGYn456E4o=' },
               ],
             })
           })
@@ -715,6 +794,7 @@ describe('transaction-page', () => {
               ],
             })
           })
+          expect(queryByDescriptionTerm(component.container, rejectVersionLabel)).toBeNull()
 
           const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
           expect(detailsTabList).toBeTruthy()
@@ -765,6 +845,45 @@ describe('transaction-page', () => {
               { cells: ['', 'inner/1', '', '2ZPN…DJJ4', 'W2IZ…NCEY', 'Payment', '236.706032'] },
               { cells: ['', 'inner/2', '', '2ZPN…DJJ4', '971350278', 'Application Call', ''] },
             ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction with a reject version', () => {
+    const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
+    transaction.applicationTransaction!.rejectVersion = 3
+    const asset = assetResultMother['mainnet-971381860']().build()
+
+    it('should show the reject version', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(
+        assetResultsAtom,
+        new Map([
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createReadOnlyAtomAndTimestamp(asset)],
+        ])
+      )
+      myStore.set(genesisHashAtom, 'some-hash')
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: onCompletionLabel, description: 'NoOp' },
+                { term: rejectVersionLabel, description: '3' },
+              ],
+            })
           })
         }
       )
