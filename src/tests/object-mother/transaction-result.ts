@@ -50,6 +50,18 @@ export const transactionResultMother = {
         logicsig: { logic: base64ToBytes('CIEBQw==') },
       })
   },
+  pqsig: () => {
+    return transactionResultBuilder()
+      .paymentTransaction()
+      .withSignature({
+        pqsig: {
+          scheme: 'f1',
+          salt: 7,
+          publicKey: base64ToBytes('hYkIN+Iyt2675q+XuYwoAzwR8B0P17WTUFGYn456E4o='),
+          signature: base64ToBytes('eBLuSsmbqXTtKcoDpI88t7CNyQ7ggJ8ZMGjpy+hLWnvjNi938/5U6Eb25Dmes0WLkCxnDZG7gsj3YIDmZfFLAA=='),
+        },
+      })
+  },
   assetConfig: () => {
     return transactionResultBuilder()
       .withTxType(TransactionType.acfg)

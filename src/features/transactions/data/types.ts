@@ -48,12 +48,13 @@ export type EvalDelta = Omit<algosdk.indexerModels.EvalDelta, 'getEncodingSchema
 
 export type TransactionSignature = Omit<
   algosdk.indexerModels.TransactionSignature,
-  'getEncodingSchema' | 'toEncodingData' | 'multisig' | 'logicsig'
+  'getEncodingSchema' | 'toEncodingData' | 'multisig' | 'logicsig' | 'pqsig'
 > & {
   multisig?: Omit<algosdk.indexerModels.TransactionSignatureMultisig, 'getEncodingSchema' | 'toEncodingData' | 'subsignature'> & {
     subsignature?: Omit<algosdk.indexerModels.TransactionSignatureMultisigSubsignature, 'getEncodingSchema' | 'toEncodingData'>[]
   }
   logicsig?: Omit<algosdk.indexerModels.TransactionSignatureLogicsig, 'getEncodingSchema' | 'toEncodingData'>
+  pqsig?: Omit<algosdk.indexerModels.TransactionSignaturePQsig, 'getEncodingSchema' | 'toEncodingData'>
 }
 
 export type TransactionKeyreg = Omit<algosdk.indexerModels.TransactionKeyreg, 'getEncodingSchema' | 'toEncodingData'>

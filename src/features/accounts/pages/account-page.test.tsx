@@ -7,7 +7,8 @@ import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
 import { createStore } from 'jotai'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
-import { accountResultsAtom } from '../data'
+import { queryByDescriptionTerm } from '@/tests/custom-queries/get-description'
+import { accountResultsAtom, accountSignatureTypesAtom } from '../data'
 import {
   accountAddressLabel,
   accountBalanceLabel,
@@ -23,11 +24,12 @@ import {
   accountAssetLabel,
   accountApplicationLabel,
   accountNfdLabel,
+  accountSignatureTypeLabel,
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
-import { algod } from '@/features/common/data/algo-client'
+import { algod, indexer } from '@/features/common/data/algo-client'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 import { atom } from 'jotai'
 import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
@@ -39,6 +41,13 @@ vi.mock('@/features/common/data/algo-client', async () => {
     ...original,
     algod: {
       accountInformation: vi.fn(),
+    },
+    indexer: {
+      lookupAccountByID: vi.fn().mockReturnValue({
+        exclude: vi.fn().mockReturnValue({
+          do: vi.fn().mockResolvedValue({ account: {} }),
+        }),
+      }),
     },
   }
 })
@@ -116,6 +125,11 @@ describe('account-page', () => {
             expect(applicationTabList).toBeTruthy()
             expect(applicationTabList.children.length).toBe(2)
           })
+
+          // The indexer reports no signature type for this account, so the row is not shown
+          await waitFor(() => expect(indexer.lookupAccountByID).toHaveBeenCalledWith(accountResult.address))
+          const informationCard = component.getByLabelText(accountInformationLabel)
+          expect(queryByDescriptionTerm(informationCard, accountSignatureTypeLabel)).toBeNull()
         }
       )
     })
@@ -213,6 +227,34 @@ describe('account-page', () => {
             const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
             expect(applicationTabList).toBeTruthy()
             expect(applicationTabList.children.length).toBe(2)
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account with a post-quantum signature type', () => {
+    const accountResult = accountResultMother['mainnet-DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU']().build()
+
+    it('should be rendered with the signature type', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountSignatureTypesAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp('pqsig' as const)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU' },
+                { term: accountSignatureTypeLabel, description: 'Post-Quantum' },
+              ],
+            })
           })
         }
       )
