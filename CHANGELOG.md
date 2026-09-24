@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.4.1...v2.5.0) (2026-09-24)
+
+### 🐛 Bug Fixes
+
+* **deps:** bump algokit-subscriber to ^3.4.0 to map the reject version of app calls ([5ef85ec](https://github.com/algorandfoundation/algokit-lora/commit/5ef85ec8df04f52183af18d991498b1d358f4484))
+* prevent the reject version from being set on application create transactions ([e561d8e](https://github.com/algorandfoundation/algokit-lora/commit/e561d8e77b46d11065ceb3951b514abb666bb8b1))
+
+### 🚀 Features
+
+* add 'lease' field to the transaction wizard ([b860e4a](https://github.com/algorandfoundation/algokit-lora/commit/b860e4a23a355e889484f621d55604a5e0f6d029))
+* add 'reject version' field to the transaction wizard and show the appliocation version ([8c0f3b2](https://github.com/algorandfoundation/algokit-lora/commit/8c0f3b2e2e9ba455827a322afbfa38955e3140c4))
+* add 'rekey to' field to the transaction wizard ([ed92043](https://github.com/algorandfoundation/algokit-lora/commit/ed92043c746a125590bb3d7ebb7eeff32da05cca))
+* show post quantum signature details on the transaction page ([f0e6605](https://github.com/algorandfoundation/algokit-lora/commit/f0e66052569ab2e4d64ebe6e69012ddef2a69829))
+* show the signature type on the account page ([ee48d34](https://github.com/algorandfoundation/algokit-lora/commit/ee48d3418fa1385cfab1e73c28b0c586cc385186))
+* support the v41/v42 block header fields (prev512, txn512, ld, ct) ([f8f1cb7](https://github.com/algorandfoundation/algokit-lora/commit/f8f1cb7315446a55ffd730c1d0f4e7829a2f2a06))
+
 ## [2.4.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.4.0...v2.4.1) (2026-09-10)
 
 ### 🐛 Bug Fixes
