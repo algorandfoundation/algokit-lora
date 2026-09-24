@@ -396,6 +396,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
@@ -451,6 +452,7 @@ const asMethodCallTransaction = (
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
@@ -495,6 +497,16 @@ const asNoteItem = (note?: string | Uint8Array) =>
         {
           dt: 'Note',
           dd: note,
+        },
+      ]
+    : []
+
+const asRejectVersionItem = (rejectVersion?: number) =>
+  rejectVersion
+    ? [
+        {
+          dt: 'Reject version',
+          dd: rejectVersion,
         },
       ]
     : []
@@ -798,6 +810,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
       dt: 'On complete',
       dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
     },
+    ...asRejectVersionItem(params.rejectVersion),
     {
       dt: 'Sender',
       dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,

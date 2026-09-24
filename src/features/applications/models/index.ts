@@ -12,6 +12,7 @@ export type Application = {
   name?: string
   account: string
   creator: string
+  version: number
   globalStateSchema?: ApplicationStateSchema
   localStateSchema?: ApplicationStateSchema
   approvalProgram: string

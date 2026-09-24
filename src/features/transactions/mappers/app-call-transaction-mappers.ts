@@ -91,6 +91,7 @@ const mapCommonAppCallTransactionProperties = (
         return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, abiMethodResolver, groupResolver)
       }) ?? [],
     onCompletion,
+    rejectVersion: transactionResult.applicationTransaction.rejectVersion || undefined,
     logs: transactionResult.logs?.map((l) => uint8ArrayToBase64(l)) ?? [],
     abiMethod,
   } satisfies BaseAppCallTransaction

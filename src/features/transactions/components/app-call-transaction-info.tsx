@@ -47,6 +47,7 @@ export const localStateDeltaTabLabel = 'Local State Delta'
 export const decodedAbiMethodTabLabel = 'ABI Method'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
+export const rejectVersionLabel = 'Reject Version'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
   const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
@@ -90,8 +91,9 @@ function AppCallDescriptionList({
         dt: onCompletionLabel,
         dd: transaction.onCompletion,
       },
+      ...(transaction.rejectVersion ? [{ dt: rejectVersionLabel, dd: transaction.rejectVersion }] : []),
     ],
-    [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.sender]
+    [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.rejectVersion, transaction.sender]
   )
   return <DescriptionList items={items} />
 }
