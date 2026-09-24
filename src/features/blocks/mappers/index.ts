@@ -5,6 +5,7 @@ import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { TransactionResult } from '@/features/transactions/data/types'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
   return {
@@ -39,5 +40,7 @@ export const asBlock = (
       })
     ),
     proposer: block.proposer,
+    load: block.load,
+    congestionTax: block.congestionTax ? microAlgos(block.congestionTax) : undefined,
   }
 }

@@ -35,6 +35,8 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
               nextProtocolSwitchOn: randomBigIntBetween(1n, 1000n),
             },
             proposer: randomString(52, 52),
+            load: randomBigIntBetween(1n, 1000n),
+            congestionTax: randomBigIntBetween(1n, 1000n),
           }
     )
   }

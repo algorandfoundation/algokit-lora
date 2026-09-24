@@ -9,6 +9,8 @@ import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
 import { blockResultsAtom, syncedRoundAtom } from '../data'
 import {
+  congestionTaxLabel,
+  loadLabel,
   nextRoundLabel,
   previousRoundLabel,
   proposerLabel,
@@ -137,6 +139,45 @@ describe('block-page', () => {
                   { term: previousRoundLabel, description: (block.round - 1n).toString() },
                   { term: nextRoundLabel, description: (block.round + 1n).toString() },
                   { term: proposerLabel, description: block.proposer ?? '' },
+                ],
+              })
+            )
+            const transactionsRow = getAllByRole(component.container, 'row')[1]
+            expect(transactionsRow.textContent).toBe(NO_RESULTS_TABLE_MESSAGE)
+          }
+        )
+      })
+    })
+
+    describe('and has a load and congestion tax', () => {
+      const block = blockResultMother
+        .blockWithoutTransactions()
+        .withRound(1645n)
+        .withTimestamp(1724943091)
+        .withLoad(123456n)
+        .withCongestionTax(2000n)
+        .build()
+
+      it('should be rendered with the correct data', () => {
+        vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
+        const myStore = createStore()
+        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
+        myStore.set(syncedRoundAtom, block.round + 1n)
+
+        return executeComponentTest(
+          () => render(<BlockPage />, undefined, myStore),
+          async (component) => {
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 August 2024 14:51:31' },
+                  { term: transactionsLabel, description: '0' },
+                  { term: previousRoundLabel, description: (block.round - 1n).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1n).toString() },
+                  { term: loadLabel, description: '0.123456' },
+                  { term: congestionTaxLabel, description: '0.002' },
                 ],
               })
             )
