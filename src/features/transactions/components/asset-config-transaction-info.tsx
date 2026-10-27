@@ -8,8 +8,7 @@ import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
 import { formatDecimalAmount } from '@/utils/number-format'
 import { transactionSenderLabel } from './labels'
-import { replaceIpfsWithGatewayIfNeeded } from '@/features/assets/utils/replace-ipfs-with-gateway-if-needed'
-import { addHttpsSchemeIfNeeded } from '@/features/assets/utils/add-https-scheme-if-needed'
+import { getAssetUrlHref } from '@/features/assets/utils/get-asset-url-href'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
@@ -27,6 +26,8 @@ export const assetClawbackLabel = 'Clawback'
 export const assetDefaultFrozenLabel = 'Default Frozen'
 
 export function AssetConfigTransactionInfo({ transaction }: Props) {
+  const assetUrlHref = transaction.url ? getAssetUrlHref(transaction.url, transaction.reserve) : undefined
+
   const subType = transaction.subType
   const items = useMemo(
     () =>
@@ -42,15 +43,17 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
         transaction.url
           ? {
               dt: assetUrlLabel,
-              dd: (
+              dd: assetUrlHref ? (
                 <a
-                  href={addHttpsSchemeIfNeeded(replaceIpfsWithGatewayIfNeeded(transaction.url))}
+                  href={assetUrlHref}
                   className={cn('text-primary underline')}
                   rel="nofollow noopener noreferrer"
                   target="_blank"
                 >
                   {transaction.url}
                 </a>
+              ) : (
+                transaction.url
               ),
             }
           : undefined,
@@ -121,6 +124,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       transaction.total,
       transaction.unitName,
       transaction.url,
+      assetUrlHref,
     ]
   )
 

@@ -38,10 +38,9 @@ import { AssetTransactionHistory } from './asset-transaction-history'
 import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
-import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
+import { getAssetUrlHref } from '../utils/get-asset-url-href'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
-import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
 
 type Props = {
   asset: Asset
@@ -52,6 +51,8 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
+  const assetUrlHref = asset.url ? getAssetUrlHref(asset.url, asset.reserve) : undefined
+
   const formatAssetAmount = useCallback(
     (amount: bigint | number) => {
       const value = new Decimal(amount.toString()).div(new Decimal(10).pow(asset.decimals))
@@ -112,15 +113,17 @@ export function AssetDetails({ asset }: Props) {
       asset.url
         ? {
             dt: assetUrlLabel,
-            dd: (
+            dd: assetUrlHref ? (
               <a
-                href={addHttpsSchemeIfNeeded(replaceIpfsWithGatewayIfNeeded(asset.url))}
+                href={assetUrlHref}
                 className={cn('text-primary underline')}
                 rel="nofollow noopener noreferrer"
                 target="_blank"
               >
                 {asset.url}
               </a>
+            ) : (
+              asset.url
             ),
           }
         : undefined,
@@ -135,6 +138,7 @@ export function AssetDetails({ asset }: Props) {
       asset.decimals,
       asset.defaultFrozen,
       asset.url,
+      assetUrlHref,
       asset.circulatingSupply,
       formatAssetAmount,
     ]

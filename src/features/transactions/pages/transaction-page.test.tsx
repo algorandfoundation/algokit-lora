@@ -1191,6 +1191,24 @@ describe('transaction-page', () => {
     })
   })
 
+  it('resolves an ARC-19 creation URL using the reserve in that transaction', () => {
+    const transaction = transactionResultMother['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']().build()
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+    return executeComponentTest(
+      () => render(<TransactionPage />, undefined, myStore),
+      async (component) => {
+        await waitFor(() => {
+          expect(component.getByRole('link', { name: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' })).toHaveAttribute(
+            'href',
+            'https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi'
+          )
+        })
+      }
+    )
+  })
+
   describe('when rendering an asset config reconfigure transaction', () => {
     const transaction = transactionResultMother['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']().build()
 

@@ -282,6 +282,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' },
               ],
             })
+            expect(component.getByRole('link', { name: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' })).toHaveAttribute(
+              'href',
+              `${ipfsGatewayUrl}bafkreidt263gwlss4t5kdg6tekxhlxsedb42l5ntvt5mzbv5jywzrzk2ku`
+            )
 
             const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
@@ -471,6 +475,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
               ],
             })
+            expect(component.getByRole('link', { name: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' })).toHaveAttribute(
+              'href',
+              `${ipfsGatewayUrl}bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi`
+            )
 
             const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
@@ -586,6 +594,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
               ],
             })
+            expect(component.getByRole('link', { name: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' })).toHaveAttribute(
+              'href',
+              `${ipfsGatewayUrl}bafkreihwm3mg4t4bgdvsf6j4epr4v7qwmuhbk6dv3qt3kmtmmm7uagrji4`
+            )
 
             const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
@@ -994,6 +1006,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}' },
               ],
             })
+            expect(component.getByRole('link', { name: 'template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}' })).toHaveAttribute(
+              'href',
+              `${ipfsGatewayUrl}QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd`
+            )
 
             const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
